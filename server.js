@@ -1,3 +1,8 @@
+// npm i express bcrypt
+// npm i --save-dev nodemon
+// install vs code ext rest client
+
+
 const express = require('express')
 const app = express()
 const bcrypt = require('bcrypt')

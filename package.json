@@ -1,18 +1,25 @@
 {
-  "name": "fyp-24-s2-05",
+  "name": "fyp",
   "version": "1.0.0",
-  "description": "This is the fyp project file for group FYP-24-S2-05.",
   "main": "index.js",
   "scripts": {
-    "devStart" : "nodemon server.js"
-    
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "index.js"
   },
-  "keywords": [],
-  "author": "",
+  "author": "tsy",
   "license": "ISC",
+  "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
+    "formidable": "^3.5.1",
+    "googleapis": "^137.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.4",
+    "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.0"
   }
 }

@@ -7,8 +7,13 @@ POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-    "name": "Kyle", 
-    "password": "password"
+
+  "email": "user@example.com",
+  "username": "exampleuser",
+  "password": "password123",
+  "role": "user",
+  "planid": 1
+
 
 }
 
@@ -19,7 +24,7 @@ Content-Type: application/json
 
 {
 
-    "name": "Kyle", 
+    "username": "Kyle", 
     "password": "password"
 
 }

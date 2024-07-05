@@ -6,47 +6,73 @@
 const express = require('express')
 const app = express()
 const bcrypt = require('bcrypt')
+const mysql = require('mysql2/promise')
 
 app.use(express.json())
 
-// user database
-const users = []
+// create a new MySQL connection
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'Poopedy11_',
+  database: 'fyp_database',
+}).promise();
 
-app.get('/users', (req, res) => {
-    res.json(users)
+// Middleware to validate user input
+function validateUserInput(req, res, next) {
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required.' });
+  }
+  next();
+}
+
+// // Fetch all users (for testing purposes, not recommended for production)
+app.get('/users', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT username FROM users')
+    res.json(rows)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
-// post username and password from frontend, create user
-app.post('/users', async (req, res) => {
-    try {
-      const salt = await bcrypt.genSalt()
-      const hashedPassword = await bcrypt.hash(req.body.password, salt)
-      const user = { name: req.body.name, password: hashedPassword }
-      users.push(user)
-      res.status(201).send()
-    } catch {
-      res.status(500).send()
-    }
-  })
+// Register a new user
+app.post('/users', validateUserInput, async (req, res) => {
+  try {
+    const { email, username, password, role, planid } = req.body;
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-  // user login taking in username and password
-app.post('/users/login', async (req, res) => {
-    // check if user exist in db
-    const user = users.find(user => user.name === req.body.name)
-    if (user == null) {
-        return res.status(400).send('Cannot find user')
+    const sql = 'INSERT INTO users (email, username, password, role, planid) VALUES (?, ?, ?, ?, ?)';
+    await pool.query(sql, [email, username, hashedPassword, role, planid]);
+
+    res.status(201).json({ message: 'User registered successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// User login
+app.post('/users/login',validateUserInput, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [req.body.username])
+    const user = rows[0]
+
+    if (!user) {
+      return res.status(400).send('Cannot find user')
     }
-    try {
-        // compare pw from post with db, user is from db
-        if(await bcrypt.compare(req.body.password, user.password)) {
-        res.send('Success')
-        } else {
-        res.send('Not Allowed')
-        }
-    } catch {
-        res.status(500).send()
+
+    if (await bcrypt.compare(req.body.password, user.password)) {
+      res.send('Success')
+    } else {
+      res.send('Not Allowed')
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
 })
 
-
-app.listen(3000)
+app.listen(3000, () => {
+  console.log('Server is running on port 3000')
+}) 

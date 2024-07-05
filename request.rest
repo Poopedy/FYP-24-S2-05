@@ -3,9 +3,8 @@
 GET http://localhost:3000/users/ HTTP/1.1
 
 ###
-POST http://localhost:3000/users 
+POST http://localhost:3000/createuser HTTP/1.1
 Content-Type: application/json
-
 {
 
   "email": "user@example.com",
@@ -14,14 +13,12 @@ Content-Type: application/json
   "role": "user",
   "planid": 1
 
-
 }
 
 ###
 
-POST http://localhost:3000/users/login 
+POST http://localhost:3000/userlogin HTTP/1.1
 Content-Type: application/json
-
 {
 
     "username": "Kyle", 

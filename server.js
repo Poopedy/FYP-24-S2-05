@@ -2,31 +2,72 @@
 // npm i --save-dev nodemon
 // install vs code ext rest client
 
+const express = require('express');
+const bodyParser = require('body-parser');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const db = require('./config/db');
 
-const express = require('express')
-const app = express()
-const bcrypt = require('bcrypt')
-const mysql = require('mysql2/promise')
-const bodyParser = require('body-parser')
+const app = express();
 
-app.use(express.json())
-app.use(bodyParser.json())
-// create a new MySQL connection
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'Poopedy11_',
-  database: 'fyp_database'
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+const secret = 'fyp_jwt'; // Use a secure secret for JWT
+
+// test
+
+app.post('/usertest', async (req, res) => {
+    console.log(req.body);
+    res.send(req.body)
+  });
+
+// end test
+
+// get all users for testing
+app.get('/users', async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM users')
+    res.json(rows)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Login Route
+app.post('/users/login', async (req, res) => {
+  const { username , password  } = req.body;
+  
+  if (!username || !password) {
+      return res.status(400).json({ message: 'Username and password are required' });
+  }
+
+  try {
+      const [rows] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+      
+      if (rows.length === 0) {
+        
+          return res.status(401).json({ message: 'Invalid username or password' });
+      }
+
+      const user = rows[0];
+      
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        
+        return res.status(401).json({ message: 'Invalid username or password' });
+      }
+
+      const token = jwt.sign({ id: user.UID, username: user.username }, secret, { expiresIn: '1h' });
+
+      res.json({ token });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+  }
 });
 
-// connect to MySql
-// pool.connect((err) => {
-//   if (err) {
-//     console.error('Error connecting to MySql: ' + err.stack);
-//     return;
-//   }
-//   console.log('Connect to MySql as ID' + pool.threadID);
-// });
+
 
 // Middleware to validate user input
 // function validateUserInput(req, res, next) {
@@ -43,21 +84,19 @@ const pool = mysql.createPool({
 // }
 
 // // Fetch all users (for testing purposes, not recommended for production)
-app.get('/users', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT username FROM users')
-    res.json(rows)
-  } catch (err) {
-    res.status(500).json({ error: err.message })
-  }
-})
+
 
 // Register a new user
-app.post('/createuser', async (req, res) => {
+app.post('/users/register', async (req, res) => {
   try {
+    
+    
     const { email, username, password, role, planid } = req.body;
     // Log incoming data
-    console.log(`Received data: ${JSON.stringify(req.body)}`);
+    if (password == null){
+      return res.status(400).json({ error: 'Password is null.' });
+    }
+    
     // Check that password is provided
     if (!password) {
       return res.status(400).json({ error: 'Password is required.' });
@@ -68,34 +107,15 @@ app.post('/createuser', async (req, res) => {
     console.log(`Hashed password: ${hashedPassword}`);
 
     const sql = 'INSERT INTO users (email, username, password, role, planid) VALUES (?, ?, ?, ?, ?)';
-    await pool.query(sql, [email, username, hashedPassword, role, planid]);
-    console.log(`Insert result: ${JSON.stringify(result)}`);
+    await db.query(sql, [email, username, hashedPassword, role, planid]);
+    console.log(`Insert result: ${JSON.stringify(sql)}`);
     res.status(201).json({ message: 'User registered successfully.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// User login
-app.post('/userlogin', async (req, res) => {
-  try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [req.body.username])
-    const user = rows[0]
-
-    if (!user) {
-      return res.status(400).send('Cannot find user')
-    }
-
-    if (await bcrypt.compare(req.body.password, user.password)) {
-      res.send('Success')
-    } else {
-      res.send('Not Allowed')
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message })
-  }
-})
-
+// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

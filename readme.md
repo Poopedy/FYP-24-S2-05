@@ -23,3 +23,5 @@ sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
 
 GRANT ALL PRIVILEGES ON CIPHERLINK.* TO 'root'@'%' IDENTIFIED BY 'poopedy11_';
 FLUSH PRIVILEGES;
+
+sudo systemctl restart myapp.service

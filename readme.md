@@ -25,3 +25,13 @@ GRANT ALL PRIVILEGES ON CIPHERLINK.* TO 'root'@'%' IDENTIFIED BY 'poopedy11_';
 FLUSH PRIVILEGES;
 
 sudo systemctl restart myapp.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable myapp.service
+sudo systemctl start myapp.service
+
+sudo systemctl enable react-frontend.service
+sudo systemctl start react-frontend.service
+
+sudo systemctl status node-backend.service
+sudo systemctl status react-frontend.service

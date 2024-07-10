@@ -5,8 +5,8 @@ const User = {
         const sql = 'INSERT INTO users (email, username, password, role, planid) VALUES (?, ?, ?, ?, ?)';
         await db.query(sql, [data.email, data.username, data.password, data.role, data.planid]);
     },
-    findByUsername: async (username) => {
-        const [rows] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
+    findByEmail: async (email) => {
+        const [rows] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
         return rows[0];
     },
     getAll: async () => {

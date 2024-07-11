@@ -7,13 +7,7 @@ rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
 
 rsync -avz /mnt/c/Users/Bryan/Documents/GitHub/FYP-24-S2-05 ~/fyp/cipherlink
 
-CREATE DATABASE cipherlink;
-CREATE USER 'fyp_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'fyp_password!';
-GRANT ALL PRIVILEGES ON cipherlink.* TO 'fyp_user'@'localhost';
-
 rsync -avz /mnt/c/Users/Bryan/Desktop/FYP Project/MySQL/fyp_database.sql ~/fyp/sql
-
-"C:\Users\Bryan\Desktop\FYP Project\MySql\FYP_DB.sql"
 
 ssh -i ~/fyp/pems/Singapore-fyp-ayam.pem ubuntu@ec2-3-208-12-11.compute-1.amazonaws.com
 

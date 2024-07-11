@@ -35,3 +35,5 @@ sudo systemctl start react-frontend.service
 
 sudo systemctl status node-backend.service
 sudo systemctl status react-frontend.service
+
+mysqldump -u root -p fyp_database > fyp_database.sql

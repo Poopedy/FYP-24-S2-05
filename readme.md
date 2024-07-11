@@ -15,7 +15,7 @@ rsync -avz /mnt/c/Users/Bryan/Desktop/FYP Project/MySQL/fyp_database.sql ~/fyp/s
 
 "C:\Users\Bryan\Desktop\FYP Project\MySql\FYP_DB.sql"
 
-ssh -i ~/fyp/pems/Singapore-fyp-ayam.pem ubuntu@ec2-54-173-173-26.compute-1.amazonaws.com
+ssh -i ~/fyp/pems/Singapore-fyp-ayam.pem ubuntu@ec2-3-208-12-11.compute-1.amazonaws.com
 
 rsync -avz -e "ssh -i ~/fyp/pems/Singapore-fyp-ayam.pem" fyp_database.sql ubuntu@ec2-54-173-173-26.compute-1.amazonaws.com:/~/sql
 

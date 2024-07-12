@@ -1,0 +1,186 @@
+.user-cloud-service-upgrade {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+  .sidebar {
+    font-size: 1.2em;
+    width: 20%;
+    background-color: #f0e6ff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .logoUser {
+    display: flex;
+    align-items: center;
+  }
+
+  .logoUser p {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    margin-left: 10px;
+  }
+
+  .user-cloud-service-upgrade .userActive {
+    color: #7410d8;
+  }
+
+  .user-cloud-service-upgrade .userNotActive {
+    color: #000000;
+  }
+
+  .user-cloud-service-upgrade .userActive a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #5b0caa;
+  }
+
+  .user-cloud-service-upgrade .userNotActive a:hover {
+    color: #5c0cac;
+    text-decoration: underline;
+  }
+
+  .user-cloud-service-upgrade .userNotActive a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #000000;
+  }
+
+  .sidebar nav ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .sidebar nav ul li {
+    margin: 10px 0;
+  }
+
+  .sidebar nav ul li.active {
+    font-weight: bold;
+  }
+
+  .settings-logout {
+    margin-top: auto;
+  }
+
+  .settings-logout div {
+    margin: 10px 0;
+  }
+
+  .main-content-upgrade {
+    width: 80%;
+    padding: 20px;
+  }
+
+  .main-content-upgrade h2 {
+    margin-top: 100px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .welcome {
+    font-size: 1.5em;
+  }
+
+  .user-upgrade-cloud-service {
+    margin-top: 20px;
+  }
+
+  .user-upgrade-cloud-service h2 {
+    margin-bottom: 20px;
+  }
+
+  .activity-chart img {
+    height: 300px;
+    background-color: #F9F4FF;
+    text-align: center;
+    margin-left:20px;
+    flex: 2;
+  }
+
+  .services-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 125px;
+  }
+
+  .service-google img {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 200px;
+    display: block;
+    margin: 0 auto 10px;
+  }
+
+  .service-onedrive img {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 200px;
+    display: block;
+    margin: 0 auto 10px;
+  }
+
+  .service-dropbox img {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 200px;
+    display: block;
+    margin: 0 auto 10px;
+  }
+
+  .upgrade-plans {
+    margin-top: -80px;
+    display: flex;
+    justify-content: space-around;
+    padding: 100px 180px;
+  }
+  
+  .upgrade-plan {
+    background-color: #F1E4FF;
+    padding: 20px;
+    border: 1px solid #000000;
+    font-size: 1.1em;
+    text-align: center;
+  }
+  
+  .upgrade-plan h4 {
+    font-size: 1.5em;
+  }
+  
+  .upgrade-plan ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .upgrade-plan ul li {
+    margin: 10px 0;
+  }
+  
+  .upgrade-plan .upgrade-button {
+    padding: 20px 120px;
+    background-color: #d3aefe;
+    color: rgb(0, 0, 0);
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  .upgrade-plan .upgrade-button:hover {
+    background-color: #B574FF;
+  }
+
+

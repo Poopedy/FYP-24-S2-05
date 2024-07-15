@@ -1,0 +1,161 @@
+.user-payment {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .sidebar {
+    font-size: 1.2em;
+    width: 20%;
+    background-color: #f0e6ff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .logoUser {
+    display: flex;
+    align-items: center;
+  }
+
+  .logoUser p {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    margin-left: 10px;
+  }
+
+  .user-payment .userActive{
+    color: #7410d8;
+  }
+
+  .user-payment .userNotActive{
+    color: #000000;
+  }
+
+  .user-payment .userActive a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #5b0caa;
+  }
+
+  .user-payment .userNotActive a:hover {
+    color: #5c0cac;
+    text-decoration: underline;
+  }
+
+  .user-payment .userNotActive a {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #000000;
+  }
+
+  .sidebar nav ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .sidebar nav ul li {
+    margin: 10px 0;
+  }
+
+  .sidebar nav ul li.active {
+    font-weight: bold;
+  }
+
+  .settings-logout {
+    margin-top: auto;
+  }
+
+  .settings-logout div {
+    margin: 10px 0;
+  }
+
+  .main-content-payment {
+    width: 80%;
+    padding: 20px;
+  }
+
+  .main-content-payment h2 {
+    margin-top: 100px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .welcome {
+    font-size: 1.5em;
+  }
+
+  .user-make-payment {
+    margin-top: 20px;
+  }
+
+  .user-make-payment h2 {
+    margin-bottom: 20px;
+  }
+
+  .user-make-payment form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-make-payment label {
+    margin-top: 5px;
+    display: flex;
+    align-self: center;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+
+  .user-make-payment input {
+    flex: 1;
+    margin-left: 5px;
+    background: #fdfdfd;
+    border: 2px solid rgba(3, 3, 3, 0.2);
+    outline: none;
+    border-radius: 40px;
+    font-size: 16px;
+    color: #221f25;
+    padding: 10px 60px 10px 20px;
+  }
+
+  .user-make-payment .input-readOnly {
+    flex: 1;
+    margin-left: 5px;
+    background: #c3b8c5;
+    border: 2px solid rgba(3, 3, 3, 0.2);
+    outline: none;
+    border-radius: 40px;
+    font-size: 16px;
+    color: #221f25;
+    padding: 10px 60px 10px 20px;
+  }
+
+  .user-make-payment .form-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
+  .user-make-payment .form-buttons .back, .proceed {
+    background-color: #d3a6ff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+
+  .user-make-payment .form-buttons .back:hover, .proceed:hover {
+    background-color: #B574FF;
+  }
+
+  .user-make-payment .form-buttons .back, .proceed {
+    margin-right: 10px;
+  }
+
+  .user-make-payment input::placeholder{
+    color: #3a3737;
+  }

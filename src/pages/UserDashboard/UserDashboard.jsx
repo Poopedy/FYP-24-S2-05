@@ -7,6 +7,8 @@ import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
 import { Link, useNavigate } from 'react-router-dom';
+import encryptFile from '../../../models/encryptionModel';
+//import decryptFile from '../../../models/decryptionModel';
 import './UserDashboard.css';
 
 const UserDashboard = () => {
@@ -20,6 +22,8 @@ const UserDashboard = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
+
+  
   if (code) {
     // Now send a POST request to your backend to exchange the code for a token
 
@@ -124,10 +128,13 @@ const UserDashboard = () => {
         alert('User not authenticated!');
         return;
       }
+
+      const { encryptedBlob, iv } = await encryptFile(file);
   
       const formData = new FormData();
       console.log("File to be uploaded:", file);
-      formData.append('file', file);
+      formData.append('file', encryptedBlob, file.name); // Append the encrypted file
+      formData.append('iv',  Array.from(iv).join(',')); // Convert IV to string for transmission
       formData.append('token', JSON.stringify(token));
   
       const response = await fetch('http://localhost:5000/api/fileUpload', {
@@ -199,6 +206,29 @@ const UserDashboard = () => {
       });
   }
 
+  async function getDropboxToken() {
+    try {
+        const response = await fetch('http://localhost:5000/api/dropbox/get-token', {
+            method: 'GET',
+            credentials: 'include' // This ensures cookies are sent with the request
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Dropbox Token:', data.token);
+            // Now you can use the token as needed
+            return data.token; // Return the token if needed
+        } else {
+            console.error('Failed to fetch token:', response.statusText);
+            return null; // Return null if the request failed
+        }
+    } catch (error) {
+        console.error('Error fetching token:', error);
+        return null; // Return null if an error occurred
+    }
+}
+
+
   function connectDB() {
     console.log("Connecting to Dropbox");
     fetch('http://localhost:5000/api/dropbox/authorize')
@@ -212,7 +242,8 @@ const UserDashboard = () => {
             console.log("Redirecting to Dropbox authorization page:", data.authUrl);
             window.location.href = data.authUrl; // Redirect user to Dropbox OAuth2 consent page
         })
-        .catch(error => console.error('Error fetching Dropbox authorization URL:', error));
+        .catch(error => console.error('Error fetching Dropbox authorization URL:', error));  
+        console.log("HELLO WORLD");  
 }
 
   const handleRemoveFile = (fileToRemove) => {
@@ -246,7 +277,7 @@ const UserDashboard = () => {
           <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
           
           <button className="upload-button" onClick={fetchFilesFromDrive}>fetchFilesFromDrive</button>
-          <button className="upload-button" onClick={uploadFileToDropbox}>Upload</button>
+          <button className="upload-button" onClick={uploadFile}>Upload</button>
         </div>
         <table>
           <thead>

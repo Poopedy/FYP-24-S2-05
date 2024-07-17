@@ -2,6 +2,8 @@ This is the fyp project file for group FYP-24-S2-05.
 
 Instructions:
 
+run npm install if running on different operating devices
+
 rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
 -e "ssh -i ~/fyp/pems/Singapore-fyp-ayam.pem" ~/fyp/cipherlink/FYP-24-S2-05 ubuntu@ec2-54-173-173-26.compute-1.amazonaws.com:~/cipherlink
 

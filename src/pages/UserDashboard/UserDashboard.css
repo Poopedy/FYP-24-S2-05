@@ -124,13 +124,6 @@
   text-align: center;
 }
 
-.upload-button {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #e0e0ff;
-  border: none;
-  cursor: pointer;
-}
 
 .user-file table {
   margin-top: 20px;
@@ -138,8 +131,7 @@
   border-collapse: collapse;
 }
 
-.user-file th,
-td {
+.user-file th, td {
   border: 1px solid #ddd;
   padding: 10px;
   text-align: left;
@@ -174,7 +166,6 @@ td {
 .user-file .remove-button:hover {
   background-color: #B574FF;
 }
-
 
 .right-sidebar {
   width: 15%;
@@ -231,4 +222,140 @@ td {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.tabs {
+  display: flex;
+  justify-content: flex-start; 
+  margin-top: 20px;
+  background-color: #f0e6ff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tabs .tab-button {
+  flex: 1;
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #cdb1f7;
+  cursor: pointer;
+  border: rgb(138, 132, 131);
+  transition: background-color 0.3s;
+}
+
+.tabs .add-tab-button {
+  flex: 0 0 auto;
+  width: auto; 
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #cdb1f7;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-right: 2px;
+}
+
+.tabs .remove-tab-button {
+  flex: 1;
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #cdb1f7;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-right: 2px;
+}
+
+.tabs button:hover {
+  background-color: #c797fd;
+}
+
+.tabs button.active {
+  background-color: #c797fd;
+  color: #fff;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.search-bar input[type="text"] {
+  padding: 10px;
+  width: 300px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.search-bar button {
+  padding: 10px 20px;
+  background-color: #d3a6ff;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.search-bar button:hover {
+  background-color: #B574FF;
+}
+
+.modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  z-index: 1000; /* Ensure the modal is on top of other elements */
+}
+
+.modal {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px; /* Adjust the width as needed */
+  max-width: 100%;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.modal h3 {
+  margin-bottom: 15px;
+  font-size: 1.2em;
+}
+
+.modal button {
+  display: block;
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px 15px;
+  background-color: #d3a6ff;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal button:hover {
+  background-color: #B574FF;
+}
+
+.modal input[type="password"] {
+  padding: 10px;
+  width: 250px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-size: 16px;
 }

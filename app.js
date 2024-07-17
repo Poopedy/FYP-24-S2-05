@@ -8,7 +8,7 @@ const cors = require('cors'); // Import CORS middleware
 const app = express();
 
 // Set up multer for parsing form-data
-//const upload = multer();
+const upload = multer();
 
 // Enable CORS for all routes
 app.use(cors());

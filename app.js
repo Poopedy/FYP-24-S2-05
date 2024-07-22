@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const userRoutes = require('./routes/userRoutes');
 const cors = require('cors'); // Import CORS middleware
-
+const dropboxRoutes = require('./routes/dropboxroute');
 const app = express();
 
 // Set up multer for parsing form-data
@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(upload.none());
 
 app.use('/api', userRoutes);
-
+app.use('/api/dropbox', dropboxRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

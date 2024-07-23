@@ -46,3 +46,7 @@ rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
 rsync -avz -e "ssh -i SG-FYP-MAC.pem"  fyp_database.sql ubuntu@ec2-54-179-174-127.ap-southeast-1.compute.amazonaws.com:~/db
 
 rsync -avz -e "ssh -i SG-FYP-MAC.pem"  /Users/bryan/Documents/GitHub/FYP-24-S2-05/dist ubuntu@ec2-54-179-174-127.ap-southeast-1.compute.amazonaws.com:~/react
+
+
+/home/ubuntu/cipherlink/FYP-24-S2-05
+/usr/bin/npm run devStart

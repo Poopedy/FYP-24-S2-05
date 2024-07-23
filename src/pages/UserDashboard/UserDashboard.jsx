@@ -1,22 +1,27 @@
-import { gapi } from 'gapi-script';
 import React, { useEffect, useRef, useState } from 'react';
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaLock, FaUnlock } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 import './UserDashboard.css';
 
 const UserDashboard = () => {
+  const [tabs, setTabs] = useState([]);
   const [googleDriveFiles, setGoogleDriveFiles] = useState([]);
   const [oneDriveFiles, setOneDriveFiles] = useState([]);
   const [dropboxFiles, setDropboxFiles] = useState([]);
   const [file, setFile] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [activeTab, setActiveTab] = useState('Google Drive');
+  const [activeTab, setActiveTab] = useState('');
   const fileInputRef = useRef(null);
+  const [isLocked, setIsLocked] = useState(true);
+  const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
+  const [inputPassphrase, setInputPassphrase] = useState('');
 
   const handleFileChange = (event) => {
     const uploadedFile = event.target.files[0];
@@ -39,7 +44,7 @@ const UserDashboard = () => {
   };
 
   const handleUploadClick = () => {
-    if (fileInputRef.current) {
+    if (!isLocked && fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
@@ -65,16 +70,24 @@ const UserDashboard = () => {
   };
 
   const renderContent = () => {
-    const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
+    let files = [];
+    if (activeTab === 'Google Drive') files = googleDriveFiles;
+    else if (activeTab === 'OneDrive') files = oneDriveFiles;
+    else if (activeTab === 'Dropbox') files = dropboxFiles;
+
     return (
       <>
         <h2>{activeTab} Files</h2>
         <div className="upload-container">
           <input type="file" id="file-upload" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
           <label htmlFor="file-upload" className="upload-area">
-            Drag and drop files, browse or click the upload button
+            Click the upload button and browse your files
           </label>
-          <button className="upload-button" onClick={handleUploadClick}>Upload</button>
+          <button className="upload-button" onClick={handleUploadClick} disabled={isLocked}>Upload</button>
+        </div>
+        <div className="search-bar">
+            <input type="text" placeholder="Search your files..." />
+            <button>Search</button>
         </div>
         <table>
           <thead>
@@ -103,6 +116,40 @@ const UserDashboard = () => {
     );
   };
 
+  const handleAddTab = (tabName) => {
+    if (tabs.includes(tabName)) {
+      alert(`Tab for ${tabName} already exists.`);
+      return;
+    }
+    setTabs(prevTabs => [...prevTabs, tabName]);
+    setActiveTab(tabName);
+  };
+
+  const handleRemoveTab = (tabName) => {
+    setTabs(prevTabs => prevTabs.filter(tab => tab !== tabName));
+    if (activeTab === tabName) {
+      setActiveTab(tabs.length > 0 ? tabs[0] : '');
+    }
+  };
+
+  const handleLockToggle = () => {
+    if (isLocked) {
+      setShowPassphrasePopup(true);
+    } else {
+      setIsLocked(true);
+    }
+  };
+
+  const handlePassphraseSubmit = () => {
+    if (inputPassphrase === "1234!A") {
+      setIsLocked(false);
+      setShowPassphrasePopup(false);
+      setInputPassphrase('');
+    } else {
+      alert("Incorrect passphrase!");
+    }
+  };
+
   return (
     <div className="user-dashboard">
       <Sidebar />
@@ -112,23 +159,50 @@ const UserDashboard = () => {
             <FaUser style={{ marginRight: '10px' }} />
             Welcome, User
           </div>
-          <div className="search-bar">
-            <input type="text" placeholder="Search your files..." />
-            <button>Search</button>
+          <div className="lock-toggle" onClick={handleLockToggle}>
+            {isLocked ? <FaLock /> : <FaUnlock />}
           </div>
         </header>
         <div className="tabs">
-          <button className={activeTab === 'Google Drive' ? 'active' : ''} onClick={() => setActiveTab('Google Drive')}>Google Drive</button>
-          <button className={activeTab === 'OneDrive' ? 'active' : ''} onClick={() => setActiveTab('OneDrive')}>OneDrive</button>
-          <button className={activeTab === 'Dropbox' ? 'active' : ''} onClick={() => setActiveTab('Dropbox')}>Dropbox</button>
+          {tabs.map(tab => (
+            <div key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`}>
+              <button className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
+              <button className="remove-tab-button" onClick={() => handleRemoveTab(tab)}>x</button>
+            </div>
+          ))}
+          <Popup trigger={<button className="add-tab-button">+</button>} modal className="popup-modal">
+            {close => (
+              <div className="modal-container">
+                <div className="modal">
+                  <h3>Select Cloud Service</h3>
+                  <button onClick={() => { handleAddTab('Google Drive'); close(); }}>Google Drive</button>
+                  <button onClick={() => { handleAddTab('OneDrive'); close(); }}>OneDrive</button>
+                  <button onClick={() => { handleAddTab('Dropbox'); close(); }}>Dropbox</button>
+                  <button onClick={close}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </Popup>
         </div>
         <div className="content-wrapper">
           <section className="user-file">
-            {renderContent()}
+            {activeTab ? renderContent() : <p>Please add a tab and select a cloud service.</p>}
           </section>
           <RightSidebar file={selectedFile} />
         </div>
       </div>
+      {showPassphrasePopup && (
+        <Popup open={showPassphrasePopup} closeOnDocumentClick onClose={() => setShowPassphrasePopup(false)} modal>
+          <div className="modal-container">
+            <div className="modal">
+              <h3>Enter Passphrase</h3>
+              <input type="password" value={inputPassphrase} onChange={(e) => setInputPassphrase(e.target.value)} />
+              <button onClick={handlePassphraseSubmit}>Submit</button>
+              <button onClick={() => setShowPassphrasePopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </Popup>
+      )}
     </div>
   );
 };

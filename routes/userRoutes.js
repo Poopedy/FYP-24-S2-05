@@ -16,7 +16,7 @@ const SCOPE = ['https://www.googleapis.com/auth/drive.metadata.readonly https://
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.get('/', userController.getAllUsers);
-router.post('/usertest', userController.userTest);
+router.post('/usertest', userController.userTest);  
 
 router.get('/', (req, res) => res.send(' API Running'));
 router.get('/userdashboard', (req, res) => {

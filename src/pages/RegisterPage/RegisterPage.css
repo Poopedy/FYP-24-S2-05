@@ -17,6 +17,7 @@
 .logoRegister {
   display: flex;
   align-items: center;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .menu a {

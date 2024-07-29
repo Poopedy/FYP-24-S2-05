@@ -34,36 +34,39 @@ function HomePage() {
 
       <section className="plans">
         <div className="plan">
-          <h4>FREEMIUM</h4>
-          <p>10 GB Free</p>
-          <p>SGD 0.00</p>
-          <p>for a lifetime</p>
-          <button>Get started</button>
-          <ul>
-            <li>- Basic encryption</li>
-            <li>- Connect 1 cloud service</li>
-          </ul>
-        </div>
-        <div className="plan">
-          <h4>STANDARD</h4>
-          <p>50 GB Free</p>
-          <p>SGD 10.00</p>
+          <h4>BASIC</h4>
+          <p style={{ fontSize: '1.3em' }}><b>FREE</b></p>
           <p>one-time purchase</p>
-          <button>Buy now</button>
+          <button>Choose</button>
           <ul>
-            <li>- Basic encryption</li>
-            <li>- Connect 2 or more cloud service</li>
+            <li>- 10GB File Transmission Size</li>
+            <li>- 2 Cloud Ports</li>
+            <li>- Allow File Size Add-ons</li>
+            <li>- Allow Cloud Ports Add-ons</li>
           </ul>
         </div>
         <div className="plan">
-          <h4>PREMIUM</h4>
-          <p>50 GB Free + Other Benefits</p>
-          <p>SGD 20.00</p>
-          <p>/ month</p>
-          <button>Buy now</button>
+          <h4 style={{ color: '#71706e' }}>SILVER</h4>
+          <p style={{ fontSize: '1.3em' }}><b>SGD 4.99</b></p>
+          <p>one-time purchase</p>
+          <button>Choose</button>
           <ul>
-            <li>- Enhanced security</li>
-            <li>- Convenient key management</li>
+            <li>- 20GB File Transmission Size</li>
+            <li>- 4 Cloud Ports</li>
+            <li>- Allow File Size Add-ons</li>
+            <li>- Allow Cloud Ports Add-ons</li>
+          </ul>
+        </div>
+        <div className="plan">
+          <h4 style={{ color: '#C59E01' }}>GOLD</h4>
+          <p style={{ fontSize: '1.3em' }}><b>SGD 9.99</b></p>
+          <p>one-time purchase</p>
+          <button>Choose</button>
+          <ul>
+            <li>- 50GB File Transmission Size</li>
+            <li>- 5 Cloud Ports</li>
+            <li>- Allow File Size Add-ons</li>
+            <li>- Allow Cloud Ports Add-ons</li>
           </ul>
         </div>
       </section>

@@ -52,7 +52,7 @@ const userController = {
                 email: user.email,
                 role: user.role,
             };
-
+            console.log(req.session.user);
             const { role } = user;
             const token = jwt.sign({ id: user.UID, username: user.username }, secret, { expiresIn: '1h' });
             res.json({ token, role: user.role, user: req.session.user });

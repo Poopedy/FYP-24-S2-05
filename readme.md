@@ -52,3 +52,5 @@ rsync -avz -e "ssh -i SG-FYP-MAC.pem"  /Users/bryan/Documents/GitHub/FYP-24-S2-0
 /usr/bin/npm run devStart
 
 npm install express-session connect-mysql-session
+npm install express-session connect-session-sequelize mysql2
+npm install express-mysql-session --save

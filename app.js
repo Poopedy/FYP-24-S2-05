@@ -6,7 +6,7 @@ const cors = require('cors'); // Import CORS middleware
 const dropboxRoutes = require('./routes/dropboxroute');
 const app = express();
 const session = require('express-session');
-const MySQLStore = require('connect-mysql-session')(session);
+const MySQLStore = require('express-mysql-session')(session);
 
 const dbOptions = {
     host: 'localhost',

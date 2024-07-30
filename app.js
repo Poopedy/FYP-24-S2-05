@@ -5,6 +5,29 @@ const userRoutes = require('./routes/userRoutes');
 const cors = require('cors'); // Import CORS middleware
 const dropboxRoutes = require('./routes/dropboxroute');
 const app = express();
+const session = require('express-session');
+const MySQLStore = require('connect-mysql-session')(session);
+
+const dbOptions = {
+    host: 'localhost',
+    user: 'root',
+    password: 'Poopedy11_',
+    database: 'fyp_database',
+    port: 3306,
+};
+
+const sessionStore = new MySQLStore(dbOptions);
+
+app.use(session({
+    key: 'user_sid',
+    secret: 'fyp11',
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 1000 * 60 * 60 // 1 hour
+    }
+}));
 
 // Set up multer for parsing form-data
 const upload = multer();

@@ -45,9 +45,17 @@ const userController = {
             if (!isMatch) {
                 return res.status(401).json({ message: 'Invalid password' });
             }
+
+            // Store user information in session
+            req.session.user = {
+                id: user.UID,
+                email: user.email,
+                role: user.role,
+            };
+
             const { role } = user;
             const token = jwt.sign({ id: user.UID, username: user.username }, secret, { expiresIn: '1h' });
-            res.json({ token, role: user.role });
+            res.json({ token, role: user.role, user: req.session.user });
 
         } catch (err) {
             res.status(500).json({ message: 'Server error' });
@@ -62,10 +70,57 @@ const userController = {
             res.status(500).json({ error: err.message });
         }
     },
+    getProfile: async (req, res) => {
+        if (!req.session.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const user = await User.findByEmail(req.session.user.email);
+        res.json(user);
+    },
 
     userTest: async (req, res) => {
         console.log(req.body);
         res.send(req.body);
+    },
+    createPassphrase: async (req, res) => {
+        try {
+            const { userId, passphrase } = req.body;
+            await User.createPassphrase(userId, passphrase);
+            res.status(201).json({ message: 'Passphrase created successfully.' });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    getPassphrase: async (req, res) => {
+        try {
+            const { userId } = req.params;
+            const passphrase = await User.getPassphraseByUserId(userId);
+            res.json(passphrase);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    updatePassphrase: async (req, res) => {
+        try {
+            const { userId, passphrase } = req.body;
+            await User.updatePassphrase(userId, passphrase);
+            res.json({ message: 'Passphrase updated successfully.' });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    deletePassphrase: async (req, res) => {
+        try {
+            const { userId } = req.params;
+            await User.deletePassphrase(userId);
+            res.json({ message: 'Passphrase deleted successfully.' });
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
     }
 };
 

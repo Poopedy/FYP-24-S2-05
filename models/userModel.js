@@ -12,6 +12,22 @@ const User = {
     getAll: async () => {
         const [rows] = await db.query('SELECT * FROM users');
         return rows;
+    },
+    createPassphrase: async (userId, passphrase) => {
+        const sql = 'INSERT INTO users (UID, passphrase) VALUES (?, ?)';
+        await db.query(sql, [userId, passphrase]);
+    },
+    getPassphraseByUserId: async (userId) => {
+        const [rows] = await db.query('SELECT * FROM users WHERE UID = ?', [userId]);
+        return rows[0];
+    },
+    updatePassphrase: async (userId, passphrase) => {
+        const sql = 'UPDATE users SET passphrase = ? WHERE UID = ?';
+        await db.query(sql, [passphrase, userId]);
+    },
+    deletePassphrase: async (userId) => {
+        const sql = 'DELETE FROM users WHERE UID = ?';
+        await db.query(sql, [userId]);
     }
 };
 

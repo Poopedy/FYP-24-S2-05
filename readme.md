@@ -50,3 +50,5 @@ rsync -avz -e "ssh -i SG-FYP-MAC.pem"  /Users/bryan/Documents/GitHub/FYP-24-S2-0
 
 /home/ubuntu/cipherlink/FYP-24-S2-05
 /usr/bin/npm run devStart
+
+npm install express-session connect-mysql-session

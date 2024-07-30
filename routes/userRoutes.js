@@ -16,8 +16,25 @@ const verifyToken = require('../middlewares/authMiddleware');
 
 router.post('/register', userController.register);
 router.post('/login', userController.login);
-router.get('/', userController.getAllUsers);
-router.post('/usertest', userController.userTest);  
+router.get('/users', verifyToken, userController.getAllUsers);
+router.post('/usertest', userController.userTest);
+router.get('/profile', userController.getProfile);
+
+// routes for passphrase CRUD operations
+router.post('/passphrase', verifyToken, userController.createPassphrase);
+router.get('/passphrase/:userId', verifyToken, userController.getPassphrase);
+router.put('/passphrase', verifyToken, userController.updatePassphrase);
+router.delete('/passphrase/:userId', verifyToken, userController.deletePassphrase);
+
+router.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Failed to logout' });
+        }
+        res.clearCookie('user_sid');
+        res.json({ message: 'Logout successful' });
+    });
+});
 
 router.get('/', (req, res) => res.send(' API Running'));
 router.get('/userdashboard', (req, res) => {

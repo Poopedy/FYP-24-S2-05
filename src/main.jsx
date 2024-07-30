@@ -25,7 +25,7 @@ import SuperAdminUpdateUser from './pages/SuperAdminUpdateUser/SuperAdminUpdateU
 import SuperAdminAdminActivity from './pages/SuperAdminAdminActivity/SuperAdminAdminActivity.jsx';
 import SuperAdminUserActivity from './pages/SuperAdminUserActivity/SuperAdminUserActivity.jsx';
 import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/SuperAdminAccountManagement.jsx';
-
+import axios from 'axios';
 // Set up Axios to include the token in the Authorization header for all requests
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');

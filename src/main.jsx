@@ -26,6 +26,17 @@ import SuperAdminAdminActivity from './pages/SuperAdminAdminActivity/SuperAdminA
 import SuperAdminUserActivity from './pages/SuperAdminUserActivity/SuperAdminUserActivity.jsx';
 import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/SuperAdminAccountManagement.jsx';
 
+// Set up Axios to include the token in the Authorization header for all requests
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(

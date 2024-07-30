@@ -2,8 +2,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const { is } = require('express/lib/request');
-
+const verifyToken = require('../middlewares/authMiddleware');
 const secret = 'fyp_jwt';
+
+
 
 const userController = {
     register: async (req, res) => {
@@ -45,8 +47,8 @@ const userController = {
             }
             const { role } = user;
             const token = jwt.sign({ id: user.UID, username: user.username }, secret, { expiresIn: '1h' });
-            // res.json({ token });
-            res.status(200).json({ role });
+            res.json({ token, role: user.role });
+
         } catch (err) {
             res.status(500).json({ message: 'Server error' });
         }

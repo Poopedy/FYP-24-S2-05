@@ -21,7 +21,11 @@ const LoginForm = () => {
           password
       });
 
-      const { role } = response.data;
+      // Extract the token from the response
+      const { token, role } = response.data;
+
+      // Store the token in local storage
+      localStorage.setItem('token', token);
 
       // Redirect based on role
       if (role === 'admin') {

@@ -51,11 +51,12 @@ const userController = {
                 id: user.UID,
                 email: user.email,
                 role: user.role,
+                username: user.username
             };
             console.log(req.session.user);
             const { role } = user;
             const token = jwt.sign({ id: user.UID, username: user.username }, secret, { expiresIn: '1h' });
-            res.json({ token, role: user.role, user: req.session.user });
+            res.json({ token, role:user.role, user: req.session.user });
 
         } catch (err) {
             res.status(500).json({ message: 'Server error' });

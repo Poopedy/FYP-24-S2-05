@@ -4,6 +4,8 @@ import { FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
 import { Link, useNavigate } from 'react-router-dom';
 import './LoginForm.css';
+import { jwtDecode } from "jwt-decode";
+
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -16,24 +18,43 @@ const LoginForm = () => {
 
     try {
       // Send email to backend for validation
-      const response = await axios.post('http://54.179.174.127:5000/api/login', {
+      const response = await axios.post('http://localhost:5000/api/login', {
           email,
           password
       });
+      // Log the full response for debugging
+      console.log('Response from backend:', response);
 
       // Extract the token from the response
-      const { token, role } = response.data;
+     
+      const {  token, role,user } = response.data;
+      console.log(user)
+      
+      // Debugging: Check the received token
+      // console.log('Received token:', token);
+
+      // Validate the token
+      if (typeof token !== 'string' || token.trim() === '') {
+        throw new Error('Invalid token received');
+      }
 
       // Store the token in local storage
       localStorage.setItem('token', token);
-
+      // Store user data in sessionStorage
+      sessionStorage.setItem('user', JSON.stringify(user));
+      // Decode the token to get the username
+      const decodedToken = jwtDecode(token);
+      // Debugging: Check the decoded token
+      // console.log('Decoded token:', decodedToken);
+      const username = decodedToken.username;
+      console.log('Username',username)
       // Redirect based on role
       if (role === 'admin') {
-          navigate('/admindashboard');
+          navigate('/admindashboard/${username}');
       } else if (role === 'user') {
-          navigate('/userdashboard');
+          navigate('/userdashboard',{state : {username}});
       } else if (role === 'superadmin') {
-          navigate('/superadmindashboard');
+          navigate('/superadmindashboard/${username}');
       } else {
           alert('Invalid role. Please try again.');
       }

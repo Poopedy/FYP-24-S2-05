@@ -5,10 +5,11 @@ import { IoLogOut } from "react-icons/io5";
 import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate  } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import './UserDashboard.css';
+
 
 const UserDashboard = () => {
   const [tabs, setTabs] = useState([]);
@@ -22,7 +23,26 @@ const UserDashboard = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
   const [inputPassphrase, setInputPassphrase] = useState('');
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Retrieve user data from sessionStorage
+    const storedUser = sessionStorage.getItem('user');
 
+    if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+    } else {
+        // Redirect to login if no user data is found in sessionStorage
+        navigate('/login');
+    }
+}, [navigate]);
+
+if (!user) {
+    return <div>Loading...</div>;
+}
+  
   const handleFileChange = (event) => {
     const uploadedFile = event.target.files[0];
     if (uploadedFile) {
@@ -157,7 +177,7 @@ const UserDashboard = () => {
         <header>
           <div className="welcome">
             <FaUser style={{ marginRight: '10px' }} />
-            Welcome, User
+            Welcome, {user.username}!
           </div>
           <div className="lock-toggle" onClick={handleLockToggle}>
             {isLocked ? <FaLock size={'1.3em'} /> : <FaUnlock size={'1.3em'}/>}

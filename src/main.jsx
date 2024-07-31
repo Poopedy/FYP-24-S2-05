@@ -47,7 +47,7 @@ root.render(
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/generatekey" element={<GenerateKeyPage />} />
-        <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route path="/admindashboard/:username" element={<AdminDashboard />} />
         <Route path="/adminupdateuser" element={<AdminUpdateUser />} />
         <Route path="/admincreateuser" element={<AdminCreateUser />} />
         <Route path="/userdashboard" element={<UserDashboard />} />
@@ -58,7 +58,7 @@ root.render(
         <Route path="/adminaccmanagement" element={<AdminAccountManagement />} />
         <Route path="/adminuseractivity" element={<AdminUserActivity />} />
         <Route path="/usercloudserviceupgrade" element={<UserCloudServiceUpgrade />} />
-        <Route path="/superadmindashboard" element={<SuperAdminDashboard />} />
+        <Route path="/superadmindashboard/:username" element={<SuperAdminDashboard />} />
         <Route path="/superadminupdateadmin" element={<SuperAdminUpdateAdmin />} />
         <Route path="/superadmincreateadmin" element={<SuperAdminCreateAdmin />} />
         <Route path="/superadminviewuser" element={<SuperAdminViewUser />} />

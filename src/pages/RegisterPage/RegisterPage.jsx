@@ -3,6 +3,7 @@ import './RegisterPage.css';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
 import { Link } from 'react-router-dom';
+import axios from 'axios'; // Import axios for making HTTP requests
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -17,7 +18,27 @@ const RegisterPage = () => {
       alert("Passwords do not match!");
       return;
     }
+    try {
+      // Send registration data to the backend
+      const response = await axios.post('http://54.179.174.127:5000/api/register', {
+        username,
+        email,
+        password,
+        role: 'user', // Default role
+        planid: 1 // Default planid
+      });
+
+      // Handle successful registration (e.g., redirect to login page)
+      console.log('Registration successful:', response.data);
+      // Optionally, you can redirect the user to the login page
+      // navigate('/login');
+
+    } catch (error) {
+      console.error('Error registering:', error);
+      alert('Error registering. Please try again.');
+    }
   };
+    
 
   return (
     <div className='wrapper'>

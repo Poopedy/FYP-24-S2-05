@@ -1,146 +1,147 @@
 .admin-create {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-  }
-  
-  .sidebar {
-    font-size: 1.2em;
-    width: 20%;
-    background-color: #f0e6ff;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  
-  .logoAdmin {
-    display: flex;
-    align-items: center;
-  }
-  
-  .logoAdmin p {
-    font-weight: bold;
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    margin-left: 10px;
-  }
-  
-  .admin-create .adminActive{
-    color: #7410d8;
-  }
-  
-  .admin-create .adminNotActive{
-    color: #000000;
-  }
-  
-  .admin-create .adminActive a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #5b0caa;
-  }
-  
-  .admin-create .adminNotActive a:hover {
-    color: #5c0cac;
-    text-decoration: underline;
-  }
-  
-  .admin-create .adminNotActive a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #000000;
-  }
-  
-  .sidebar nav ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .sidebar nav ul li {
-    margin: 10px 0;
-  }
-  
-  .sidebar nav ul li.active {
-    font-weight: bold;
-  }
-  
-  .settings-logout {
-    margin-top: auto;
-  }
-  
-  .settings-logout div {
-    margin: 10px 0;
-  }
-  
-  .main-content-create {
-    width: 80%;
-    padding: 20px;
-  }
-  
-  .main-content-create h2 {
-    margin-top: 100px;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .welcome {
-    font-size: 1.5em;
-  }
-  
-  .admin-create-user {
-    margin-top: 20px;
-  }
-  
-  .admin-create-user h2 {
-    margin-bottom: 20px;
-  }
-  
-  .admin-create-user form {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .admin-create-user label {
-    margin-top: 5px;
-    display: flex;
-    align-self: center;
-    align-items: center;
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-  
-  .admin-create-user input {
-    flex: 1;
-    margin-left: 5px;
-    background: #fdfdfd;
-    border: 2px solid rgba(3, 3, 3, 0.2);
-    outline: none;
-    border-radius: 40px;
-    font-size: 16px;
-    color: #221f25;
-    padding: 10px 60px 10px 20px;
-  }
-  
-  .admin-create-user .form-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-  }
-  
-  .admin-create-user .form-buttons .back, .createaccount {
-    background-color: #d3a6ff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 20px;
-  }
-  
-  .admin-create-user .form-buttons .back:hover, .createaccount:hover, .deleteaccount:hover {
-    background-color: #B574FF;
-  }
-  
-  .admin-create-user .form-buttons .back, .createaccount {
-    margin-right: 10px;
-  }
-  
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.sidebar {
+  font-size: 1.2em;
+  width: 20%;
+  background-color: #f0e6ff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logoAdmin {
+  display: flex;
+  align-items: center;
+}
+
+.logoAdmin p {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
+
+.admin-create .adminActive{
+  color: #7410d8;
+}
+
+.admin-create .adminNotActive{
+  color: #000000;
+}
+
+.admin-create .adminActive a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #5b0caa;
+}
+
+.admin-create .adminNotActive a:hover {
+  color: #5c0cac;
+  text-decoration: underline;
+}
+
+.admin-create .adminNotActive a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #000000;
+}
+
+.sidebar nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin: 10px 0;
+}
+
+.sidebar nav ul li.active {
+  font-weight: bold;
+}
+
+.settings-logout {
+  margin-top: auto;
+}
+
+.settings-logout div {
+  margin: 10px 0;
+}
+
+.main-content-create {
+  width: 80%;
+  padding: 20px;
+}
+
+.main-content-create h2 {
+  margin-top: 100px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome {
+  font-size: 1.5em;
+}
+
+.admin-create-user {
+  margin-top: 20px;
+}
+
+.admin-create-user h2 {
+  margin-bottom: 20px;
+}
+
+.admin-create-user form {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-create-user label {
+  margin-top: 5px;
+  display: flex;
+  align-self: center;
+  align-items: center;
+  margin-bottom: 10px;
+  margin-right: 40px;
+  font-weight: bold;
+  width: 35%;
+}
+
+.admin-create-user input {
+  flex: 1;
+  margin-left: 5px;
+  background: #fdfdfd;
+  border: 2px solid rgba(3, 3, 3, 0.2);
+  outline: none;
+  border-radius: 40px;
+  font-size: 16px;
+  color: #221f25;
+  padding: 10px 60px 10px 20px;
+}
+
+.admin-create-user .form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.admin-create-user .form-buttons .back, .createaccount {
+  background-color: #d3a6ff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.admin-create-user .form-buttons .back:hover, .createaccount:hover, .deleteaccount:hover {
+  background-color: #B574FF;
+}
+
+.admin-create-user .form-buttons .back, .createaccount {
+  margin-right: 10px;
+}

@@ -4,183 +4,199 @@
   width: 100vw;
 }
 
-  .sidebar {
-    font-size: 1.2em;
-    width: 20%;
-    background-color: #f0e6ff;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
+.sidebar {
+  font-size: 1.2em;
+  width: 20%;
+  background-color: #f0e6ff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-  .logoUser {
-    display: flex;
-    align-items: center;
-  }
+.logoUser {
+  display: flex;
+  align-items: center;
+}
 
-  .logoUser p {
-    font-weight: bold;
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    margin-left: 10px;
-  }
+.logoUser p {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
 
-  .user-cloud-service-upgrade .userActive {
-    color: #7410d8;
-  }
+.user-cloud-service-upgrade .userActive {
+  color: #7410d8;
+}
 
-  .user-cloud-service-upgrade .userNotActive {
-    color: #000000;
-  }
+.user-cloud-service-upgrade .userNotActive {
+  color: #000000;
+}
 
-  .user-cloud-service-upgrade .userActive a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #5b0caa;
-  }
+.user-cloud-service-upgrade .userActive a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #5b0caa;
+}
 
-  .user-cloud-service-upgrade .userNotActive a:hover {
-    color: #5c0cac;
-    text-decoration: underline;
-  }
+.user-cloud-service-upgrade .userNotActive a:hover {
+  color: #5c0cac;
+  text-decoration: underline;
+}
 
-  .user-cloud-service-upgrade .userNotActive a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #000000;
-  }
+.user-cloud-service-upgrade .userNotActive a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #000000;
+}
 
-  .sidebar nav ul {
-    list-style-type: none;
-    padding: 0;
-  }
+.sidebar nav ul {
+  list-style-type: none;
+  padding: 0;
+}
 
-  .sidebar nav ul li {
-    margin: 10px 0;
-  }
+.sidebar nav ul li {
+  margin: 10px 0;
+}
 
-  .sidebar nav ul li.active {
-    font-weight: bold;
-  }
+.sidebar nav ul li.active {
+  font-weight: bold;
+}
 
-  .settings-logout {
-    margin-top: auto;
-  }
+.settings-logout {
+  margin-top: auto;
+}
 
-  .settings-logout div {
-    margin: 10px 0;
-  }
+.settings-logout div {
+  margin: 10px 0;
+}
 
-  .main-content-upgrade {
-    width: 80%;
-    padding: 20px;
-  }
+.main-content-upgrade {
+  width: 80%;
+  padding: 20px;
+}
 
-  .main-content-upgrade h2 {
-    margin-top: 100px;
-    justify-content: space-between;
-    align-items: center;
-  }
+.main-content-upgrade h2 {
+  margin-top: 100px;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .welcome {
-    font-size: 1.5em;
-  }
+.welcome {
+  font-size: 1.5em;
+}
 
-  .user-upgrade-cloud-service {
-    margin-top: 20px;
-  }
+.user-upgrade-cloud-service {
+  margin-top: 20px;
+}
 
-  .user-upgrade-cloud-service h2 {
-    margin-bottom: 20px;
-  }
+.user-upgrade-cloud-service h2 {
+  margin-bottom: 20px;
+}
 
-  .activity-chart img {
-    height: 300px;
-    background-color: #F9F4FF;
-    text-align: center;
-    margin-left:20px;
-    flex: 2;
-  }
+.activity-chart img {
+  height: 300px;
+  background-color: #F9F4FF;
+  text-align: center;
+  margin-left: 20px;
+  flex: 2;
+}
 
-  .services-container {
-    display: flex;
-    justify-content: space-around;
-    margin: 20px 125px;
-  }
+.services-container {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 125px;
+}
 
-  .service-google img {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 20px;
-    text-align: center;
-    width: 100%;
-    max-width: 200px;
-    display: block;
-    margin: 0 auto 10px;
-  }
+.service-google img,
+.service-onedrive img,
+.service-dropbox img {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+  max-width: 200px;
+  display: block;
+  margin: 0 auto 10px;
+}
 
-  .service-onedrive img {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 20px;
-    text-align: center;
-    width: 100%;
-    max-width: 200px;
-    display: block;
-    margin: 0 auto 10px;
-  }
+.upgrade-plans {
+  display: flex;
+  justify-content: space-between;
+  margin: 30px;
+  margin-top: 20px;
+  padding: 20px 50px;
+}
 
-  .service-dropbox img {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 20px;
-    text-align: center;
-    width: 100%;
-    max-width: 200px;
-    display: block;
-    margin: 0 auto 10px;
-  }
+.upgrade-plan {
+  background-color: #F1E4FF;
+  padding: 20px 50px;
+  border: 1px solid #9717be;
+  border-radius: 10px;
+  font-size: 1.1em;
+  text-align: center;
+}
 
-  .upgrade-plans {
-    margin-top: -80px;
-    display: flex;
-    justify-content: space-around;
-    padding: 100px 180px;
-  }
-  
-  .upgrade-plan {
-    background-color: #F1E4FF;
-    padding: 20px;
-    border: 1px solid #000000;
-    font-size: 1.1em;
-    text-align: center;
-  }
-  
-  .upgrade-plan h4 {
-    font-size: 1.5em;
-  }
-  
-  .upgrade-plan ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .upgrade-plan ul li {
-    margin: 10px 0;
-  }
-  
-  .upgrade-plan .upgrade-button {
-    padding: 20px 120px;
-    background-color: #d3aefe;
-    color: rgb(0, 0, 0);
-    border: none;
-    cursor: pointer;
-    font-weight: 800;
-  }
+.upgrade-plan h4 {
+  font-size: 1.5em;
+}
 
-  .upgrade-plan .upgrade-button:hover {
-    background-color: #B574FF;
-  }
+.upgrade-plan ul {
+  list-style-type: none;
+  padding: 0;
+}
 
+.upgrade-plan ul li {
+  margin: 10px 0;
+}
+
+.upgrade-plan .upgrade-button {
+  padding: 10px 20px;
+  background-color: #d3aefe;
+  color: #000000;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.upgrade-plan .upgrade-button:hover {
+  background-color: #B574FF;
+}
+
+.table-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0; /* Optional: adds some vertical margin */
+}
+
+.table-container table {
+  width: 85%;
+  border-collapse: collapse;
+}
+
+.table-container th, .table-container td {
+  border: 1px solid #dcbbe6;
+  padding: 8px;
+  text-align: center;
+}
+
+.table-container th {
+  background-color: #f0e6ff;
+  font-weight: bold;
+}
+
+.table-container .cancel-button {
+  background-color: #d3a6ff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.table-container .cancel-button:hover {
+  background-color: #B574FF;
+}
 

@@ -51,12 +51,6 @@ const UserAccountManagement = () => {
                 My Files
             </Link>
             </li>
-            <li className="userNotActive">
-            <Link to="/useractivitybilling">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Activity Log & Billing
-            </Link>
-            </li>
         </ul>
         </nav>
         <div className="settings-logout">

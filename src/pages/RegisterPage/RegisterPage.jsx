@@ -1,10 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './RegisterPage.css';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
 import { Link } from 'react-router-dom';
 
 const RegisterPage = () => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handleSubmit = async (event) => {
+    event.preventDefault(); 
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+  };
+
   return (
     <div className='wrapper'>
       <header>
@@ -22,26 +36,50 @@ const RegisterPage = () => {
         </nav>
       </header>
 
-      <form action="">
+      <form onSubmit={handleSubmit}>
         <h1>Register</h1>
         <div className="input-box">
-          <input type="text" placeholder="Username" required />
+          <input
+            type="username"
+            placeholder="Username"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
           <FaUser className='icon' />
         </div>
         <div className="input-box">
-          <input type="email" placeholder="Email" required />
+          <input
+            type="email"
+            placeholder="Email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
           <MdEmail className='icon' />
         </div>
         <div className="input-box">
-          <input type="password" placeholder="Password" required />
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
           <FaLock className='icon' />
         </div>
         <div className="input-box">
-          <input type="password" placeholder="Confirm Password" required />
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            required
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
           <FaLock className='icon' />
         </div>
 
-        <Link to="/generatekey"><button className="RegLogButton" type="submit">Register</button></Link>
+        <button className="RegLogButton" type="submit">Register</button>
       </form>
     </div>
   );

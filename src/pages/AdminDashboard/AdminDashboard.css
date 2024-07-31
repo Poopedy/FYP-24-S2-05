@@ -1,153 +1,153 @@
 .admin-dashboard {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-  }
-  
-  .sidebar {
-    font-size: 1.2em;
-    width: 20%;
-    background-color: #f0e6ff;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  
-  .logoAdmin {
-    display: flex;
-    align-items: center;
-  }
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
 
-  .logoAdmin p {
-    font-weight: bold;
-    font-size: 1.2em;
-    margin-bottom: 20px;
-    margin-left: 10px;
-  }
+.sidebar {
+  font-size: 1.2em;
+  width: 20%;
+  background-color: #f0e6ff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-  .admin-dashboard .adminActive{
-    color: #7410d8;
-  }
+.logoAdmin {
+  display: flex;
+  align-items: center;
+}
 
-  .admin-dashboard .adminNotActive{
-    color: #000000;
-  }
+.logoAdmin p {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  margin-left: 10px;
+}
 
-  .admin-dashboard .adminActive a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #5b0caa;
-  }
+.admin-dashboard .adminActive{
+  color: #7410d8;
+}
 
-  .admin-dashboard .adminNotActive a:hover {
-    color: #5c0cac;
-    text-decoration: underline;
-  }
+.admin-dashboard .adminNotActive{
+  color: #000000;
+}
 
-  .admin-dashboard .adminNotActive a {
-    margin-right: 10px;
-    text-decoration: none;
-    color: #000000;
-  }
-  
-  .sidebar nav ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .sidebar nav ul li {
-    margin: 10px 0;
-  }
-  
-  .sidebar nav ul li.active {
-    font-weight: bold;
-  }
-  
-  .settings-logout {
-    margin-top: auto;
-  }
-  
-  .settings-logout div {
-    margin: 10px 0;
-  }
-  
-  .main-content {
-    width: 80%;
-    padding: 20px;
-  }
-  
-  .main-content header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .welcome {
-    font-size: 1.5em;
-  }
-  
-  .search-bar {
-    display: flex;
-    align-items: center;
-  }
-  
-  .search-bar input {
-    padding: 5px;
-    margin-right: 10px;
-  }
-  
-  .user-management {
-    margin-top: 20px;
-  }
-  
-  .user-management h2 {
-    margin-bottom: 10px;
-  }
-  
-  .create-user {
-    background-color: #d3a6ff;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 10px;
-  }
-  
-  .create-user:hover {
-    background-color: #B574FF;
-  }
+.admin-dashboard .adminActive a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #5b0caa;
+}
 
-  .user-management table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .user-management th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-  }
-  
-  .user-management th {
-    background-color: #f0e6ff;
-  }
-  
-  .user-management .updateuser, .deleteuser {
-    background-color: #d3a6ff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+.admin-dashboard .adminNotActive a:hover {
+  color: #5c0cac;
+  text-decoration: underline;
+}
 
-  .user-management .updateuser:hover, .deleteuser:hover {
-    background-color: #B574FF;
-  }
-  
-  .user-management .updateuser {
-    margin-right: 5px;
-  }
+.admin-dashboard .adminNotActive a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #000000;
+}
 
-  
-  
+.sidebar nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin: 10px 0;
+}
+
+.sidebar nav ul li.active {
+  font-weight: bold;
+}
+
+.settings-logout {
+  margin-top: auto;
+}
+
+.settings-logout div {
+  margin: 10px 0;
+}
+
+.main-content {
+  width: 80%;
+  padding: 20px;
+}
+
+.main-content header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome {
+  font-size: 1.5em;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+
+.search-bar input {
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.user-management {
+  margin-top: 20px;
+}
+
+.user-management h2 {
+  margin-bottom: 10px;
+}
+
+.create-user {
+  background-color: #d3a6ff;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.create-user:hover {
+  background-color: #B574FF;
+}
+
+.user-management table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-management th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
+.user-management th {
+  background-color: #f0e6ff;
+}
+
+.user-management .updateuser, .deleteuser {
+  background-color: #d3a6ff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.user-management .updateuser:hover, .deleteuser:hover {
+  background-color: #B574FF;
+}
+
+.user-management .updateuser {
+  margin-right: 5px;
+}
+
+

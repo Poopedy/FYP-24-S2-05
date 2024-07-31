@@ -160,7 +160,7 @@ const UserDashboard = () => {
             Welcome, User
           </div>
           <div className="lock-toggle" onClick={handleLockToggle}>
-            {isLocked ? <FaLock /> : <FaUnlock />}
+            {isLocked ? <FaLock size={'1.3em'} /> : <FaUnlock size={'1.3em'}/>}
           </div>
         </header>
         <div className="tabs">
@@ -218,12 +218,6 @@ const Sidebar = () => (
         <li className="userActive">
           <PiFilesFill style={{ marginRight: '10px' }} />
           My Files
-        </li>
-        <li className="userNotActive">
-          <Link to="/useractivitybilling">
-            <LuActivitySquare style={{ marginRight: '10px' }} />
-            Activity Log & Billing
-          </Link>
         </li>
       </ul>
     </nav>

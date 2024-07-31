@@ -24,12 +24,6 @@ const UserCloudServiceUpgrade = () => {
                 My Files
               </Link>
             </li>
-            <li className="userNotActive">
-              <Link to="/useractivitybilling">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Activity Log & Billing
-              </Link>
-            </li>
           </ul>
         </nav>
         <div className="settings-logout">
@@ -65,38 +59,76 @@ const UserCloudServiceUpgrade = () => {
                 <img src="/images/DropBox.jpg" alt="Dropbox" />
             </div> 
           </div>
-            <section className="upgrade-plans">
-                <div className="upgrade-plan">
-                    <h4>STANDARD</h4>
-                    <p>50 GB Free</p>
-                    <p>SGD 10.00</p>
-                    <p>one-time purchase</p>
-                    <Link to="/userpayment">
-                        <button className='upgrade-button'>
-                        Buy now
-                        </button>
-                    </Link>
-                    <ul>
-                    <li>- Basic encryption</li>
-                    <li>- Connect 2 or more cloud service</li>
-                    </ul>
-                </div>
-                <div className="upgrade-plan">
-                    <h4>PREMIUM</h4>
-                    <p>50 GB Free + Other Benefits</p>
-                    <p>SGD 20.00</p>
-                    <p>/ month</p>
-                    <Link to="/userpayment">
-                        <button className='upgrade-button'>
-                        Buy now
-                        </button>
-                    </Link>
-                    <ul>
-                    <li>- Enhanced security</li>
-                    <li>- Convenient key management</li>
-                    </ul>
-                </div>
-            </section>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Current Subscription Plan</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Gold</td>
+                  <td>Active</td>
+                  <td>
+                    <button className="cancel-button">Cancel</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <section className="upgrade-plans">
+            <div className="upgrade-plan">
+              <h4>BASIC</h4>
+              <p style={{ fontSize: '1.3em' }}><b>FREE</b></p>
+              <p>one-time purchase</p>
+              <Link to="/userpayment">
+                <button className='upgrade-button'>
+                  Choose
+                </button>
+              </Link>
+              <ul>
+              <li>- 10GB File Transmission Size</li>
+              <li>- 2 Cloud Ports</li>
+              <li>- Allow File Size Add-ons</li>
+              <li>- Allow Cloud Ports Add-ons</li>
+              </ul>
+            </div>
+            <div className="upgrade-plan">
+              <h4 style={{ color: '#71706e' }}>SILVER</h4>
+              <p style={{ fontSize: '1.3em' }}><b>SGD 4.99</b></p>
+              <p>one-time purchase</p>
+              <Link to="/userpayment">
+                <button className='upgrade-button'>
+                  Choose
+                </button>
+              </Link>
+              <ul>
+              <li>- 20GB File Transmission Size</li>
+              <li>- 4 Cloud Ports</li>
+              <li>- Allow File Size Add-ons</li>
+              <li>- Allow Cloud Ports Add-ons</li>
+              </ul>
+            </div>
+            <div className="upgrade-plan">
+              <h4 style={{ color: '#C59E01' }}>GOLD</h4>
+              <p style={{ fontSize: '1.3em' }}><b>SGD 9.99</b></p>
+              <p>one-time purchase</p>
+              <Link to="/userpayment">
+                <button className='upgrade-button'>
+                  Choose
+                </button>
+              </Link>
+              <ul>
+              <li>- 50GB File Transmission Size</li>
+              <li>- 5 Cloud Ports</li>
+              <li>- Allow File Size Add-ons</li>
+              <li>- Allow Cloud Ports Add-ons</li>
+              </ul>
+            </div>
+          </section>
         </section>
       </div>
     </div>

@@ -24,16 +24,10 @@ const UserPayment = () => {
                 My Files
             </Link>
             </li>
-            <li className="userActive">
-            <Link to="/useractivitybilling">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Activity Log & Billing
-            </Link>
-            </li>
         </ul>
         </nav>
         <div className="settings-logout">
-        <div className="userNotActive">
+        <div className="userActive">
             <Link to="/usercloudserviceupgrade">
               <HiSparkles style={{ marginRight: '10px' }} />
               Upgrade
@@ -104,7 +98,7 @@ const UserPayment = () => {
                 />
               </label>
             <div className="form-buttons">
-              <Link to="/useractivitybilling"><button type="button" className="back">
+              <Link to="/usercloudserviceupgrade"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="proceed">

@@ -110,6 +110,12 @@
     transform: translate(-50%);
     font-size: 16px;
   }
+
+  .input-box button{
+    position: absolute;
+    right: 62px;
+    top: 25px;
+  }
   
   .wrapper .remember-forgot{
   display: flex;
@@ -147,8 +153,8 @@
   }
 
   .Generate{
-    width: 50%;
-    height: 40px;
+    width: 35%;
+    height: 46px;
     transform: translate(50%, -50%);
     background: #D3AEFE;
     border: none;

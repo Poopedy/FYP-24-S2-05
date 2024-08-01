@@ -21,7 +21,7 @@ const User = {
         const [rows] = await db.query('SELECT * FROM users WHERE UID = ?', [userId]);
         return rows[0];
     },
-    updatePassphrase: async (userId, passphrase) => {
+    updatePassphrase: async (passphrase, userId) => {
         const sql = 'UPDATE users SET passphrase = ? WHERE UID = ?';
         await db.query(sql, [passphrase, userId]);
     },

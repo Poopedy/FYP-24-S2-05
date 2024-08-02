@@ -2,6 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const userRoutes = require('./routes/userRoutes');
+const planRoutes = require('./routes/plansRoutes');
+const fileRoutes = require('./routes/fileRoutes');
+const keyRoutes = require('./routes/keyRoutes');
 const cors = require('cors'); // Import CORS middleware
 const dropboxRoutes = require('./routes/dropboxroute');
 const app = express();
@@ -42,6 +45,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Middleware to parse form-data
 app.use(upload.none());
 
+app.use('/api', keyRoutes);
+app.use('/api', fileRoutes);
+app.use('/api', planRoutes);
 app.use('/api', userRoutes);
 app.use('/api/dropbox', dropboxRoutes);
 const PORT = process.env.PORT || 5000;

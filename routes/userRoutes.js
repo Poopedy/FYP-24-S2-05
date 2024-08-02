@@ -25,7 +25,7 @@ router.post('/passphrase', verifyToken, userController.createPassphrase);
 router.get('/passphrase/:userId', verifyToken, userController.getPassphrase);
 router.put('/passphrase', verifyToken, userController.updatePassphrase);
 router.delete('/passphrase/:userId', verifyToken, userController.deletePassphrase);
-
+router.post('/validatePassphrase', verifyToken, userController.validatePassphrase);
 router.post('/saveEncryptionKey', verifyToken, userController.saveEncryptionKey);
 
 router.post('/logout', (req, res) => {

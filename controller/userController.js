@@ -142,7 +142,7 @@ const userController = {
             const hashedPassphrase = await bcrypt.hash(passphrase, salt);
 
             // Update the user's passphrase in the database
-            await User.updatePassphrase(hashedPassphrase, userId);
+            await User.updatePassphrase(userId, hashedPassphrase);
 
             res.json({ message: 'Passphrase updated successfully.' });
         } catch (err) {
@@ -158,6 +158,34 @@ const userController = {
             res.json({ message: 'Passphrase deleted successfully.' });
         } catch (err) {
             res.status(500).json({ error: err.message });
+        }
+    },
+
+    validatePassphrase: async(req, res) => {
+        try {
+            const { userId, inputPassphrase } = req.body;
+    
+            if (!userId || !inputPassphrase) {
+                return res.status(400).json({ error: 'User ID and passphrase are required' });
+            }
+            
+            const hashedPassphrase = await User.getPassphraseByUserId(userId);
+    
+            if (!hashedPassphrase) {
+                return res.status(404).json({ error: 'User not found or passphrase not set' });
+            }
+    
+            // Compare the input passphrase with the hashed passphrase
+            const isMatch = await bcrypt.compare(inputPassphrase, hashedPassphrase);
+    
+            if (!isMatch) {
+                return res.status(401).json({ message: 'Invalid passphrase' });
+            }
+    
+            res.json({ message: 'Passphrase is valid' });
+        } catch (err) {
+            console.error('Passphrase validation error:', err);
+            res.status(500).json({ error: 'Passphrase validation failed' });
         }
     },
 

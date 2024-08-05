@@ -18,11 +18,15 @@ const UserCloudServiceUpgrade = () => {
     const storedUser = sessionStorage.getItem('user');
 
     if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setPlanid(parsedUser.planid);}
-        
+      const parsedUser = JSON.parse(storedUser);
+      setPlanid(parsedUser.planid);
+    }
+  }, []); // Run only once to initialize planid
+
+  useEffect(() => {
     const fetchPlan = async () => {
-      
+      if (!planid) return; // Do nothing if planid is not set
+
       try {
         const response = await axios.post('http://localhost:5000/api/getplan', { planid });
         console.log('Plan data:', response.data);
@@ -33,7 +37,7 @@ const UserCloudServiceUpgrade = () => {
     };
 
     fetchPlan();
-  }, []);
+  }, [planid]); // Run whenever planid changes
   return (
     <div className="user-cloud-service-upgrade">
       <div className="sidebar">

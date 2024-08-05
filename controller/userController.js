@@ -77,6 +77,7 @@ const userController = {
                 id: user.UID,
                 email: user.email,
                 role: user.role,
+                planid: user.planid
             };
             console.log(req.session.user);
             const { role } = user;

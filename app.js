@@ -13,8 +13,8 @@ const MySQLStore = require('express-mysql-session')(session);
 
 const dbOptions = {
     host: 'localhost',
-    user: 'fyp_user',
-    password: 'password',
+    user: 'root',
+    password: 'Poopedy11_',
     database: 'fyp_database',
     port: 3306,
 };
@@ -27,7 +27,7 @@ app.use(session({
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: {
+    cookie: {secure:false,
         maxAge: 1000 * 60 * 60 // 1 hour
     }
 }));

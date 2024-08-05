@@ -3,9 +3,9 @@ const mysql = require('mysql2')
 // create a new MySQL connection
 const pool = mysql.createPool({
     host: 'localhost',
-    user: 'fyp_user',
-    password: 'password',
-    database: 'CIPHERLINK',
+    user: 'root',
+    password: 'Poopedy11_',
+    database: 'fyp_database',
     port: 3306,
     waitForConnections: true,
     connectionLimit: 10,

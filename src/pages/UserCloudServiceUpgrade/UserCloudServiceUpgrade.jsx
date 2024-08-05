@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './UserCloudServiceUpgrade.css';
 import { FaUser } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
@@ -7,8 +7,33 @@ import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const UserCloudServiceUpgrade = () => {
+  const [planid, setPlanid] = useState(null); // Initialize planid state
+  const [plan, setPlan] = useState({ name: '', price: 0, status: 'Inactive' });
+
+  useEffect(() => {
+    // Retrieve user data from sessionStorage
+    const storedUser = sessionStorage.getItem('user');
+
+    if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setPlanid(parsedUser.planid);}
+        
+    const fetchPlan = async () => {
+      
+      try {
+        const response = await axios.post('http://localhost:5000/api/getplan', { planid });
+        console.log('Plan data:', response.data);
+        setPlan(response.data);
+      } catch (error) {
+        console.error('Error fetching plan details:', error);
+      }
+    };
+
+    fetchPlan();
+  }, []);
   return (
     <div className="user-cloud-service-upgrade">
       <div className="sidebar">
@@ -70,7 +95,7 @@ const UserCloudServiceUpgrade = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td>Gold</td>
+                  <td>{plan.name}</td>
                   <td>Active</td>
                   <td>
                     <button className="cancel-button">Cancel</button>

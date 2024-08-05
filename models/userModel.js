@@ -18,8 +18,8 @@ const User = {
         await db.query(sql, [userId, passphrase]);
     },
     getPassphraseByUserId: async (userId) => {
-        const [rows] = await db.query('SELECT * FROM users WHERE UID = ?', [userId]);
-        return rows[0];
+        const [rows] = await db.query('SELECT passphrase FROM users WHERE UID = ?', [userId]);
+        return rows[0] ? rows[0].passphrase : null;
     },
     updatePassphrase: async (userId, passphrase) => {
         const sql = 'UPDATE users SET passphrase = ? WHERE UID = ?';

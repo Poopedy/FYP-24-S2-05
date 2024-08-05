@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './RegisterPage.css';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
-import { Link } from 'react-router-dom';
-import axios from 'axios'; // Import axios for making HTTP requests
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
@@ -11,34 +11,43 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSubmit = async (event) => {
-    event.preventDefault(); 
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setError('Passwords do not match');
       return;
     }
+
     try {
-      // Send registration data to the backend
-      const response = await axios.post('http://54.179.174.127:5000/api/register', {
-        username,
+      const response = await axios.post('http://localhost:5000/api/register', {
         email,
+        username,
         password,
-        role: 'user', // Default role
-        planid: 1 // Default planid
+        role: 'user',
+        planid: 1
       });
 
-      // Handle successful registration (e.g., redirect to login page)
-      console.log('Registration successful:', response.data);
-      // Optionally, you can redirect the user to the login page
-      // navigate('/login');
+      const { token, user } = response.data;
 
+      if (typeof token !== 'string' || token.trim() === '') {
+        throw new Error('Invalid token received');
+      }
+
+      // Store token in local storage
+      localStorage.setItem('token', token);
+
+      // Store user information in session storage
+      sessionStorage.setItem('user', JSON.stringify(user));
+
+      navigate('/generatekey');
     } catch (error) {
-      console.error('Error registering:', error);
-      alert('Error registering. Please try again.');
+      console.error('Registration failed', error);
     }
   };
-    
+
 
   return (
     <div className='wrapper'>
@@ -60,40 +69,44 @@ const RegisterPage = () => {
       <form onSubmit={handleSubmit}>
         <h1>Register</h1>
         <div className="input-box">
-          <input
-            type="username"
-            placeholder="Username"
-            required
+          <input 
+            type="text" 
+            name="username"
+            placeholder="Username" 
+            required 
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <FaUser className='icon' />
         </div>
         <div className="input-box">
-          <input
-            type="email"
-            placeholder="Email"
-            required
+          <input 
+            type="email" 
+            name="email"
+            placeholder="Email" 
+            required 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <MdEmail className='icon' />
         </div>
         <div className="input-box">
-          <input
-            type="password"
-            placeholder="Password"
-            required
+          <input 
+            type="password" 
+            name="password"
+            placeholder="Password" 
+            required 
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)} 
           />
           <FaLock className='icon' />
         </div>
         <div className="input-box">
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            required
+          <input 
+            type="password" 
+            name="confirmPassword"
+            placeholder="Confirm Password" 
+            required 
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />

@@ -6,7 +6,10 @@ import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
 import { Link, useNavigate  } from 'react-router-dom';
+import { encryptFile } from '../../../models/encryptionModel';
+import { decryptFile } from '../../../models/decryptionModel';
 import Popup from 'reactjs-popup';
+import axios from 'axios';
 import 'reactjs-popup/dist/index.css';
 import './UserDashboard.css';
 
@@ -26,6 +29,24 @@ const UserDashboard = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   
+  const getPassphraseFromSession = () => {
+    const passphraseData = JSON.parse(sessionStorage.getItem('passphraseData'));
+    if (passphraseData) {
+        const { passphrase, timestamp } = passphraseData;
+        const currentTime = Date.now();
+
+        // Check if the passphrase has expired (5 minutes lifespan)
+        if (currentTime - timestamp > 5 * 60 * 1000) {
+            sessionStorage.removeItem('passphraseData');
+            return null;
+        }
+
+        return passphrase;
+    }
+
+    return null;
+  };
+  
   useEffect(() => {
     // Retrieve user data from sessionStorage
     const storedUser = sessionStorage.getItem('user');
@@ -37,6 +58,17 @@ const UserDashboard = () => {
         // Redirect to login if no user data is found in sessionStorage
         navigate('/login');
     }
+
+    // Set up interval to check passphrase expiration
+    const interval = setInterval(() => {
+      const storedPassphrase = getPassphraseFromSession();
+      if (!storedPassphrase) {
+          setIsLocked(true); // Lock the upload button if passphrase is not valid
+      }
+    }, 1000); // Check every second
+
+    // Clean up interval on component unmount
+    return () => clearInterval(interval);
 }, [navigate]);
 
 if (!user) {
@@ -160,14 +192,37 @@ if (!user) {
     }
   };
 
-  const handlePassphraseSubmit = () => {
-    if (inputPassphrase === "1234!A") {
-      setIsLocked(false);
-      setShowPassphrasePopup(false);
-      setInputPassphrase('');
-    } else {
-      alert("Incorrect passphrase!");
-    }
+  const handlePassphraseSubmit = async () => {
+    if (!user || !user.id) {
+      alert('User ID not found');
+      return;
+  }
+    try {
+      const response = await axios.post('http://localhost:5000/api/validatePassphrase', {
+          userId: user.id,
+          inputPassphrase: inputPassphrase
+      });
+      
+      if (response.data.message === 'Passphrase is valid') {
+        // Store the passphrase with a timestamp in sessionStorage
+        const passphraseData = {
+            passphrase: inputPassphrase,
+            timestamp: Date.now()
+        };
+        sessionStorage.setItem('passphraseData', JSON.stringify(passphraseData));
+
+        // Clear the passphrase after 5 minutes
+        setTimeout(() => {
+            sessionStorage.removeItem('passphraseData');
+        }, 5 * 60 * 1000); // 5 minutes lifespan for the passphrase
+
+        setIsLocked(false);
+        setShowPassphrasePopup(false);
+        setInputPassphrase('');  // Clear the passphrase input
+      }
+  } catch (error) {
+      console.error('Failed to get user\'s passphrase', error);
+  }
   };
 
   return (

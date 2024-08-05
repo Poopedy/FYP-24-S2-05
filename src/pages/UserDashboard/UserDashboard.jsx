@@ -1,51 +1,89 @@
+import { gapi } from 'gapi-script';
 import React, { useEffect, useRef, useState } from 'react';
-import { FaUser, FaLock, FaUnlock } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
-import { Link, useNavigate  } from 'react-router-dom';
-import Popup from 'reactjs-popup';
-import 'reactjs-popup/dist/index.css';
+import { Link, useNavigate } from 'react-router-dom';
 import './UserDashboard.css';
 
-
 const UserDashboard = () => {
-  const [tabs, setTabs] = useState([]);
   const [googleDriveFiles, setGoogleDriveFiles] = useState([]);
   const [oneDriveFiles, setOneDriveFiles] = useState([]);
   const [dropboxFiles, setDropboxFiles] = useState([]);
   const [file, setFile] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [activeTab, setActiveTab] = useState('');
+  const [activeTab, setActiveTab] = useState('Google Drive');
   const fileInputRef = useRef(null);
-  const [isLocked, setIsLocked] = useState(true);
-  const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
-  const [inputPassphrase, setInputPassphrase] = useState('');
-  const [user, setUser] = useState(null);
-  const navigate = useNavigate();
-  
-  useEffect(() => {
-    // Retrieve user data from sessionStorage
-    const storedUser = sessionStorage.getItem('user');
 
-    if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-    } else {
-        // Redirect to login if no user data is found in sessionStorage
-        navigate('/login');
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (code) {
+    // Now send a POST request to your backend to exchange the code for a token
+
+    if (localStorage.getItem("gdtoken") == null) {
+      fetch('http://localhost:5000/api/getToken', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
+      })
+        .then(response => response.json())
+        .then(token => {
+          console.log('Access token:', token);
+          localStorage.setItem('gdtoken', JSON.stringify(token));
+          location.reload();
+          // Store or use the token as needed
+        })
+        .catch(error => console.error('Error fetching token:', error));
     }
-}, [navigate]);
 
-if (!user) {
-    return <div>Loading...</div>;
-}
-  
+  } else {
+    //console.error('Authorization code not found.');
+  }
+
+  const fetchFilesFromDrive = async () => {
+    // Replace with the actual token from your authentication flow
+    const token = localStorage.getItem('gdtoken');
+
+    if (!token) {
+      alert('No token found. Please authenticate first.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/readDrive', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: token }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok.');
+      }
+
+      const data = await response.json();
+      console.log('Files:', data);
+
+      // Process the file data as needed
+      // For example, display it in the UI or handle it in some other way
+
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      alert('An error occurred while fetching files.');
+    }
+  };
   const handleFileChange = (event) => {
     const uploadedFile = event.target.files[0];
     if (uploadedFile) {
+
       const newFile = {
         filename: uploadedFile.name,
         filetype: uploadedFile.type,
@@ -59,12 +97,13 @@ if (!user) {
       } else if (activeTab === 'Dropbox') {
         setDropboxFiles(prevFiles => [...prevFiles, newFile]);
       }
+      console.log(uploadedFile);
       setFile(uploadedFile);
     }
   };
 
   const handleUploadClick = () => {
-    if (!isLocked && fileInputRef.current) {
+    if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
@@ -72,6 +111,227 @@ if (!user) {
   const handleSelectFile = (file) => {
     setSelectedFile(file);
   };
+  function getToken() {
+    return localStorage.getItem('token'); // Adjust according to your storage mechanism
+  }
+
+  // Function to fetch files by uid
+  async function fetchFilesByUid() {
+    const token = getToken();
+
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/getFilesByUid', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Include the JWT token in the Authorization header
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Files:', data);
+      // Do something with the data
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    }
+  }
+  const uploadFile = async () => {
+    if (!file) {
+      alert('Please select a file first!');
+      return;
+    }
+
+    try {
+      const tokenString = localStorage.getItem('gdtoken');
+      const token = tokenString ? JSON.parse(tokenString) : null;
+
+      if (!token) {
+        alert('User not authenticated!');
+        return;
+      }
+
+      const formData = new FormData();
+      console.log("File to be uploaded:", file);
+      formData.append('file', file);
+      formData.append('token', JSON.stringify(token));
+      formData.append('uid', user.id);
+
+
+      const response = await fetch('http://localhost:5000/api/fileUpload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const responseData = await response.text(); // Use `.json()` if response is JSON
+        console.log('Response Data:', responseData);
+        alert('File uploaded successfully!');
+      } else {
+        const errorText = await response.text();
+        console.error('File upload failed:', errorText);
+        alert('File upload failed!');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('An error occurred during file upload.');
+    }
+  };
+
+  const uploadFileToDropbox = async () => {
+    if (!file) {
+      alert('Please select a file first!');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('dbtoken');
+      if (!token) {
+        alert('User not authenticated!');
+        return;
+      }
+
+      const formData = new FormData();
+      console.log("File to be uploaded:", file);
+      formData.append('file', file);
+      formData.append('token', token); // Directly append the token as a string
+      formData.append('uid', user.id);
+      const response = await fetch('http://localhost:5000/api/dropbox/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Response Data:', responseData);
+        alert('File uploaded successfully to Dropbox!');
+      } else {
+        const errorText = await response.text();
+        console.error('File upload failed:', errorText);
+        alert('File upload failed!');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('An error occurred during file upload.');
+    }
+  };
+
+  const uploadFileToOneDrive = async () => {
+    if (!file) {
+      alert('Please select a file first!');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('odtoken');
+      if (!token) {
+        alert('User not authenticated!');
+        return;
+      }
+
+      const formData = new FormData();
+      console.log("File to be uploaded:", file);
+      formData.append('file', file);
+      formData.append('token', token); // Directly append the token as a string
+      formData.append('uid', user.id);
+
+
+      const response = await fetch('http://localhost:5000/api/onedrive/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Response Data:', responseData);
+        alert('File uploaded successfully to OneDrive!');
+      } else {
+        const errorText = await response.text();
+        console.error('File upload failed:', errorText);
+        alert('File upload failed!');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('An error occurred during file upload.');
+    }
+  };
+
+
+
+  function connectCloud() {
+    console.log("connecting");
+    fetch('http://localhost:5000/api/getAuthURL')
+      .then(response => response.text())
+      .then(url => {
+        window.location.href = url; // Redirect user to the Google OAuth2 consent page
+      });
+  }
+
+  async function getDropboxToken() {
+    try {
+      const response = await fetch('http://localhost:5000/api/dropbox/get-token', {
+        method: 'GET',
+        credentials: 'include' // This ensures cookies are sent with the request
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Dropbox Token:', data.token);
+        // Now you can use the token as needed
+        return data.token; // Return the token if needed
+      } else {
+        console.error('Failed to fetch token:', response.statusText);
+        return null; // Return null if the request failed
+      }
+    } catch (error) {
+      console.error('Error fetching token:', error);
+      return null; // Return null if an error occurred
+    }
+  }
+
+
+  function connectDB() {
+    console.log("Connecting to Dropbox");
+    fetch('http://localhost:5000/api/dropbox/authorize')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Redirecting to Dropbox authorization page:", data.authUrl);
+        window.location.href = data.authUrl; // Redirect user to Dropbox OAuth2 consent page
+      })
+      .catch(error => console.error('Error fetching Dropbox authorization URL:', error));
+    console.log("HELLO WORLD");
+  }
+
+  function connectOneDrive() {
+    console.log("Connecting to OneDrive");
+    fetch('http://localhost:5000/api/onedrive/authorize')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Redirecting to OneDrive authorization page:", data.authUrl);
+        window.location.href = data.authUrl; // Redirect user to OneDrive OAuth2 consent page
+      })
+      .catch(error => console.error('Error fetching OneDrive authorization URL:', error));
+    console.log("HELLO WORLD");
+  }
+
 
   const handleRemoveFile = (fileToRemove) => {
     const removeFile = (setFiles) => {
@@ -90,24 +350,21 @@ if (!user) {
   };
 
   const renderContent = () => {
-    let files = [];
-    if (activeTab === 'Google Drive') files = googleDriveFiles;
-    else if (activeTab === 'OneDrive') files = oneDriveFiles;
-    else if (activeTab === 'Dropbox') files = dropboxFiles;
-
+    const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
     return (
       <>
         <h2>{activeTab} Files</h2>
         <div className="upload-container">
-          <input type="file" id="file-upload" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
+
           <label htmlFor="file-upload" className="upload-area">
-            Click the upload button and browse your files
+            Drag and drop files, browse or click the upload button
           </label>
-          <button className="upload-button" onClick={handleUploadClick} disabled={isLocked}>Upload</button>
-        </div>
-        <div className="search-bar">
-            <input type="text" placeholder="Search your files..." />
-            <button>Search</button>
+
+          <br></br>
+          <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
+          <button className="upload-button" onClick={fetchFilesByUid}>fetchFiles</button>
+          {/* <button className="upload-button" onClick={fetchFilesFromDrive}>fetchFilesFromDrive</button> */}
+          <button className="upload-button" onClick={uploadFileToOneDrive}>Upload</button>
         </div>
         <table>
           <thead>
@@ -136,40 +393,6 @@ if (!user) {
     );
   };
 
-  const handleAddTab = (tabName) => {
-    if (tabs.includes(tabName)) {
-      alert(`Tab for ${tabName} already exists.`);
-      return;
-    }
-    setTabs(prevTabs => [...prevTabs, tabName]);
-    setActiveTab(tabName);
-  };
-
-  const handleRemoveTab = (tabName) => {
-    setTabs(prevTabs => prevTabs.filter(tab => tab !== tabName));
-    if (activeTab === tabName) {
-      setActiveTab(tabs.length > 0 ? tabs[0] : '');
-    }
-  };
-
-  const handleLockToggle = () => {
-    if (isLocked) {
-      setShowPassphrasePopup(true);
-    } else {
-      setIsLocked(true);
-    }
-  };
-
-  const handlePassphraseSubmit = () => {
-    if (inputPassphrase === "1234!A") {
-      setIsLocked(false);
-      setShowPassphrasePopup(false);
-      setInputPassphrase('');
-    } else {
-      alert("Incorrect passphrase!");
-    }
-  };
-
   return (
     <div className="user-dashboard">
       <Sidebar />
@@ -177,52 +400,31 @@ if (!user) {
         <header>
           <div className="welcome">
             <FaUser style={{ marginRight: '10px' }} />
-            Welcome, {user.username}!
+            Welcome, User
           </div>
-          <div className="lock-toggle" onClick={handleLockToggle}>
-            {isLocked ? <FaLock size={'1.3em'} /> : <FaUnlock size={'1.3em'}/>}
+          <div className="search-bar">
+            <input type="text" placeholder="Search your files..." />
+            <button>Search</button>
           </div>
         </header>
         <div className="tabs">
-          {tabs.map(tab => (
-            <div key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`}>
-              <button className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
-              <button className="remove-tab-button" onClick={() => handleRemoveTab(tab)}>x</button>
-            </div>
-          ))}
-          <Popup trigger={<button className="add-tab-button">+</button>} modal className="popup-modal">
-            {close => (
-              <div className="modal-container">
-                <div className="modal">
-                  <h3>Select Cloud Service</h3>
-                  <button onClick={() => { handleAddTab('Google Drive'); close(); }}>Google Drive</button>
-                  <button onClick={() => { handleAddTab('OneDrive'); close(); }}>OneDrive</button>
-                  <button onClick={() => { handleAddTab('Dropbox'); close(); }}>Dropbox</button>
-                  <button onClick={close}>Cancel</button>
-                </div>
-              </div>
-            )}
-          </Popup>
+          <button className={activeTab === 'Google Drive' ? 'active' : ''} onClick={() => setActiveTab('Google Drive')}>Google Drive</button>
+          <button className={activeTab === 'OneDrive' ? 'active' : ''} onClick={() => setActiveTab('OneDrive')}>OneDrive</button>
+          <button className={activeTab === 'Dropbox' ? 'active' : ''} onClick={() => setActiveTab('Dropbox')}>Dropbox</button>
+        </div>
+        <br></br>
+        <div className="tabs">
+          <button className={activeTab === 'Google Drive' ? 'active' : ''} onClick={() => connectCloud()}>Connect Google Drive</button>
+          <button className={activeTab === 'OneDrive' ? 'active' : ''} onClick={() => connectOneDrive()}>Connect OneDrive</button>
+          <button className={activeTab === 'Dropbox' ? 'active' : ''} onClick={() => connectDB()}>Connect Dropbox</button>
         </div>
         <div className="content-wrapper">
           <section className="user-file">
-            {activeTab ? renderContent() : <p>Please add a tab and select a cloud service.</p>}
+            {renderContent()}
           </section>
           <RightSidebar file={selectedFile} />
         </div>
       </div>
-      {showPassphrasePopup && (
-        <Popup open={showPassphrasePopup} closeOnDocumentClick onClose={() => setShowPassphrasePopup(false)} modal>
-          <div className="modal-container">
-            <div className="modal">
-              <h3>Enter Passphrase</h3>
-              <input type="password" value={inputPassphrase} onChange={(e) => setInputPassphrase(e.target.value)} />
-              <button onClick={handlePassphraseSubmit}>Submit</button>
-              <button onClick={() => setShowPassphrasePopup(false)}>Cancel</button>
-            </div>
-          </div>
-        </Popup>
-      )}
     </div>
   );
 };
@@ -238,6 +440,12 @@ const Sidebar = () => (
         <li className="userActive">
           <PiFilesFill style={{ marginRight: '10px' }} />
           My Files
+        </li>
+        <li className="userNotActive">
+          <Link to="/useractivitybilling">
+            <LuActivitySquare style={{ marginRight: '10px' }} />
+            Activity Log & Billing
+          </Link>
         </li>
       </ul>
     </nav>

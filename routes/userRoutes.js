@@ -13,7 +13,7 @@ const upload = multer({ dest: 'uploads/' });
 const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 const SCOPE = ['https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file']
 const verifyToken = require('../middlewares/authMiddleware');
-
+const pool = require("../config/db.js");
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.get('/users', verifyToken, userController.getAllUsers);
@@ -80,6 +80,7 @@ router.post('/getUserInfo', (req, res) => {
 });
 
 router.post('/readDrive', (req, res) => {
+    console.log(req.session.user);
     if (req.body.token == null) return res.status(400).send('Token not found');
     oAuth2Client.setCredentials(JSON.parse(req.body.token));
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
@@ -105,46 +106,69 @@ router.post('/readDrive', (req, res) => {
 
 // Specify the directory where files will be uploaded
 
-router.post('/fileUpload', upload.single('file'), (req, res) => {
-  if (!req.body.token) {
-      return res.status(400).send('Token not found');
-  }
+router.post('/fileUpload', upload.single('file'), async (req, res) => {
+    if (!req.body.token) {
+        return res.status(400).send('Token not found');
+    }
+    const uid = req.body.uid;
+    const token = JSON.parse(req.body.token);
+    oAuth2Client.setCredentials(token);
 
-  const token = JSON.parse(req.body.token);
-  oAuth2Client.setCredentials(token);
+    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const fileMetadata = {
+        name: req.file.originalname,
+    };
+    const media = {
+        mimeType: req.file.mimetype,
+        body: fs.createReadStream(req.file.path),
+    };
 
-  const drive = google.drive({ version: 'v3', auth: oAuth2Client });
-  const fileMetadata = {
-      name: req.file.originalname,
-  };
-  const media = {
-      mimeType: req.file.mimetype,
-      body: fs.createReadStream(req.file.path),
-  };
+    try {
+        // Upload the file to Google Drive
+        const driveResponse = await drive.files.create({
+            resource: fileMetadata,
+            media: media,
+            fields: 'id',
+        });
 
-  drive.files.create(
-      {
-          resource: fileMetadata,
-          media: media,
-          fields: 'id',
-      },
-      (err, file) => {
-          oAuth2Client.setCredentials(null);
-          fs.unlink(req.file.path, (unlinkErr) => {
-              if (unlinkErr) {
-                  console.error(unlinkErr);
-              }
-          });
+        // Extract necessary file details
+        const fileId = driveResponse.data.id;
+        const fileName = req.file.originalname;
+        const fileSize = req.file.size;
+        const filePath = fileId; // This is an example, adjust according to your needs
+        const fileType = req.file.mimetype
 
-          if (err) {
-              console.error(err);
-              return res.status(400).send(err);
-          } else {
-              res.send('Successful');
-              console.log("Success")
-          }
-      }
-  );
+        // Clean up the temporary file
+        fs.unlink(req.file.path, (unlinkErr) => {
+            if (unlinkErr) {
+                console.error('Failed to delete temporary file:', unlinkErr);
+            }
+        });
+
+        // Insert file information into the database
+        const [result] = await pool.query(
+            'INSERT INTO files (filename, filelocation, itemid, filesize, uid, uploaddate, keyid,filetype) VALUES (?, "drive",?, ?, ?, NOW(), ?, ?)', [
+                fileName,
+                driveResponse.data.id,
+                fileSize,
+                req.body.uid,
+                1234, // Assuming keyid is the fileId in this case; adjust if needed
+                fileType
+            ]
+        );
+
+        // Send a success response
+        res.status(200).json({
+            message: 'File uploaded to Google Drive and saved to database successfully',
+            driveFileId: fileId,
+            dbResponse: result
+        });
+        console.log('Success:', fileId);
+
+    } catch (error) {
+        console.error('Error uploading file to Google Drive:', error);
+        res.status(500).send('Failed to upload file to Google Drive');
+    }
 });
 
 router.post('/deleteFile/:id', (req, res) => {
@@ -174,6 +198,15 @@ router.post('/download/:id', (req, res) => {
 
 });
 
-module.exports = router;
+router.post('/getFilesByUid', verifyToken, async (req, res) => {
+    const uid = req.userId; // Extracted from the verified token
 
+    try {
+        const [rows] = await pool.query('SELECT * FROM files WHERE uid = ?', [uid]);
+        return res.status(200).json(rows);
+    } catch (error) {
+        console.error('Error fetching files:', error);
+        return res.status(500).json({ error: 'Failed to fetch files' });
+    }
+});
 module.exports = router;

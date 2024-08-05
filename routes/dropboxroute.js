@@ -9,6 +9,7 @@ const CLIENT_SECRET = dbcred.CLIENT_SECRET;
 const REDIRECT_URI = 'http://localhost:5000/api/dropbox/redirect';
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+const pool = require("../config/db.js");
 
 function authorize() {
     return 'https://www.dropbox.com/oauth2/authorize?client_id=a60rwgu156bdp1o&redirect_uri=http://localhost:5000/api/dropbox/redirect&response_type=code&token_access_type=offline';
@@ -53,6 +54,8 @@ router.get('/redirect', async (req, res) => {
 
 router.post('/upload', upload.single('file'), async (req, res) => {
     const token = req.body.token;
+    const uid = req.body.uid;
+
     if (!token) {
         return res.status(401).send('Not authenticated');
     }
@@ -62,9 +65,15 @@ router.post('/upload', upload.single('file'), async (req, res) => {
         return res.status(400).send('No file uploaded');
     }
 
+    const filePath = file.path;
+    const fileName = file.originalname;
+    const fileSize = file.size; // Size in bytes
+    const fileType = file.mimetype
+
     try {
-        const fileContents = fs.readFileSync(file.path);
-        const dropboxPath = `/${file.originalname}`;
+        // Upload file to Dropbox
+        const fileContents = fs.readFileSync(filePath);
+        const dropboxPath = `/${fileName}`;
 
         const response = await axios.post('https://content.dropboxapi.com/2/files/upload', fileContents, {
             headers: {
@@ -79,14 +88,32 @@ router.post('/upload', upload.single('file'), async (req, res) => {
             }
         });
 
-        // Clean up the temporary file
-        fs.unlinkSync(file.path);
+        // Extract Dropbox file ID from response
+        const dropboxFileId = response.data.id;
 
-        return res.status(200).json(response.data);
+        // Insert file information into the database
+        const [result] = await pool.query(
+            'INSERT INTO files (filename, filelocation, itemid, filesize, uid, uploaddate, keyid, filetype) VALUES (?,"dropbox", ?, ?, ?, NOW(), ?,?)', [
+                fileName,
+                dropboxFileId, // Using Dropbox file ID as filelocation
+                fileSize,
+                uid,
+                1234,
+                fileType
+            ]
+        );
+
+        // Clean up the temporary file
+        fs.unlinkSync(filePath);
+
+        return res.status(200).json({
+            message: 'File uploaded and saved to database successfully',
+            dropboxResponse: response.data,
+            dbResponse: result
+        });
     } catch (error) {
         console.error('Error uploading file to Dropbox:', error);
         return res.status(500).send('Failed to upload file to Dropbox');
     }
 });
-
 module.exports = router;

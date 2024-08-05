@@ -7,6 +7,7 @@ const fileRoutes = require('./routes/fileRoutes');
 const keyRoutes = require('./routes/keyRoutes');
 const cors = require('cors'); // Import CORS middleware
 const dropboxRoutes = require('./routes/dropboxroute');
+const onedriveRoutes = require('./routes/onedriveroute');
 const app = express();
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
@@ -14,7 +15,7 @@ const MySQLStore = require('express-mysql-session')(session);
 const dbOptions = {
     host: 'localhost',
     user: 'root',
-    password: 'Poopedy11_',
+    password: 'password',
     database: 'fyp_database',
     port: 3306,
 };
@@ -43,13 +44,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Middleware to parse form-data
-app.use(upload.none());
+//app.use(upload.none());
 
 app.use('/api', keyRoutes);
 app.use('/api', fileRoutes);
 app.use('/api', planRoutes);
 app.use('/api', userRoutes);
 app.use('/api/dropbox', dropboxRoutes);
+app.use('/api/onedrive', onedriveRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

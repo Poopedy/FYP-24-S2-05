@@ -1,7 +1,7 @@
 // routes/keyRoutes.js
 const express = require('express');
 const router = express.Router();
-const keyController = require('../controllers/keyController');
+const keyController = require('../controller/keyController');
 
 router.post('/keys', keyController.createKey);
 router.get('/keys/:keyid', keyController.getKeyById);

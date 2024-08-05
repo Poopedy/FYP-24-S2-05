@@ -1,7 +1,7 @@
 // routes/fileRoutes.js
 const express = require('express');
 const router = express.Router();
-const fileController = require('../controllers/fileController');
+const fileController = require('../controller/fileController');
 
 router.post('/files', fileController.createFile);
 router.get('/files/:fileId', fileController.getFileById);

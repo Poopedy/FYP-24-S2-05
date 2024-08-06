@@ -22,7 +22,7 @@ const RegisterPage = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/register', {
+      const response = await axios.post('https://54.179.174.127:5000/api/register', {
         email,
         username,
         password,

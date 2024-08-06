@@ -18,7 +18,7 @@ const LoginForm = () => {
 
     try {
       // Send email to backend for validation
-      const response = await axios.post('http://localhost:5000/api/login', {
+      const response = await axios.post('https://54.179.174.127:5000/api/login', {
           email,
           password
       });

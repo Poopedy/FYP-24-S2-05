@@ -28,7 +28,7 @@ const UserCloudServiceUpgrade = () => {
       if (!planid) return; // Do nothing if planid is not set
 
       try {
-        const response = await axios.post('http://localhost:5000/api/getplan', { planid });
+        const response = await axios.post('https://54.179.174.127:5000/api/getplan', { planid });
         console.log('Plan data:', response.data);
         setPlan(response.data);
       } catch (error) {

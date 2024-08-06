@@ -56,3 +56,4 @@ npm install express-session connect-session-sequelize mysql2
 npm install express-mysql-session --save
 
 http://54.179.174.127
+http://localhost

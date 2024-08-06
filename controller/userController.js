@@ -74,6 +74,7 @@ const userController = {
 
             // Store user information in session
             req.session.user = {
+                name:user.username,
                 id: user.UID,
                 email: user.email,
                 role: user.role,

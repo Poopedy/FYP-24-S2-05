@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 import './UserPayment.css';
 import { FaUser } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
@@ -9,6 +11,24 @@ import { HiSparkles } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
 
 const UserPayment = () => {
+  const { planid } = useParams(); // Extract planid from URL parameters
+  const [plan, setPlan] = useState({ name: '', price: 0, status: 'Inactive' })
+
+  useEffect(() => {
+    const fetchPlan = async () => {
+      if (!planid) return; // Do nothing if planid is not set
+
+      try {
+        const response = await axios.post('http://localhost:5000/api/getplan', { planid });
+        console.log('Plan data:', response.data);
+        setPlan(response.data);
+      } catch (error) {
+        console.error('Error fetching plan details:', error);
+      }
+    };
+
+    fetchPlan();
+  }, [planid]); // Run whenever planid changes
   return (
     <div className="user-payment">
     <div className="sidebar">
@@ -55,8 +75,8 @@ const UserPayment = () => {
               Package:
               <input 
                 type="text"
-                name="package"
-                placeholder="Premium"
+                name="Plan"
+                value={plan.name}
                 className='input-readOnly' readOnly
               />
             </label>
@@ -65,7 +85,7 @@ const UserPayment = () => {
               <input
                 type="text"
                 name="cost"
-                placeholder="$20.00"
+                value={plan.price}
                 className='input-readOnly' readOnly
               />
             </label>

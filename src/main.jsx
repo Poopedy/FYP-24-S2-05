@@ -54,7 +54,7 @@ root.render(
         <Route path="/upload" element={<FileUploadFile />} />
         <Route path="/useraccmanagement" element={<UserAccountManagement />} />
         <Route path="/useractivitybilling" element={<UserActivityBilling />} />
-        <Route path="/userpayment" element={<UserPayment />} />
+        <Route path="/userpayment/:planid" element={<UserPayment />} />
         <Route path="/adminaccmanagement" element={<AdminAccountManagement />} />
         <Route path="/adminuseractivity" element={<AdminUserActivity />} />
         <Route path="/usercloudserviceupgrade" element={<UserCloudServiceUpgrade />} />

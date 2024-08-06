@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './UserAccountManagement.css';
 import { FaUser } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
@@ -9,15 +10,37 @@ import { HiSparkles } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
 
 const UserAccountManagement = () => {
-  const [user, setUser] = useState({
-    name: 'John Mchizzle',
-    phone: '97864722',
-    email: 'mchizzle@gmail.com',
-    password: '***********',
-    package: 'Freenium',
-    userkey: 'vd8*******'
-  });
+  const [planid, setPlanid] = useState(null);
+  const [plan, setPlan] = useState({ name: '', price: 0, status: 'Inactive' });
+  const [user, setUser] = useState({ name: '', email: '', password: '', userkey: '' });
+  useEffect(() => {
+    // Retrieve user data from sessionStorage
+    const storedUser = sessionStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setPlanid(parsedUser.planid);
+    }
+  }, []); // Run only once to initialize planid
 
+  useEffect(() => {
+    const fetchPlan = async () => {
+      if (!planid) return; // Do nothing if planid is not set
+
+      try {
+        const response = await axios.post('http://localhost:5000/api/getplan', { planid });
+        console.log('Plan data:', response.data);
+        setPlan(response.data);
+      } catch (error) {
+        console.error('Error fetching plan details:', error);
+      }
+    };
+
+    fetchPlan();
+  }, [planid]); // Run whenever planid changes
+  
+  console.log("user",user);
+  console.log('plan',plan);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prevUser) => ({
@@ -81,11 +104,11 @@ const UserAccountManagement = () => {
               <input
                 type="text"
                 name="name"
-                value={user.name}
+                value={user.name || ''}
                 onChange={handleChange}
               />
             </label>
-            <label>
+            {/* <label>
               Phone:
               <input
                 type="text"
@@ -93,7 +116,7 @@ const UserAccountManagement = () => {
                 value={user.phone}
                 onChange={handleChange}
               />
-            </label>
+            </label> */}
             <label>
               Email:
               <input
@@ -113,11 +136,11 @@ const UserAccountManagement = () => {
               />
             </label>
             <label>
-              Package:
+              Plan:
               <input
                 type="package"
                 name="package"
-                value={user.package} readOnly
+                value={plan.name} readOnly
                 onChange={handleChange}
                 className='input-readOnly'
               />

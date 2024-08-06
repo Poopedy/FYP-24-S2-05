@@ -28,7 +28,7 @@ const UserCloudServiceUpgrade = () => {
       if (!planid) return; // Do nothing if planid is not set
 
       try {
-        const response = await axios.post('https://54.179.174.127:5000/api/getplan', { planid });
+        const response = await axios.post('http://localhost:5000/api/getplan', { planid });
         console.log('Plan data:', response.data);
         setPlan(response.data);
       } catch (error) {
@@ -112,8 +112,8 @@ const UserCloudServiceUpgrade = () => {
             <div className="upgrade-plan">
               <h4>BASIC</h4>
               <p style={{ fontSize: '1.3em' }}><b>FREE</b></p>
-              <p>one-time purchase</p>
-              <Link to="/userpayment">
+              <p>Basic Plan</p>
+              <Link to="/userpayment/1">
                 <button className='upgrade-button'>
                   Choose
                 </button>
@@ -128,8 +128,8 @@ const UserCloudServiceUpgrade = () => {
             <div className="upgrade-plan">
               <h4 style={{ color: '#71706e' }}>SILVER</h4>
               <p style={{ fontSize: '1.3em' }}><b>SGD 4.99</b></p>
-              <p>one-time purchase</p>
-              <Link to="/userpayment">
+              <p>Subscription Plan</p>
+              <Link to="/userpayment/2" >
                 <button className='upgrade-button'>
                   Choose
                 </button>
@@ -144,8 +144,8 @@ const UserCloudServiceUpgrade = () => {
             <div className="upgrade-plan">
               <h4 style={{ color: '#C59E01' }}>GOLD</h4>
               <p style={{ fontSize: '1.3em' }}><b>SGD 9.99</b></p>
-              <p>one-time purchase</p>
-              <Link to="/userpayment">
+              <p>Subscription Plan</p>
+              <Link to="/userpayment/3">
                 <button className='upgrade-button'>
                   Choose
                 </button>

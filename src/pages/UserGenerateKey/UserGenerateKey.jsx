@@ -25,10 +25,6 @@ const UserGenerateKey = () => {
     setEncryptionKey(newKey);
   };
 
-  const handleDelete = () => {
-    console.log('User deleted');
-  };
-
   return (
     <div className="user-account-management">
       <div className="sidebar">

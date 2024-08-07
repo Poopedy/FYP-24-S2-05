@@ -9,6 +9,8 @@ import { HiSparkles } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
 
 const UserCloudServiceUpgrade = () => {
+  const currentPlan = 'Silver'; // Assume this is retrieved from the user's data
+
   return (
     <div className="user-cloud-service-upgrade">
       <div className="sidebar">
@@ -70,7 +72,7 @@ const UserCloudServiceUpgrade = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td>Gold</td>
+                  <td>Silver</td>
                   <td>Active</td>
                   <td>
                     <button className="cancel-button">Cancel</button>
@@ -85,7 +87,7 @@ const UserCloudServiceUpgrade = () => {
               <p style={{ fontSize: '1.3em' }}><b>FREE</b></p>
               <p>one-time purchase</p>
               <Link to="/userpayment">
-                <button className='upgrade-button'>
+                <button className='upgrade-button' disabled={currentPlan === 'Free'} style={currentPlan === 'Free' ? { backgroundColor: 'grey', color: 'white', cursor: 'not-allowed' } : {}}>
                   Choose
                 </button>
               </Link>
@@ -101,7 +103,7 @@ const UserCloudServiceUpgrade = () => {
               <p style={{ fontSize: '1.3em' }}><b>SGD 4.99</b></p>
               <p>one-time purchase</p>
               <Link to="/userpayment">
-                <button className='upgrade-button'>
+                <button className='upgrade-button' disabled={currentPlan === 'Silver'} style={currentPlan === 'Silver' ? { backgroundColor: 'grey', color: 'white', cursor: 'not-allowed' } : {}}>
                   Choose
                 </button>
               </Link>
@@ -117,7 +119,7 @@ const UserCloudServiceUpgrade = () => {
               <p style={{ fontSize: '1.3em' }}><b>SGD 9.99</b></p>
               <p>one-time purchase</p>
               <Link to="/userpayment">
-                <button className='upgrade-button'>
+                <button className='upgrade-button' disabled={currentPlan === 'Gold'} style={currentPlan === 'Gold' ? { backgroundColor: 'grey', color: 'white', cursor: 'not-allowed' } : {}}>
                   Choose
                 </button>
               </Link>

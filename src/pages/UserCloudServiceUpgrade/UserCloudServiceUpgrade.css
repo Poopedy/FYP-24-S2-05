@@ -168,7 +168,7 @@
 .table-container {
   display: flex;
   justify-content: center;
-  margin: 20px 0; /* Optional: adds some vertical margin */
+  margin: 20px 0;
 }
 
 .table-container table {
@@ -199,4 +199,3 @@
 .table-container .cancel-button:hover {
   background-color: #B574FF;
 }
-

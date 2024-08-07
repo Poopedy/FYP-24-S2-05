@@ -193,3 +193,28 @@
   font-size: 16px;
   padding: 10px;
 }
+
+.user-management input.locked {
+  flex: 1;
+  margin-left: 5px;
+  background: #c3b8c5;
+  border: 2px solid rgba(3, 3, 3, 0.2);
+  outline: none;
+  border-radius: 40px;
+  font-size: 16px;
+  color: #221f25;
+  padding: 10px 60px 10px 20px;
+}
+
+.lock-button {
+  background-color: #d3a6ff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.lock-button:hover {
+  background-color: #B574FF;
+}

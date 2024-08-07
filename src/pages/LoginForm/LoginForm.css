@@ -45,7 +45,7 @@
 }
 
 .body, .wrapper, .wrapper h1, 
-.wrapper .input-box, .input-box input, .input-box input::placeholder, .input-box .icon, 
+.wrapper .login-input-box, .login-input-box input, .login-input-box input::placeholder, .login-input-box .icon, 
 .wrapper .remember-forgot, .remember-forgot label input, .remember-forgot a, .remember-forgot a:hover, 
 .RegLogButton, .wrapper .register-link, .register-link p a, .register-link p a:hover {
 margin: 0;
@@ -77,14 +77,14 @@ background-color: #F9F4FF;
   text-align: center;
 }
 
-.wrapper .input-box{
+.wrapper .login-input-box{
   position: relative;
   width: 100%;
   height: 50px;
   margin: 30px 0;
 }
 
-.input-box input{
+.login-input-box input{
   width: 100%;
   height: 100%;
   background: #F9F4FF;
@@ -96,11 +96,11 @@ background-color: #F9F4FF;
   padding: 20px 45px 20px 20px;
 }
 
-.input-box input::placeholder{
+.login-input-box input::placeholder{
   color: #221f25;
 }
 
-.input-box .icon{
+.login-input-box .icon{
   position: absolute;
   right: 20px;
   top: 35%;

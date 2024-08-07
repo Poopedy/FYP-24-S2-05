@@ -26,6 +26,7 @@ import SuperAdminAdminActivity from './pages/SuperAdminAdminActivity/SuperAdminA
 import SuperAdminUserActivity from './pages/SuperAdminUserActivity/SuperAdminUserActivity.jsx';
 import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/SuperAdminAccountManagement.jsx';
 import axios from 'axios';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
 // Set up Axios to include the token in the Authorization header for all requests
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -36,6 +37,7 @@ axios.interceptors.request.use((config) => {
 }, (error) => {
   return Promise.reject(error);
 });
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -67,6 +69,7 @@ root.render(
         <Route path="/superadminadminactivity" element={<SuperAdminAdminActivity />} />
         <Route path="/superadminuseractivity" element={<SuperAdminUserActivity />} />
         <Route path="/superadminaccmanagement" element={<SuperAdminAccountManagement />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

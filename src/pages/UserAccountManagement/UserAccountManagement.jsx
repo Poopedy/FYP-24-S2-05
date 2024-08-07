@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserAccountManagement.css';
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaLock, FaUnlock } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
-import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 const UserAccountManagement = () => {
   const [planid, setPlanid] = useState(null);
@@ -59,48 +60,66 @@ const UserAccountManagement = () => {
     console.log('User deleted');
   };
 
+  const handleLockToggle = () => {
+    if (isLocked) {
+      setShowPassphrasePopup(true);
+    } else {
+      setIsLocked(true);
+    }
+  };
+
+  const handlePassphraseSubmit = () => {
+    if (inputPassphrase === "1234!A") {
+      setIsLocked(false);
+      setShowPassphrasePopup(false);
+      setInputPassphrase('');
+    } else {
+      alert("Incorrect passphrase!");
+    }
+  };
+
   return (
     <div className="user-account-management">
-    <div className="sidebar">
+      <div className="sidebar">
         <div className="logoUser">
-        <img src="/images/CipherLinkLogo.png" alt="CipherLink Logo Login" />
-        <p>CipherLink Trusted Cloud</p>
+          <img src="/images/CipherLinkLogo.png" alt="CipherLink Logo Login" />
+          <p>CipherLink Trusted Cloud</p>
         </div>
         <nav>
-        <ul>
+          <ul>
             <li className="userNotActive">
-            <Link to="/userdashboard">
+              <Link to="/userdashboard">
                 <PiFilesFill style={{ marginRight: '10px' }} />
                 My Files
-            </Link>
+              </Link>
             </li>
-        </ul>
+          </ul>
         </nav>
         <div className="settings-logout">
-        <div className="userNotActive">
+          <div className="userNotActive">
             <Link to="/usercloudserviceupgrade">
-            <HiSparkles style={{ marginRight: '10px' }} />
-            Upgrade
+              <HiSparkles style={{ marginRight: '10px' }} />
+              Upgrade
             </Link>
-        </div>
-        <div className="userActive">
+          </div>
+          <div className="userActive">
             <IoMdSettings style={{ marginRight: '10px' }} />
             Settings
-        </div>
-        <div className="userNotActive">
+          </div>
+          <div className="userNotActive">
             <Link to="/login">
-                <IoLogOut style={{ marginRight: '10px' }} />
-                Logout
+              <IoLogOut style={{ marginRight: '10px' }} />
+              Logout
             </Link>
+          </div>
         </div>
-        </div>
-    </div>
-    <div className="main-content-managment">
+      </div>
+      <div className="main-content-managment">
         <section className="user-management">
           <h2>Account Details</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
                 type="text"
                 name="name"
@@ -129,13 +148,31 @@ const UserAccountManagement = () => {
             <label>
               Password:
               <input
-                type="password"
-                name="password"
-                value={user.password}
-                onChange={handleChange}
+                  type="password"
+                  name="password"
+                  value={user.password}
+                  onChange={handleChange}
+                  readOnly={isLocked}
+                  className={isLocked ? 'locked' : ''}
               />
+              <button type="button" className="lock-button" onClick={handleLockToggle}>
+                {isLocked ? <FaLock /> : <FaUnlock />}
+              </button>
             </label>
+            {showPassphrasePopup && (
+              <Popup open={showPassphrasePopup} closeOnDocumentClick onClose={() => setShowPassphrasePopup(false)} modal>
+                <div className="modal-container">
+                  <div className="modal">
+                    <h3>Enter Passphrase</h3>
+                    <input type="password" value={inputPassphrase} onChange={(e) => setInputPassphrase(e.target.value)} />
+                    <button onClick={handlePassphraseSubmit}>Submit</button>
+                    <button onClick={() => setShowPassphrasePopup(false)}>Cancel</button>
+                  </div>
+                </div>
+              </Popup>
+            )}
             <label>
+              Plan:
               Plan:
               <input
                 type="package"

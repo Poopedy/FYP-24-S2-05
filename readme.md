@@ -55,6 +55,6 @@ npm install express-session connect-mysql-session
 npm install express-session connect-session-sequelize mysql2
 npm install express-mysql-session --save
 
-http://54.179.174.127
+http://localhost
 
 rsync -avz -e "ssh -i SG-FYP-MAC.pem"  cipherlink_xyz ubuntu@ec2-54-179-174-127.ap-southeast-1.compute.amazonaws.com:~/ec2

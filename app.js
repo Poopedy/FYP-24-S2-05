@@ -13,9 +13,9 @@ const MySQLStore = require('express-mysql-session')(session);
 
 const dbOptions = {
     host: 'localhost',
-    user: 'fyp_user',
-    password: 'password',
-    database: 'CIPHERLINK',
+    user: 'root',
+    password: 'Poopedy11_',
+    database: 'fyp_database',
     port: 3306,
 };
 

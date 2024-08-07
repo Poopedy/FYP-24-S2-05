@@ -145,7 +145,21 @@
   cursor: pointer;
 }
 
+.user-management .generate-key {
+  background-color: #d3a6ff;
+  border: none;
+  width: 100%;
+  margin-left: 5px;
+  padding: 5px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .user-management .upgrade-account:hover {
+  background-color: #B574FF;
+}
+
+.user-management .generate-key:hover {
   background-color: #B574FF;
 }
 

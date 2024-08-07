@@ -11,12 +11,10 @@ import 'reactjs-popup/dist/index.css';
 
 const UserAccountManagement = () => {
   const [user, setUser] = useState({
-    name: 'John Mchizzle',
-    phone: '97864722',
+    username: 'John Mchizzle',
     email: 'mchizzle@gmail.com',
     password: '***********',
-    package: 'Gold',
-    userkey: 'vd8*******'
+    plan: 'Silver',
   });
 
   const [isLocked, setIsLocked] = useState(true);
@@ -24,10 +22,10 @@ const UserAccountManagement = () => {
   const [inputPassphrase, setInputPassphrase] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { username, value } = e.target;
     setUser((prevUser) => ({
       ...prevUser,
-      [name]: value,
+      [username]: value,
     }));
   };
 
@@ -104,7 +102,7 @@ const UserAccountManagement = () => {
               <input
                 type="username"
                 name="username"
-                value={user.name}
+                value={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -146,9 +144,9 @@ const UserAccountManagement = () => {
             <label>
               Plan:
               <input
-                type="package"
-                name="package"
-                value={user.package} readOnly
+                type="plan"
+                name="plan"
+                value={user.plan} readOnly
                 onChange={handleChange}
                 className='input-readOnly'
               />
@@ -158,15 +156,9 @@ const UserAccountManagement = () => {
             </label>
             <label className="userkey-label">
               User Key:
-              <select
-                name="userkey"
-                value={user.userkey}
-                onChange={handleChange}
-                className="userkey-dropdown"
-              >
-                <option value="userkey1">vd8*******</option>
-                <option value="userkey2">m2g*******</option>
-              </select>
+              <Link to="/usergeneratekey"><button type="button" className="generate-key">
+                  Generate Encryption Key
+                </button></Link>
             </label>
             <div className="form-buttons">
               <Link to="/userdashboard"><button type="button" className="back">

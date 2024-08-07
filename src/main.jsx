@@ -25,6 +25,7 @@ import SuperAdminUpdateUser from './pages/SuperAdminUpdateUser/SuperAdminUpdateU
 import SuperAdminAdminActivity from './pages/SuperAdminAdminActivity/SuperAdminAdminActivity.jsx';
 import SuperAdminUserActivity from './pages/SuperAdminUserActivity/SuperAdminUserActivity.jsx';
 import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/SuperAdminAccountManagement.jsx';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -56,6 +57,7 @@ root.render(
         <Route path="/superadminadminactivity" element={<SuperAdminAdminActivity />} />
         <Route path="/superadminuseractivity" element={<SuperAdminUserActivity />} />
         <Route path="/superadminaccmanagement" element={<SuperAdminAccountManagement />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

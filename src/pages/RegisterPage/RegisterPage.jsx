@@ -87,7 +87,7 @@ const RegisterPage = () => {
           <FaLock className='icon' />
         </div>
 
-        <button className="RegLogButton" type="submit" disabled={!isSubmitEnabled}>Register</button>
+        <Link to="/generatekey"><button className="RegLogButton" type="submit" disabled={!isSubmitEnabled}>Register</button></Link>
       </form>
     </div>
   );

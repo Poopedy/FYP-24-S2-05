@@ -58,7 +58,7 @@ const LoginForm = () => {
 
       <form onSubmit={handleSubmit}>
         <h1>Login</h1>
-        <div className="input-box">
+        <div className="login-input-box">
           <input
             type="email"
             placeholder="Email"
@@ -68,7 +68,7 @@ const LoginForm = () => {
           />
           <MdEmail className='icon' />
         </div>
-        <div className="input-box">
+        <div className="login-input-box">
           <input 
             type="password" 
             placeholder="Password" 
@@ -82,7 +82,7 @@ const LoginForm = () => {
 
         <div className="remember-forgot">
           <label><input type="checkbox" />Remember me</label>
-          <a href="#">Forgot Password?</a>
+          <Link to="/forgotpassword"><a>Forgot Password?</a></Link>
         </div>
 
         <button className="RegLogButton" type="submit">Login</button>

@@ -52,11 +52,11 @@ const UserPayment = () => {
           <h2>Payment</h2>
           <form>
           <label>
-              Package:
+              Plan:
               <input 
                 type="text"
-                name="package"
-                placeholder="Premium"
+                name="Plan"
+                placeholder="Gold"
                 className='input-readOnly' readOnly
               />
             </label>

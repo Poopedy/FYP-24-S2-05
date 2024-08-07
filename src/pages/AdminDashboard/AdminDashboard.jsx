@@ -9,11 +9,11 @@ import { Link } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const users = [
-    { name: 'Bonnie Lee', phone: '88992348', email: 'bonnielee@gmail.com' },
-    { name: 'John Mchizzle', phone: '98263592', email: 'johnmchizzle@gmail.com' },
-    { name: 'Mary Law', phone: '87635412', email: 'marylaw@gmail.com' },
-    { name: 'Chiaki Opal', phone: '98274015', email: 'chiakiopal@gmail.com' },
-    { name: 'Anthony Chen', phone: '90274565', email: 'anthonychen@gmail.com' },
+    { username: 'Bonnie Lee',  email: 'bonnielee@gmail.com' },
+    { username: 'John Mchizzle', email: 'johnmchizzle@gmail.com' },
+    { username: 'Mary Law', email: 'marylaw@gmail.com' },
+    { username: 'Chiaki Opal', email: 'chiakiopal@gmail.com' },
+    { username: 'Anthony Chen', email: 'anthonychen@gmail.com' },
   ];
 
   return (
@@ -28,12 +28,6 @@ const AdminDashboard = () => {
             <li className="adminActive">
               <FaUsers style={{ marginRight: '10px' }} />
               Users
-            </li>
-            <li className="adminNotActive">
-              <Link to="/adminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
-              </Link>
             </li>
           </ul>
         </nav>
@@ -69,8 +63,7 @@ const AdminDashboard = () => {
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Phone</th>
+                <th>Username</th>
                 <th>Email</th>
                 <th>Actions</th>
               </tr>
@@ -78,8 +71,7 @@ const AdminDashboard = () => {
             <tbody>
               {users.map((user, index) => (
                 <tr key={index}>
-                  <td>{user.name}</td>
-                  <td>{user.phone}</td>
+                  <td>{user.username}</td>
                   <td>{user.email}</td>
                   <td>
                     <Link to="/adminupdateuser"><button className="updateuser">Update</button></Link>

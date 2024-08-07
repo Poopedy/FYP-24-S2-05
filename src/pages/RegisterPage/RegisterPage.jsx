@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './RegisterPage.css';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
@@ -6,16 +6,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const RegisterPage = () => {
-  // State variables to hold form data
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
-
-  useEffect(() => {
-    setIsSubmitEnabled(username && email && password && confirmPassword && password === confirmPassword);
-  }, [username, email, password, confirmPassword]);
 
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -26,7 +20,34 @@ const RegisterPage = () => {
       setError('Passwords do not match');
       return;
     }
+
+    try {
+      const response = await axios.post('https://54.179.174.127:5000/api/register', {
+        email,
+        username,
+        password,
+        role: 'user',
+        planid: 1
+      });
+
+      const { token, user } = response.data;
+
+      if (typeof token !== 'string' || token.trim() === '') {
+        throw new Error('Invalid token received');
+      }
+
+      // Store token in local storage
+      localStorage.setItem('token', token);
+
+      // Store user information in session storage
+      sessionStorage.setItem('user', JSON.stringify(user));
+
+      navigate('/generatekey');
+    } catch (error) {
+      console.error('Registration failed', error);
+    }
   };
+
 
   return (
     <div className='wrapper'>
@@ -92,7 +113,7 @@ const RegisterPage = () => {
           <FaLock className='icon' />
         </div>
 
-        <button className="RegLogButton" type="submit" disabled={!isSubmitEnabled}>Register</button>
+        <button className="RegLogButton" type="submit">Register</button>
       </form>
     </div>
   );

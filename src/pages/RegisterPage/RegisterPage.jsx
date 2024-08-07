@@ -8,13 +8,14 @@ const RegisterPage = () => {
   // State variables to hold form data
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [passphrase, setPassphrase] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
 
   useEffect(() => {
-    setIsSubmitEnabled(username && email && password && confirmPassword && password === confirmPassword);
-  }, [username, email, password, confirmPassword]);
+    setIsSubmitEnabled(username && email && passphrase && password && confirmPassword && password === confirmPassword);
+  }, [username, email, passphrase, password, confirmPassword]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -48,7 +49,7 @@ const RegisterPage = () => {
         <h1>Register</h1>
         <div className="input-box">
           <input
-            type="username"
+            type="text"
             placeholder="Username"
             required
             value={username}
@@ -65,6 +66,16 @@ const RegisterPage = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
           <MdEmail className='icon' />
+        </div>
+        <div className="input-box">
+          <input
+            type="password"
+            placeholder="Passphrase"
+            required
+            value={passphrase}
+            onChange={(e) => setPassphrase(e.target.value)}
+          />
+          <FaLock className='icon' />
         </div>
         <div className="input-box">
           <input

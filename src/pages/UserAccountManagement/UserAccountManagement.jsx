@@ -39,7 +39,10 @@ const UserAccountManagement = () => {
 
     fetchPlan();
   }, [planid]); // Run whenever planid changes
-  
+  const [isLocked, setIsLocked] = useState(true);
+  const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
+  const [inputPassphrase, setInputPassphrase] = useState('');
+
   console.log("user",user);
   console.log('plan',plan);
   const handleChange = (e) => {
@@ -173,7 +176,7 @@ const UserAccountManagement = () => {
             )}
             <label>
               Plan:
-              Plan:
+              
               <input
                 type="package"
                 name="package"

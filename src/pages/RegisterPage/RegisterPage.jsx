@@ -1,22 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './RegisterPage.css';
 import { FaUser, FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
 import { Link } from 'react-router-dom';
 
 const RegisterPage = () => {
+  // State variables to hold form data
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
+
+  useEffect(() => {
+    setIsSubmitEnabled(username && email && password && confirmPassword && password === confirmPassword);
+  }, [username, email, password, confirmPassword]);
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); 
+    event.preventDefault();
 
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
+
+    // Handle the form submission logic here
   };
 
   return (
@@ -79,7 +87,7 @@ const RegisterPage = () => {
           <FaLock className='icon' />
         </div>
 
-        <button className="RegLogButton" type="submit">Register</button>
+        <button className="RegLogButton" type="submit" disabled={!isSubmitEnabled}>Register</button>
       </form>
     </div>
   );

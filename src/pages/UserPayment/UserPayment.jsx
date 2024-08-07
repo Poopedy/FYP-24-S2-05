@@ -65,7 +65,7 @@ const UserPayment = () => {
               <input
                 type="text"
                 name="cost"
-                placeholder="$20.00"
+                placeholder="$9.99"
                 className='input-readOnly' readOnly
               />
             </label>

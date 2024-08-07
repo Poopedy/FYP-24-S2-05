@@ -19,12 +19,6 @@ const AdminCreateUser = () => {
             <li className="adminActive">
             <FaUsers style={{ marginRight: '10px' }} />
             Users</li>
-            <li className="adminNotActive">
-            <Link to="/adminuseractivity">
-            <LuActivitySquare style={{ marginRight: '10px' }} />
-            Users Activity Log
-            </Link>
-            </li>
         </ul>
       </nav>
       <div className="settings-logout">
@@ -47,17 +41,10 @@ const AdminCreateUser = () => {
           <h2>Create User Account</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
                 type="text"
                 name="name"
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
               />
             </label>
             <label>
@@ -65,13 +52,6 @@ const AdminCreateUser = () => {
               <input
                 type="email"
                 name="email"
-              />
-            </label>
-            <label>
-              Password:
-              <input
-                type="password"
-                name="password"
               />
             </label>
             <div className="form-buttons">

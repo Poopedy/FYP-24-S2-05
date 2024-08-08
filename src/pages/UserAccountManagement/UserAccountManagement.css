@@ -155,11 +155,17 @@
   cursor: pointer;
 }
 
-.user-management .upgrade-account:hover {
+.user-management .generate-key.disabled-button {
+  background: #c3b8c5;
+  color: #000000;
+  cursor: not-allowed;
+}
+
+.user-management .generate-key:not(.disabled-button):hover {
   background-color: #B574FF;
 }
 
-.user-management .generate-key:hover {
+.user-management .upgrade-account:hover {
   background-color: #B574FF;
 }
 
@@ -189,23 +195,6 @@
 .user-management .userkey-label {
   display: flex;
   align-items: center;
-}
-
-.user-management .userkey-dropdown {
-  margin-left: 5px;
-  flex: 1;
-  width: 225px;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-  cursor: pointer;
-}
-
-.user-management .userkey-dropdown option {
-  font-size: 16px;
-  padding: 10px;
 }
 
 .user-management input.locked {

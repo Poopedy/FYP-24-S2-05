@@ -20,6 +20,7 @@ const UserAccountManagement = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
   const [inputPassphrase, setInputPassphrase] = useState('');
+  const [isPassphraseCorrect, setIsPassphraseCorrect] = useState(false);
 
   const handleChange = (e) => {
     const { username, value } = e.target;
@@ -30,12 +31,10 @@ const UserAccountManagement = () => {
   };
 
   const handleUpdate = () => {
-    // Handle update logic
     console.log('User updated:', user);
   };
 
   const handleDelete = () => {
-    // Handle delete logic
     console.log('User deleted');
   };
 
@@ -44,16 +43,19 @@ const UserAccountManagement = () => {
       setShowPassphrasePopup(true);
     } else {
       setIsLocked(true);
+      setIsPassphraseCorrect(false); // Reset passphrase correctness when locked
     }
   };
 
   const handlePassphraseSubmit = () => {
     if (inputPassphrase === "1234!A") {
+      setIsPassphraseCorrect(true);
       setIsLocked(false);
       setShowPassphrasePopup(false);
       setInputPassphrase('');
     } else {
       alert("Incorrect passphrase!");
+      setIsPassphraseCorrect(false);
     }
   };
 
@@ -116,14 +118,29 @@ const UserAccountManagement = () => {
               />
             </label>
             <label>
+              Plan:
+              <input
+                type="plan"
+                name="plan"
+                value={user.plan} readOnly
+                onChange={handleChange}
+                className='input-readOnly'
+              />
+              <Link to="/usercloudserviceupgrade">
+                <button type="button" className="upgrade-account">
+                  Upgrade
+                </button>
+              </Link>
+            </label>
+            <label>
               Password:
               <input
-                  type="password"
-                  name="password"
-                  value={user.password}
-                  onChange={handleChange}
-                  readOnly={isLocked}
-                  className={isLocked ? 'locked' : ''}
+                type="password"
+                name="password"
+                value={user.password}
+                onChange={handleChange}
+                readOnly={isLocked}
+                className={isLocked ? 'locked' : ''}
               />
               <button type="button" className="lock-button" onClick={handleLockToggle}>
                 {isLocked ? <FaLock /> : <FaUnlock />}
@@ -134,36 +151,35 @@ const UserAccountManagement = () => {
                 <div className="modal-container">
                   <div className="modal">
                     <h3>Enter Passphrase</h3>
-                    <input type="password" value={inputPassphrase} onChange={(e) => setInputPassphrase(e.target.value)} />
+                    <input 
+                      type="password" 
+                      value={inputPassphrase} 
+                      onChange={(e) => setInputPassphrase(e.target.value)} 
+                    />
                     <button onClick={handlePassphraseSubmit}>Submit</button>
                     <button onClick={() => setShowPassphrasePopup(false)}>Cancel</button>
                   </div>
                 </div>
               </Popup>
             )}
-            <label>
-              Plan:
-              <input
-                type="plan"
-                name="plan"
-                value={user.plan} readOnly
-                onChange={handleChange}
-                className='input-readOnly'
-              />
-              <Link to="/usercloudserviceupgrade"><button type="button" className="upgrade-account">
-                Upgrade
-              </button></Link>
-            </label>
             <label className="userkey-label">
               User Key:
-              <Link to="/usergeneratekey"><button type="button" className="generate-key">
+              <Link to={isPassphraseCorrect ? "/usergeneratekey" : "#"}>
+                <button 
+                  type="button" 
+                  className={`generate-key ${!isPassphraseCorrect ? 'disabled-button' : ''}`}  
+                  disabled={!isPassphraseCorrect}
+                >
                   Generate Encryption Key
-                </button></Link>
+                </button>
+              </Link>
             </label>
             <div className="form-buttons">
-              <Link to="/userdashboard"><button type="button" className="back">
-                Back
-              </button></Link>
+              <Link to="/userdashboard">
+                <button type="button" className="back">
+                  Back
+                </button>
+              </Link>
               <button type="button" className="updateaccount" onClick={handleUpdate}>
                 Update Account
               </button>

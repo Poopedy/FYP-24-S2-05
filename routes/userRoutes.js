@@ -13,7 +13,10 @@ const upload = multer({ dest: 'uploads/' });
 const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 const SCOPE = ['https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file']
 const verifyToken = require('../middlewares/authMiddleware');
+const axios = require('axios');
+const { encryptCloud, decryptCloud } = require('./encrypthelper');
 const pool = require("../config/db.js");
+const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.get('/users', verifyToken, userController.getAllUsers);
@@ -51,21 +54,42 @@ router.get('/getAuthURL', (req, res) => {
     return res.send(authUrl);
 });
 
-router.post('/getToken', (req, res) => {
-    console.log("ENTERED")
-    if (req.body.code == null) return res.status(400).send('Invalid Request');
-    var code = decodeURIComponent(req.body.code)
-    console.log(code)
-    oAuth2Client.getToken(code, (err, token) => {
-        if (err) {
-            console.error('Error retrieving access token', err);
-            return res.status(400).send('Error retrieving access token');
-        }
-        res.send(token);
-        return token;
-    });
+router.post('/getToken', async (req, res) => {
+    console.log("ENTERED");
 
+    // Check if the code and uid are provided
+    if (!req.body.code || !req.body.uid) {
+        return res.status(400).send('Invalid Request');
+    }
+
+    const code = decodeURIComponent(req.body.code);
+    const uid = req.body.uid; // Retrieve UID from the request body
+
+    console.log(`Code: ${code}, UID: ${uid}`);
+
+    try {
+        // Exchange the code for an access token
+        const { tokens } = await oAuth2Client.getToken(code);
+
+        // Log the token (optional)
+        console.log('Access token:', tokens);
+
+        // Here, you would insert or update the token in your database
+        // Example for MySQL:
+        await pool.query(
+            'INSERT INTO cloud (uid, cloudservice, accesstoken, refreshtoken) VALUES (?, ?, ?, ?) ' +
+            'ON DUPLICATE KEY UPDATE accesstoken = VALUES(accesstoken), refreshtoken = VALUES(refreshtoken)',
+            [uid, 'gdrive', encryptCloud(tokens.access_token), encryptCloud(tokens.refresh_token)]
+        );
+
+        // Send the token back in the response
+        res.send(tokens.access_token);
+    } catch (err) {
+        console.error('Error retrieving access token', err);
+        res.status(400).send('Error retrieving access token');
+    }
 });
+
 
 router.post('/getUserInfo', (req, res) => {
     if (req.body.token == null) return res.status(400).send('Token not found');
@@ -104,15 +128,13 @@ router.post('/readDrive', (req, res) => {
     });
 });
 
-// Specify the directory where files will be uploaded
-
 router.post('/fileUpload', upload.single('file'), async (req, res) => {
     if (!req.body.token) {
         return res.status(400).send('Token not found');
     }
     const uid = req.body.uid;
-    const token = JSON.parse(req.body.token);
-    oAuth2Client.setCredentials(token);
+    const token = req.body.token; // Directly use the access token
+    oAuth2Client.setCredentials({ access_token: token });
 
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
     const fileMetadata = {
@@ -135,8 +157,7 @@ router.post('/fileUpload', upload.single('file'), async (req, res) => {
         const fileId = driveResponse.data.id;
         const fileName = req.file.originalname;
         const fileSize = req.file.size;
-        const filePath = fileId; // This is an example, adjust according to your needs
-        const fileType = req.file.mimetype
+        const fileType = req.file.mimetype;
 
         // Clean up the temporary file
         fs.unlink(req.file.path, (unlinkErr) => {
@@ -147,11 +168,11 @@ router.post('/fileUpload', upload.single('file'), async (req, res) => {
 
         // Insert file information into the database
         const [result] = await pool.query(
-            'INSERT INTO files (filename, filelocation, itemid, filesize, uid, uploaddate, keyid,filetype) VALUES (?, "drive",?, ?, ?, NOW(), ?, ?)', [
+            'INSERT INTO files (filename, filelocation, itemid, filesize, uid, uploaddate, keyid, filetype) VALUES (?, "drive", ?, ?, ?, NOW(), ?, ?)', [
                 fileName,
                 driveResponse.data.id,
                 fileSize,
-                req.body.uid,
+                uid,
                 1234, // Assuming keyid is the fileId in this case; adjust if needed
                 fileType
             ]
@@ -173,19 +194,27 @@ router.post('/fileUpload', upload.single('file'), async (req, res) => {
 
 router.post('/deleteFile/:id', (req, res) => {
     if (req.body.token == null) return res.status(400).send('Token not found');
-    oAuth2Client.setCredentials(req.body.token);
+    oAuth2Client.setCredentials({ access_token: req.body.token }); // Use access token
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
-    var fileId = req.params.id;
-    drive.files.delete({ 'fileId': fileId }).then((response) => { res.send(response.data) })
+    const fileId = req.params.id;
+    drive.files.delete({ fileId: fileId })
+        .then(() => res.send({ message: 'File deleted successfully' }))
+        .catch(error => {
+            console.error('Error deleting file:', error);
+            res.status(500).send('Failed to delete file');
+        });
 });
-
 router.post('/download/:id', (req, res) => {
     if (req.body.token == null) return res.status(400).send('Token not found');
-    oAuth2Client.setCredentials(req.body.token);
+    oAuth2Client.setCredentials({ access_token: req.body.token }); // Use access token
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
-    var fileId = req.params.id;
+    const fileId = req.params.id;
     drive.files.get({ fileId: fileId, alt: 'media' }, { responseType: 'stream' },
-        function (err, response) {
+        (err, response) => {
+            if (err) {
+                console.error('Error downloading file:', err);
+                return res.status(500).send('Failed to download file');
+            }
             response.data
                 .on('end', () => {
                     console.log('Done');
@@ -195,7 +224,6 @@ router.post('/download/:id', (req, res) => {
                 })
                 .pipe(res);
         });
-
 });
 
 router.post('/getFilesByUid', verifyToken, async (req, res) => {
@@ -209,4 +237,95 @@ router.post('/getFilesByUid', verifyToken, async (req, res) => {
         return res.status(500).json({ error: 'Failed to fetch files' });
     }
 });
+
+router.post('/refresh-google', async (req, res) => {
+    const { uid } = req.body;
+    if (!uid) {
+        return res.status(400).send('User ID is required');
+    }
+
+    try {
+        // Retrieve the refresh token from the database
+        const [rows] = await pool.query('SELECT refreshtoken FROM cloud WHERE uid = ? AND cloudservice = ?', [uid, 'gdrive']);
+        if (rows.length === 0) {
+            throw new Error('Refresh token not found');
+        }
+
+        const refreshToken = decryptCloud(rows[0].refreshtoken);
+
+        // Request a new access token
+        const response = await axios.post(TOKEN_URL, new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken,
+            client_id: client_id,
+            client_secret: client_secret
+        }).toString(), {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        const { access_token, refresh_token: newRefreshToken } = response.data;
+
+        // Update the access token and refresh token in the database
+        await pool.query('UPDATE cloud SET accesstoken = ? WHERE uid = ? AND cloudservice = ?', [
+            encryptCloud(access_token),
+            uid,
+            'gdrive'
+        ]);
+
+        res.json({ accessToken: access_token });
+    } catch (error) {
+        console.error('Error refreshing Google access token:', error);
+        res.status(500).send('Failed to refresh access token');
+    }
+});
+// router.post('/gettokens', verifyToken, async (req, res) => {
+//     try {
+//         const uid = req.userId; // UID extracted from JWT
+
+//         // Fetch cloud information for the given UID
+//         const [rows] = await pool.query(
+//             'SELECT * FROM cloud WHERE uid = ?',
+//             [uid]
+//         );
+
+//         if (rows.length === 0) {
+//             return res.status(404).send('No cloud records found for this user');
+//         }
+
+//         res.json(rows);
+//     } catch (error) {
+//         console.error('Error fetching cloud information:', error);
+//         res.status(500).send('Server error');
+//     }
+// });
+
+
+router.post('/gettokens', verifyToken, async (req, res) => {
+    try {
+        const uid = req.userId; // UID extracted from JWT
+
+        // Fetch cloud information for the given UID
+        const [rows] = await pool.query(
+            'SELECT * FROM cloud WHERE uid = ?',
+            [uid]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).send('No cloud records found for this user');
+        }
+
+        // Decrypt the tokens before returning them
+        const decryptedRows = rows.map(row => ({
+            ...row,
+            accesstoken: decryptCloud(row.accesstoken),
+            refreshtoken: decryptCloud(row.refreshtoken),
+        }));
+
+        res.json(decryptedRows);
+    } catch (error) {
+        console.error('Error fetching cloud information:', error);
+        res.status(500).send('Server error');
+    }
+});
+
 module.exports = router;

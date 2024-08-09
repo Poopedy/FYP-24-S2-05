@@ -10,21 +10,72 @@ const REDIRECT_URI = 'http://localhost:5000/api/onedrive/redirect';
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const pool = require("../config/db.js");
+const { encryptCloud, decryptCloud } = require('./encrypthelper');
 
 
-function authorize() {
-    return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=files.readwrite offline_access`;
+// function authorize() {
+//     return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=files.readwrite offline_access`;
+// }
+
+// router.get('/authorize', (req, res) => {
+//     const authUrl = authorize();
+//     res.json({ authUrl });
+// });
+
+// router.get('/redirect', async (req, res) => {
+//     const code = req.query.code;
+//     if (!code) {
+//         return res.status(400).send('Authorization code not provided');
+//     }
+
+//     try {
+//         const response = await axios.post('https://login.microsoftonline.com/common/oauth2/v2.0/token', qs.stringify({
+//             code: code,
+//             grant_type: 'authorization_code',
+//             client_id: CLIENT_ID,
+//             client_secret: CLIENT_SECRET,
+//             redirect_uri: REDIRECT_URI
+//         }), {
+//             headers: {
+//                 'Content-Type': 'application/x-www-form-urlencoded'
+//             }
+//         });
+
+//         const token = response.data.access_token; // Extract the access token
+//         // Optionally, store the token securely (e.g., in session, database, or secure cookie)
+//         req.session.odtoken = token;
+//         console.log(token);
+//         return res.redirect('http://localhost:5173/userdashboard'); // Adjust the URL as needed
+//     } catch (error) {
+//         console.error('Error exchanging code for token:', error);
+//         return res.status(500).send('Failed to exchange code for token');
+//     }
+// });
+
+function authorize(uid) {
+    return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=files.readwrite offline_access&state=${uid}`;
 }
 
 router.get('/authorize', (req, res) => {
-    const authUrl = authorize();
+    const uid = req.query.uid;
+    if (!uid) {
+        return res.status(400).send('User ID not provided');
+    }
+
+    const authUrl = authorize(uid);
     res.json({ authUrl });
 });
 
 router.get('/redirect', async (req, res) => {
     const code = req.query.code;
+    const uid = req.query.state; // Retrieve the UID from the state parameter
+
     if (!code) {
         return res.status(400).send('Authorization code not provided');
+    }
+
+    if (!uid) {
+        return res.status(400).send('User ID not provided');
     }
 
     try {
@@ -40,10 +91,16 @@ router.get('/redirect', async (req, res) => {
             }
         });
 
-        const token = response.data.access_token; // Extract the access token
-        // Optionally, store the token securely (e.g., in session, database, or secure cookie)
-        req.session.odtoken = token;
-        console.log(token);
+        const accessToken = response.data.access_token;
+        const refreshToken = response.data.refresh_token;
+
+        // Insert the access token and refresh token into the database
+        await pool.query(
+            'INSERT INTO cloud (uid, cloudservice, accesstoken, refreshtoken) VALUES (?, ?, ?, ?) ' +
+            'ON DUPLICATE KEY UPDATE accesstoken = VALUES(accesstoken), refreshtoken = VALUES(refreshtoken)',
+            [uid, "onedrive", encryptCloud(accessToken), encryptCloud(refreshToken)]
+        );
+
         return res.redirect('http://localhost:5173/userdashboard'); // Adjust the URL as needed
     } catch (error) {
         console.error('Error exchanging code for token:', error);
@@ -133,5 +190,80 @@ router.post('/upload', upload.single('file'), async (req, res) => {
         return res.status(500).send('Failed to upload file to OneDrive');
     }
 });
+
+router.post('/onedrive/deleteFile/:id', async (req, res) => {
+    if (req.body.token == null) return res.status(400).send('Token not found');
+    const client = getGraphClient(req.body.token);
+    const fileId = req.params.id;
+
+    try {
+        await client.api(`/me/drive/items/${fileId}`).delete();
+        res.send({ message: 'File deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        res.status(500).send('Failed to delete file');
+    }
+});
+
+// Download file route
+router.post('/onedrive/download/:id', async (req, res) => {
+    if (req.body.token == null) return res.status(400).send('Token not found');
+    const client = getGraphClient(req.body.token);
+    const fileId = req.params.id;
+
+    try {
+        const response = await client.api(`/me/drive/items/${fileId}/content`).responseType('stream');
+        response.data.pipe(res);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        res.status(500).send('Failed to download file');
+    }
+});
+
+router.post('/refresh-onedrive', async (req, res) => {
+    const { uid } = req.body;
+    if (!uid) {
+        return res.status(400).send('User ID is required');
+    }
+
+    try {
+        // Retrieve the refresh token from the database
+        const [rows] = await pool.query('SELECT refreshtoken FROM cloud WHERE uid = ? AND cloudservice = ?', [uid, 'onedrive']);
+        if (rows.length === 0) {
+            throw new Error('Refresh token not found');
+        }
+
+        const refreshToken = decryptCloud(rows[0].refreshtoken);
+
+        // OneDrive token URL and client credentials
+        const TOKEN_URL = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
+
+        // Request a new access token
+        const response = await axios.post(TOKEN_URL, new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken,
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            scope: 'https://graph.microsoft.com/.default'
+        }).toString(), {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        const { access_token, refresh_token: newRefreshToken } = response.data;
+
+        // Update the access token and refresh token in the database
+        await pool.query('UPDATE cloud SET accesstoken = ? WHERE uid = ? AND cloudservice = ?', [
+            encryptCloud(access_token),
+            uid,
+            'onedrive'
+        ]);
+
+        res.json({ accessToken: access_token });
+    } catch (error) {
+        console.error('Error refreshing OneDrive access token:', error);
+        res.status(500).send('Failed to refresh access token');
+    }
+});
+
 
 module.exports = router;

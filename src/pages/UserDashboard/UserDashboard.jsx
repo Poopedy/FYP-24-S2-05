@@ -20,32 +20,92 @@ const UserDashboard = () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
+  const updateToks = true;
+  const reftok = urlParams.get('refreshtokens');
   const user = JSON.parse(sessionStorage.getItem('user'));
+  if (reftok) {
+
+  }
+  if (updateToks) {
+    try {
+      const jwtToken = localStorage.getItem('token'); // Retrieve the JWT token from localStorage
+
+      if (!jwtToken) {
+        console.error('No JWT token found in local storage');
+        return;
+      }
+
+      fetch('http://localhost:5000/api/gettokens', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${jwtToken}` // Include the JWT token in the Authorization header
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data);
+          data.forEach(item => {
+            switch (item.cloudservice) {
+                case 'dropbox':
+                    localStorage.setItem('dbtoken', item.accesstoken);
+                    break;
+                case 'gdrive':
+                    localStorage.setItem('gdtoken', item.accesstoken);
+                    break;
+                case 'onedrive':
+                    localStorage.setItem('odtoken', item.accesstoken);
+                    break;
+                default:
+                    console.warn(`Unknown cloud service: ${item.cloudservice}`);
+                    break;
+            }
+        })
+        })
+        .catch(error => console.error('Error fetching cloud tokens:', error));
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      // Optionally, handle unexpected errors (e.g., show an error message to the user)
+    }
+  }
+
 
   if (code) {
-    // Now send a POST request to your backend to exchange the code for a token
+    // Retrieve the UID from local storage or another source
+    const uid = user.id; // Assuming user.id holds the UID
 
+    // Check if the token is already stored
     if (localStorage.getItem("gdtoken") == null) {
+      // Send a POST request to your backend to exchange the code for a token
       fetch('http://localhost:5000/api/getToken', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ code, uid }), // Include the UID in the request body
       })
         .then(response => response.json())
         .then(token => {
           console.log('Access token:', token);
           localStorage.setItem('gdtoken', JSON.stringify(token));
-          location.reload();
+          window.history.replaceState(null, '', location.pathname);
+
           // Store or use the token as needed
         })
         .catch(error => console.error('Error fetching token:', error));
     }
 
   } else {
-    //console.error('Authorization code not found.');
+    // console.error('Authorization code not found.');
   }
+
+
 
   const fetchFilesFromDrive = async () => {
     // Replace with the actual token from your authentication flow
@@ -144,47 +204,86 @@ const UserDashboard = () => {
       console.error('Error fetching files:', error);
     }
   }
+
+  // const uploadFile = async () => {
+  //   if (!file) {
+  //     alert('Please select a file first!');
+  //     return;
+  //   }
+
+  //   try {
+  //     const tokenString = localStorage.getItem('gdtoken');
+  //     const token = tokenString ? JSON.parse(tokenString) : null;
+
+  //     if (!token) {
+  //       alert('User not authenticated!');
+  //       return;
+  //     }
+
+  //     const formData = new FormData();
+  //     console.log("File to be uploaded:", file);
+  //     formData.append('file', file);
+  //     formData.append('token', JSON.stringify(token));
+  //     formData.append('uid', user.id);
+
+
+  //     const response = await fetch('http://localhost:5000/api/fileUpload', {
+  //       method: 'POST',
+  //       body: formData,
+  //     });
+
+  //     if (response.ok) {
+  //       const responseData = await response.text(); // Use `.json()` if response is JSON
+  //       console.log('Response Data:', responseData);
+  //       alert('File uploaded successfully!');
+  //     } else {
+  //       const errorText = await response.text();
+  //       console.error('File upload failed:', errorText);
+  //       alert('File upload failed!');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //     alert('An error occurred during file upload.');
+  //   }
+  // };
   const uploadFile = async () => {
     if (!file) {
-      alert('Please select a file first!');
-      return;
+        alert('Please select a file first!');
+        return;
     }
 
     try {
-      const tokenString = localStorage.getItem('gdtoken');
-      const token = tokenString ? JSON.parse(tokenString) : null;
+        const token = localStorage.getItem("gdtoken");
 
-      if (!token) {
-        alert('User not authenticated!');
-        return;
-      }
+        if (!token) {
+            alert('User not authenticated!');
+            return;
+        }
 
-      const formData = new FormData();
-      console.log("File to be uploaded:", file);
-      formData.append('file', file);
-      formData.append('token', JSON.stringify(token));
-      formData.append('uid', user.id);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('token', token); // Directly append the access token
+        formData.append('uid', user.id);
 
+        const response = await fetch('http://localhost:5000/api/fileUpload', {
+            method: 'POST',
+            body: formData,
+        });
 
-      const response = await fetch('http://localhost:5000/api/fileUpload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const responseData = await response.text(); // Use `.json()` if response is JSON
-        console.log('Response Data:', responseData);
-        alert('File uploaded successfully!');
-      } else {
-        const errorText = await response.text();
-        console.error('File upload failed:', errorText);
-        alert('File upload failed!');
-      }
+        if (response.ok) {
+            const responseData = await response.json(); // Use `.json()` for JSON response
+            console.log('Response Data:', responseData);
+            alert('File uploaded successfully!');
+        } else {
+            const errorText = await response.text();
+            console.error('File upload failed:', errorText);
+            alert('File upload failed!');
+        }
     } catch (error) {
-      console.error('Error uploading file:', error);
-      alert('An error occurred during file upload.');
+        console.error('Error uploading file:', error);
+        alert('An error occurred during file upload.');
     }
-  };
+};
 
   const uploadFileToDropbox = async () => {
     if (!file) {
@@ -266,14 +365,44 @@ const UserDashboard = () => {
 
 
 
+  // function connectCloud() {
+  //   console.log("connecting");
+  //   const uid = user.id; 
+  //   fetch('http://localhost:5000/api/getAuthURL?uid={}')
+  //     .then(response => response.text())
+  //     .then(url => {
+  //       window.location.href = url; // Redirect user to the Google OAuth2 consent page
+  //     });
+  // }
   function connectCloud() {
-    console.log("connecting");
-    fetch('http://localhost:5000/api/getAuthURL')
-      .then(response => response.text())
-      .then(url => {
-        window.location.href = url; // Redirect user to the Google OAuth2 consent page
-      });
+    console.log("Connecting to Google Drive");
+
+    const uid = user.id; // Retrieve the UID from local storage
+
+    if (!uid) {
+      console.error('No user ID found in local storage');
+      return;
+    }
+
+    fetch(`http://localhost:5000/api/getAuthURL?token=${uid}`, {
+      method: 'GET',
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(authUrl => {
+        console.log("Redirecting to Google Drive authorization page:", authUrl);
+        window.location.href = authUrl; // Redirect user to Google OAuth2 consent page
+      })
+      .catch(error => console.error('Error fetching Google Drive authorization URL:', error));
+
+    console.log("HELLO WORLD");
   }
+
+
 
   async function getDropboxToken() {
     try {
@@ -298,9 +427,35 @@ const UserDashboard = () => {
   }
 
 
+  // function connectDB() {
+  //   console.log("Connecting to Dropbox");
+  //   fetch('http://localhost:5000/api/dropbox/authorize')
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+  //       return response.json();
+  //     })
+  //     .then(data => {
+  //       console.log("Redirecting to Dropbox authorization page:", data.authUrl);
+  //       window.location.href = data.authUrl; // Redirect user to Dropbox OAuth2 consent page
+  //     })
+  //     .catch(error => console.error('Error fetching Dropbox authorization URL:', error));
+  //   console.log("HELLO WORLD");
+  // }
   function connectDB() {
     console.log("Connecting to Dropbox");
-    fetch('http://localhost:5000/api/dropbox/authorize')
+
+    const uid = user.id; // Retrieve the UID from local storage
+
+    if (!uid) {
+      console.error('No user ID found in local storage');
+      return;
+    }
+
+    fetch(`http://localhost:5000/api/dropbox/authorize?uid=${uid}`, {
+      method: 'GET',
+    })
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -312,12 +467,39 @@ const UserDashboard = () => {
         window.location.href = data.authUrl; // Redirect user to Dropbox OAuth2 consent page
       })
       .catch(error => console.error('Error fetching Dropbox authorization URL:', error));
+
     console.log("HELLO WORLD");
   }
 
+  // function connectOneDrive() {
+  //   console.log("Connecting to OneDrive");
+  //   fetch('http://localhost:5000/api/onedrive/authorize')
+  //     .then(response => {
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+  //       return response.json();
+  //     })
+  //     .then(data => {
+  //       console.log("Redirecting to OneDrive authorization page:", data.authUrl);
+  //       window.location.href = data.authUrl; // Redirect user to OneDrive OAuth2 consent page
+  //     })
+  //     .catch(error => console.error('Error fetching OneDrive authorization URL:', error));
+  //   console.log("HELLO WORLD");
+  // }
   function connectOneDrive() {
     console.log("Connecting to OneDrive");
-    fetch('http://localhost:5000/api/onedrive/authorize')
+
+    const uid = user.id; // Retrieve the UID from local storage
+
+    if (!uid) {
+      console.error('No user ID found in local storage');
+      return;
+    }
+
+    fetch(`http://localhost:5000/api/onedrive/authorize?uid=${uid}`, {
+      method: 'GET',
+    })
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -329,6 +511,7 @@ const UserDashboard = () => {
         window.location.href = data.authUrl; // Redirect user to OneDrive OAuth2 consent page
       })
       .catch(error => console.error('Error fetching OneDrive authorization URL:', error));
+
     console.log("HELLO WORLD");
   }
 

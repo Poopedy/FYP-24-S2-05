@@ -6,14 +6,23 @@ import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+
+// Mapping plan IDs to their respective names
+const planNames = {
+  1: 'Basic',
+  2: 'Silver',
+  3: 'Gold'
+};
 
 const UserAccountManagement = () => {
   const [planid, setPlanid] = useState(null);
   const [plan, setPlan] = useState({ name: '', price: 0, status: 'Inactive' });
-  const [user, setUser] = useState({ name: '', email: '', password: '', userkey: '' });
+  const [user, setUser] = useState({ id: '', username: '', email: '', password: '', planid: '' });
+  const navigate = useNavigate();
+
   useEffect(() => {
     // Retrieve user data from sessionStorage
     const storedUser = sessionStorage.getItem('user');
@@ -30,8 +39,9 @@ const UserAccountManagement = () => {
 
       try {
         const response = await axios.post('http://localhost:5000/api/getplan', { planid });
-        console.log('Plan data:', response.data);
-        setPlan(response.data);
+        const fetchedPlan = response.data;
+        fetchedPlan.name = planNames[planid]; // Set the plan name using the mapping
+        setPlan(fetchedPlan);
       } catch (error) {
         console.error('Error fetching plan details:', error);
       }
@@ -39,12 +49,12 @@ const UserAccountManagement = () => {
 
     fetchPlan();
   }, [planid]); // Run whenever planid changes
+
   const [isLocked, setIsLocked] = useState(true);
   const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
   const [inputPassphrase, setInputPassphrase] = useState('');
+  const [isPassphraseCorrect, setIsPassphraseCorrect] = useState(false);
 
-  console.log("user",user);
-  console.log('plan',plan);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prevUser) => ({
@@ -53,32 +63,97 @@ const UserAccountManagement = () => {
     }));
   };
 
-  const handleUpdate = () => {
-    // Handle update logic
-    console.log('User updated:', user);
+  const handleUpdate = async () => {
+    try {
+      const updatedData = {
+          username: user.username,
+          email: user.email,
+      };
+
+      if (user.password) {  // Only add the password if it was changed
+          updatedData.password = user.password;
+      }
+
+      const response = await axios.put(`http://localhost:5000/api/updateAccount/${user.id}`, {
+        updatedData
+      });
+
+      console.log('User updated:', response.data);
+      // Create an updated user object excluding the password
+      const updatedUser = { ...user, ...updatedData };
+      delete updatedUser.password; // Exclude password from session storage
+
+      // Update session storage with the new user data
+      sessionStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Update local state
+      setUser(updatedUser);
+      alert('User updated successfully!');
+  } catch (error) {
+      if (error.response && error.response.status === 409) {
+          alert('The email is already in use by another account.');
+      } else {
+          console.error('Error updating user details:', error);
+      }
+    }
   };
 
-  const handleDelete = () => {
-    // Handle delete logic
-    console.log('User deleted');
-  };
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete your account?')) {
+        try {
+            // Call the delete API with the correct field name
+            const response = await axios.post('http://localhost:5000/api/deleteAccount', {
+                email: user.email // Ensure this matches the backend expectation
+            });
+
+            console.log(response.data.message);
+
+            // Clear session storage
+            sessionStorage.clear();
+
+            // Redirect to login page
+            navigate('/login');
+
+        } catch (error) {
+            console.error('Error deleting user account:', error);
+            alert('An error occurred while deleting your account. Please try again.');
+        }
+    }
+};
 
   const handleLockToggle = () => {
     if (isLocked) {
       setShowPassphrasePopup(true);
-    } else {
-      setIsLocked(true);
     }
   };
 
-  const handlePassphraseSubmit = () => {
-    if (inputPassphrase === "1234!A") {
-      setIsLocked(false);
-      setShowPassphrasePopup(false);
-      setInputPassphrase('');
-    } else {
-      alert("Incorrect passphrase!");
+  const handlePassphraseSubmit = async () => {
+    if (!user || !user.id) {
+      alert('User ID not found');
+      return;
     }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/validatePassphrase', {
+          userId: user.id,
+          inputPassphrase: inputPassphrase
+      });
+
+      if (response.data.message === 'Passphrase is valid') {
+        setIsPassphraseCorrect(true);
+        setIsLocked(false);
+        setShowPassphrasePopup(false);
+        setInputPassphrase('');  // Clear the passphrase input
+      }
+    } catch (error) {
+      console.error('Failed to get user\'s passphrase', error);
+      alert("Invalid Passphrase. Please try again.")
+    }
+
+  };
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
   };
 
   return (
@@ -110,7 +185,7 @@ const UserAccountManagement = () => {
             Settings
           </div>
           <div className="userNotActive">
-            <Link to="/login">
+            <Link to="/login" onClick={handleLogOut}>
               <IoLogOut style={{ marginRight: '10px' }} />
               Logout
             </Link>
@@ -125,35 +200,39 @@ const UserAccountManagement = () => {
               Username:
               <input
                 type="text"
-                name="name"
-                value={user.name || ''}
+                name="username"
+                defaultValue={user.username}
                 onChange={handleChange}
               />
             </label>
-            {/* <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
-                value={user.phone}
-                onChange={handleChange}
-              />
-            </label> */}
             <label>
               Email:
               <input
                 type="email"
                 name="email"
-                value={user.email}
+                defaultValue={user.email}
                 onChange={handleChange}
               />
+            </label>
+            <label>
+              Plan:
+              <input
+                type="plan"
+                name="plan"
+                defaultValue={plan.name}
+                readOnly
+                className='input-readOnly'
+              />
+              <Link to="/usercloudserviceupgrade"><button type="button" className="upgrade-account">
+                Upgrade
+              </button></Link>
             </label>
             <label>
               Password:
               <input
                   type="password"
                   name="password"
-                  value={user.password}
+                  defaultValue={user.password}
                   onChange={handleChange}
                   readOnly={isLocked}
                   className={isLocked ? 'locked' : ''}
@@ -174,31 +253,17 @@ const UserAccountManagement = () => {
                 </div>
               </Popup>
             )}
-            <label>
-              Plan:
-              
-              <input
-                type="package"
-                name="package"
-                value={plan.name} readOnly
-                onChange={handleChange}
-                className='input-readOnly'
-              />
-              <Link to="/usercloudserviceupgrade"><button type="button" className="upgrade-account">
-                Upgrade
-              </button></Link>
-            </label>
             <label className="userkey-label">
               User Key:
-              <select
-                name="userkey"
-                value={user.userkey}
-                onChange={handleChange}
-                className="userkey-dropdown"
-              >
-                <option value="userkey1">vd8*******</option>
-                <option value="userkey2">m2g*******</option>
-              </select>
+              <Link to={isPassphraseCorrect ? "/usergeneratekey" : "#"}>
+                <button 
+                  type="button" 
+                  className={`generate-key ${!isPassphraseCorrect ? 'disabled-button' : ''}`}  
+                  disabled={!isPassphraseCorrect}
+                >
+                  Change Encryption Key
+                </button>
+              </Link>
             </label>
             <div className="form-buttons">
               <Link to="/userdashboard"><button type="button" className="back">

@@ -11,18 +11,28 @@ const RegisterPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      alert('Passwords do not match.');
       return;
     }
 
     try {
-      const response = await axios.post('https://54.179.174.127:5000/api/register', {
+
+      // Check if the email already exists
+      const checkResponse = await axios.post('http://localhost:5000/api/checkExistence', {
+        email 
+      });
+
+      if (checkResponse.data.exists) {
+        alert('Email already registered.');
+        return;
+      }
+
+      const response = await axios.post('http://localhost:5000/api/register', {
         email,
         username,
         password,

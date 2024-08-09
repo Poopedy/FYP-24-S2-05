@@ -1,0 +1,110 @@
+.main-content-generate {
+    display: grid;
+    place-items: center;
+    height: 100vh;
+    width: 75%;
+  }
+  
+  .sidebar {
+    font-size: 1.2em;
+    width: 20%;
+    background-color: #f0e6ff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .user-key-generation {
+    display: grid;
+    justify-items: center;
+    width: 100%;
+  }
+  
+  .key-wrapper {
+    width: 420px;
+    background: #F1E4FF;
+    color: #221f25;
+    border-radius: 10px;
+    padding: 30px 40px;
+  }
+  
+  .key-wrapper h1 {
+    font-size: 36px;
+    text-align: center;
+  }
+  
+  .key-wrapper p {
+    text-align: center;
+  }
+  
+  .key-wrapper .input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    margin: 30px 0;
+  }
+  
+  .input-box input {
+    width: 100%;
+    height: 100%;
+    background: #F9F4FF;
+    border: 2px solid rgba(3, 3, 3, 0.2);
+    outline: none;
+    border-radius: 40px;
+    font-size: 16px;
+    color: #221f25;
+    padding: 20px 45px 20px 20px;
+  }
+  
+  .usergenerate {
+    width: 50%;
+    height: 45px;
+    background: #D3AEFE;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    font-size: 16px;
+    color: #221f25;
+    font-weight: 700;
+    margin-bottom: 10px;
+    margin-left: 25%;
+  }
+  
+  .Proceed {
+    width: 100%;
+    height: 45px;
+    background: #D3AEFE;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    font-size: 16px;
+    color: #221f25;
+    font-weight: 700;
+  }
+  
+  .generate-back {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 20px;
+    margin-left: 20px;
+  }
+  
+  .back-generate {
+    background-color: #d3a6ff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .back-generate:hover {
+    background-color: #B574FF;
+  }
+  

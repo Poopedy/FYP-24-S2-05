@@ -19,6 +19,11 @@ router.post('/login', userController.login);
 router.get('/users', verifyToken, userController.getAllUsers);
 router.post('/usertest', userController.userTest);
 router.get('/profile', userController.getProfile);
+router.post('/checkExistence', userController.checkEmail);
+router.put('/updateAccount/:uid', verifyToken, userController.update);
+router.post('/deleteAccount', verifyToken, userController.delete);
+router.post('/verify', userController.verifyEmailAndPassphrase);
+router.post('/resetPassword', userController.resetPassword);
 
 // routes for passphrase CRUD operations
 router.post('/passphrase', verifyToken, userController.createPassphrase);
@@ -26,7 +31,6 @@ router.get('/passphrase/:userId', verifyToken, userController.getPassphrase);
 router.put('/passphrase', verifyToken, userController.updatePassphrase);
 router.delete('/passphrase/:userId', verifyToken, userController.deletePassphrase);
 router.post('/validatePassphrase', verifyToken, userController.validatePassphrase);
-router.post('/saveEncryptionKey', verifyToken, userController.saveEncryptionKey);
 
 router.post('/logout', (req, res) => {
     req.session.destroy((err) => {

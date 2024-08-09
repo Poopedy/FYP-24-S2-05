@@ -49,12 +49,6 @@ const AdminAccountManagement = () => {
                 Users
                 </Link>
                 </li>
-                <li className="adminNotActive">
-                <Link to="/adminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
-                </Link>
-                </li>
             </ul>
         </nav>
         <div className="settings-logout">
@@ -80,15 +74,6 @@ const AdminAccountManagement = () => {
                 type="text"
                 name="name"
                 value={user.name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
-                value={user.phone}
                 onChange={handleChange}
               />
             </label>
@@ -121,7 +106,7 @@ const AdminAccountManagement = () => {
               />
             </label>
             <div className="form-buttons">
-              <Link to="/admindashboard"><button type="button" className="back">
+              <Link to="/admindashboard/:username"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="adminupdateaccount" onClick={handleUpdate}>

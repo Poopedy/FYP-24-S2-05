@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import './ForgotPassword.css';
 import { FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const ForgotPassword = () => {
   // State variables to hold form data
@@ -12,16 +13,30 @@ const ForgotPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLocked, setIsLocked] = useState(true);
   const [isSubmitEnabled, setIsSubmitEnabled] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsSubmitEnabled(password && confirmPassword && password === confirmPassword);
   }, [password, confirmPassword]);
 
-  const handlePassphraseSubmit = () => {
-    if (passphrase === "1234!A") {
-      setIsLocked(false);
-    } else {
-      alert("Incorrect passphrase!");
+  const handlePassphraseSubmit = async () => {
+    try {
+      // Verify email and passphrase
+      const response = await axios.post('http://localhost:5000/api/verify', { 
+        email, 
+        passphrase 
+      });
+
+      if (response.data.valid) {
+        setIsLocked(false);
+        setEmailVerified(true);
+      } else {
+        alert("Invalid email or passphrase!");
+      }
+    } catch (error) {
+      console.error('Error verifying passphrase:', error);
+      alert("An error occurred. Please try again.");
     }
   };
 
@@ -33,7 +48,18 @@ const ForgotPassword = () => {
       return;
     }
 
-    // Handle the form submission logic here
+    try {
+      // Submit the new password
+      await axios.post('http://localhost:5000/api/resetPassword', { 
+        email, 
+        password 
+      });
+      alert("Password successfully reset!");
+      navigate('/login');
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      alert("An error occurred. Please try again.");
+    }
   };
 
   return (

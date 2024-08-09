@@ -60,7 +60,7 @@ const LoginForm = () => {
       }
   } catch (error) {
       console.error('Error logging in:', error);
-      alert('Invalid email. Please try again.');
+      alert('Invalid email or password. Please try again.');
   }
 };
 
@@ -107,7 +107,7 @@ const LoginForm = () => {
 
         <div className="remember-forgot">
           <label><input type="checkbox" />Remember me</label>
-          <Link to="/forgotpassword"><a>Forgot Password?</a></Link>
+          <a href='/forgotpassword'>Forgot Password?</a>
         </div>
 
         <button className="RegLogButton" type="submit">Login</button>

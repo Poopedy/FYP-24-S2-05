@@ -25,6 +25,7 @@ import SuperAdminUpdateUser from './pages/SuperAdminUpdateUser/SuperAdminUpdateU
 import SuperAdminAdminActivity from './pages/SuperAdminAdminActivity/SuperAdminAdminActivity.jsx';
 import SuperAdminUserActivity from './pages/SuperAdminUserActivity/SuperAdminUserActivity.jsx';
 import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/SuperAdminAccountManagement.jsx';
+import UserGenerateKey from './pages/UserGenerateKey/UserGenerateKey.jsx';
 import axios from 'axios';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
 // Set up Axios to include the token in the Authorization header for all requests
@@ -70,6 +71,7 @@ root.render(
         <Route path="/superadminuseractivity" element={<SuperAdminUserActivity />} />
         <Route path="/superadminaccmanagement" element={<SuperAdminAccountManagement />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/usergeneratekey" element={<UserGenerateKey />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

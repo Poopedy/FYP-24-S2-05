@@ -29,12 +29,6 @@ const AdminDashboard = () => {
               <FaUsers style={{ marginRight: '10px' }} />
               Users
             </li>
-            <li className="adminNotActive">
-              <Link to="/adminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
-              </Link>
-            </li>
           </ul>
         </nav>
         <div className="settings-logout">
@@ -70,8 +64,8 @@ const AdminDashboard = () => {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Phone</th>
                 <th>Email</th>
+                <th>Plan</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -79,8 +73,8 @@ const AdminDashboard = () => {
               {users.map((user, index) => (
                 <tr key={index}>
                   <td>{user.name}</td>
-                  <td>{user.phone}</td>
                   <td>{user.email}</td>
+                  <td>{user.planid}</td>
                   <td>
                     <Link to="/adminupdateuser"><button className="updateuser">Update</button></Link>
                     <button className="deleteuser">Delete</button>

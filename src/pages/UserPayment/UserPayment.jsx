@@ -10,6 +10,13 @@ import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
 import { Link } from 'react-router-dom';
 
+// Mapping plan IDs to their respective names
+const planNames = {
+  1: 'Basic',
+  2: 'Silver',
+  3: 'Gold'
+};
+
 const UserPayment = () => {
   const { planid } = useParams(); // Extract planid from URL parameters
   const [plan, setPlan] = useState({ name: '', price: 0, status: 'Inactive' })
@@ -20,8 +27,9 @@ const UserPayment = () => {
 
       try {
         const response = await axios.post('http://localhost:5000/api/getplan', { planid });
-        console.log('Plan data:', response.data);
-        setPlan(response.data);
+        const fetchedPlan = response.data;
+        fetchedPlan.name = planNames[planid]; // Set the plan name using the mapping
+        setPlan(fetchedPlan);
       } catch (error) {
         console.error('Error fetching plan details:', error);
       }
@@ -29,6 +37,11 @@ const UserPayment = () => {
 
     fetchPlan();
   }, [planid]); // Run whenever planid changes
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
+  };
+
   return (
     <div className="user-payment">
     <div className="sidebar">
@@ -60,7 +73,7 @@ const UserPayment = () => {
             </Link>
         </div>
         <div className="userNotActive">
-            <Link to="/login">
+            <Link to="/login" onClick={handleLogOut}>
                 <IoLogOut style={{ marginRight: '10px' }} />
                 Logout
             </Link>

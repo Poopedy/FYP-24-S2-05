@@ -1,4 +1,5 @@
 const express = require('express');
+const fetch = require('node-fetch');
 const axios = require('axios');
 const qs = require('qs');
 const fs = require('fs');
@@ -115,7 +116,7 @@ router.get('/redirect', async (req, res) => {
 router.post('/upload', upload.single('file'), async (req, res) => {
     const token = req.body.token;
     const uid = req.body.uid;
-
+    console.log(req.body);
     if (!token) {
         return res.status(401).send('Not authenticated');
     }
@@ -126,9 +127,9 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     const filePath = file.path;
-    const fileName = file.originalname;
+    const fileName = req.body.fn;
     const fileSize = file.size; // Size in bytes
-    const fileType = file.mimetype
+    const fileType = req.body.ft;
 
     try {
         // Upload file to Dropbox
@@ -178,35 +179,172 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 // Delete file route
-router.post('/dropbox/deleteFile/:path', (req, res) => {
-    if (req.body.token == null) return res.status(400).send('Token not found');
-    const dbx = new Dropbox({ accessToken: req.body.token });
-    const filePath = req.params.path;
 
-    dbx.filesDeleteV2({ path: filePath })
-        .then(() => res.send({ message: 'File deleted successfully' }))
-        .catch(error => {
-            console.error('Error deleting file:', error);
-            res.status(500).send('Failed to delete file');
+router.delete('/delete/:id', async (req, res) => {
+    console.log("Delete endpoint reached");
+
+    const token = req.body.token;
+    const fileId = req.params.id;
+    const uid = req.body.uid;  // Use request body to get the user ID
+
+    if (!token) return res.status(400).send('Token not found');
+    if (!uid) return res.status(400).send('User ID not provided');
+
+    try {
+        // Delete file from Dropbox
+        const response = await fetch('https://api.dropboxapi.com/2/files/delete_v2', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                path: fileId // Use the fileId as the path in Dropbox API
+            })
         });
+
+        if (!response.ok) {
+            console.log(`Failed to delete file from Dropbox: ${response.status}`);
+            return res.status(response.status).send('Failed to delete file from Dropbox');
+        }
+
+        // Delete file record from database
+        const deleteResult = await pool.query(
+            'DELETE FROM files WHERE uid = ? AND itemid = ?', [uid, fileId]
+        );
+
+        if (deleteResult.affectedRows === 0) {
+            console.log('No record found in the database to delete.');
+            return res.status(404).send('File record not found in database');
+        }
+
+        console.log(`File with ID ${fileId} deleted successfully from both Dropbox and database.`);
+        res.status(200).json({ message: 'File deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        res.status(500).send('Failed to delete file');
+    }
 });
 
 // Download file route
-router.post('/dropbox/download/:path', (req, res) => {
-    if (req.body.token == null) return res.status(400).send('Token not found');
-    const dbx = new Dropbox({ accessToken: req.body.token });
-    const filePath = req.params.path;
 
-    dbx.filesDownload({ path: filePath })
-        .then(response => {
-            res.setHeader('Content-Disposition', `attachment; filename=${response.name}`);
-            response.fileBlob.stream().pipe(res);
-        })
-        .catch(error => {
-            console.error('Error downloading file:', error);
-            res.status(500).send('Failed to download file');
+// router.get('/download/:id', async (req, res) => {
+//     console.log("Endpoint reached");
+
+//     // Check if token is present
+//     if (!req.query.token) return res.status(400).send('Token not found');
+    
+//     const fileId = req.params.id;
+//     const token = req.query.token;
+    
+//     try {
+//         // Fetch the file metadata to get the original filename and extension
+//         const metadataResponse = await fetch(`https://api.dropboxapi.com/2/files/get_metadata`, {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${token}`,
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 "path": fileId
+//             })
+//         });
+
+//         if (!metadataResponse.ok) {
+//             return res.status(metadataResponse.status).send('Failed to retrieve file metadata');
+//         }
+
+//         const metadata = await metadataResponse.json();
+//         console.log(metadata);
+//         const fileName = metadata.name; // This is the original filename with extension
+//         console.log(`File Name from Metadata: ${fileName}`);
+
+//         // Fetch the file content
+//         const fileResponse = await fetch(`https://content.dropboxapi.com/2/files/download`, {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${token}`,
+//                 'Dropbox-API-Arg': JSON.stringify({ "path": fileId })
+//             }
+//         });
+
+//         if (fileResponse.ok) {
+//             // Buffer the file content
+//             const fileBuffer = await fileResponse.buffer();
+//             console.log(fileResponse);
+//             // Set the appropriate headers
+//             res.setHeader('Content-Type', fileResponse.headers.get('Content-Type') || 'application/octet-stream');
+//             res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+
+//             // Send the buffered file content in the response
+//             res.send(fileBuffer);
+//         } else {
+//             console.log(fileResponse);
+//             res.status(fileResponse.status).send('Failed to download file');
+//         }
+//     } catch (error) {
+//         console.error('Error downloading file:', error);
+//         res.status(500).send('Failed to download file');
+//     }
+// });
+
+router.get('/download/:id', async (req, res) => {
+    console.log("Endpoint reached");
+
+    // Check if token is present
+    if (!req.query.token) return res.status(400).send('Token not found');
+    
+    const fileId = req.params.id;
+    const token = req.query.token;
+    
+    try {
+        // Fetch the file metadata to get the original filename and extension
+        const metadataResponse = await fetch('https://api.dropboxapi.com/2/files/get_metadata', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "path": fileId
+            })
         });
+
+        if (!metadataResponse.ok) {
+            return res.status(metadataResponse.status).send('Failed to retrieve file metadata');
+        }
+
+        const metadata = await metadataResponse.json();
+        const fileName = metadata.name; // This is the original filename with extension
+        console.log(`File Name from Metadata: ${fileName}`);
+
+        // Fetch the file content
+        const fileResponse = await fetch('https://content.dropboxapi.com/2/files/download', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Dropbox-API-Arg': JSON.stringify({ "path": fileId })
+            }
+        });
+
+        if (fileResponse.ok) {
+            // Set the appropriate headers
+            res.setHeader('Content-Type', fileResponse.headers.get('Content-Type') || 'application/octet-stream');
+            res.setHeader('Content-Disposition', `inline; filename="test"`);
+
+            // Directly pipe the file response to the client
+            fileResponse.body.pipe(res);
+
+        } else {
+            console.log(fileResponse);
+            res.status(fileResponse.status).send('Failed to download file');
+        }
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        res.status(500).send('Failed to download file');
+    }
 });
+
 
 router.post('/refresh-dropbox', async (req, res) => {
     const { uid } = req.body;

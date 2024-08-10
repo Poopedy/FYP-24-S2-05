@@ -11,46 +11,8 @@ const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const pool = require("../config/db.js");
 const { encryptCloud, decryptCloud } = require('./encrypthelper');
-
-
-// function authorize() {
-//     return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=files.readwrite offline_access`;
-// }
-
-// router.get('/authorize', (req, res) => {
-//     const authUrl = authorize();
-//     res.json({ authUrl });
-// });
-
-// router.get('/redirect', async (req, res) => {
-//     const code = req.query.code;
-//     if (!code) {
-//         return res.status(400).send('Authorization code not provided');
-//     }
-
-//     try {
-//         const response = await axios.post('https://login.microsoftonline.com/common/oauth2/v2.0/token', qs.stringify({
-//             code: code,
-//             grant_type: 'authorization_code',
-//             client_id: CLIENT_ID,
-//             client_secret: CLIENT_SECRET,
-//             redirect_uri: REDIRECT_URI
-//         }), {
-//             headers: {
-//                 'Content-Type': 'application/x-www-form-urlencoded'
-//             }
-//         });
-
-//         const token = response.data.access_token; // Extract the access token
-//         // Optionally, store the token securely (e.g., in session, database, or secure cookie)
-//         req.session.odtoken = token;
-//         console.log(token);
-//         return res.redirect('http://localhost:5173/userdashboard'); // Adjust the URL as needed
-//     } catch (error) {
-//         console.error('Error exchanging code for token:', error);
-//         return res.status(500).send('Failed to exchange code for token');
-//     }
-// });
+const { Client } = require('@microsoft/microsoft-graph-client');
+const fetch = require('node-fetch');
 
 function authorize(uid) {
     return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${REDIRECT_URI}&scope=files.readwrite offline_access&state=${uid}`;
@@ -154,6 +116,9 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const fileSize = file.size; // Size of the file in bytes
     const fileType = file.mimetype
 
+    console.log(originalFileName);
+
+
 
     try {
         const fileContents = fs.readFileSync(filePath);
@@ -191,34 +156,160 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 });
 
-router.post('/onedrive/deleteFile/:id', async (req, res) => {
-    if (req.body.token == null) return res.status(400).send('Token not found');
-    const client = getGraphClient(req.body.token);
+// Download file route
+// router.get('/download/:id', async (req, res) => {
+//     console.log("Endpoint reached");
+
+//     // Check if token is present
+//     if (!req.query.token) return res.status(400).send('Token not found');
+    
+//     const fileId = req.params.id;
+//     const token = req.query.token;
+//     console.log(token);
+    
+//     try {
+//         // Fetch the file metadata to get the original filename and extension
+//         const metadataResponse = await fetch('https://api.dropboxapi.com/2/files/get_metadata', {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${token}`,
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 "path": fileId
+//             })
+//         });
+
+//         if (!metadataResponse.ok) {
+//             return res.status(metadataResponse.status).send('Failed to retrieve file metadata');
+//         }
+
+//         const metadata = await metadataResponse.json();
+//         const fileName = metadata.name; // This is the original filename with extension
+//         console.log(`File Name from Metadata: ${fileName}`);
+
+//         // Fetch the file content
+//         const fileResponse = await fetch('https://content.dropboxapi.com/2/files/download', {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${token}`,
+//                 'Dropbox-API-Arg': JSON.stringify({ "path": fileId })
+//             }
+//         });
+
+//         if (fileResponse.ok) {
+//             // Create a PassThrough stream
+//             const passThrough = new PassThrough();
+
+//             // Set the appropriate headers
+//             res.setHeader('Content-Type', fileResponse.headers.get('Content-Type') || 'application/octet-stream');
+//             res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+
+//             // Pipe the file response through the PassThrough stream
+//             fileResponse.body.pipe(passThrough).pipe(res);
+
+//         } else {
+//             console.log(fileResponse);
+//             res.status(fileResponse.status).send('Failed to download file');
+//         }
+//     } catch (error) {
+//         console.error('Error downloading file:', error);
+//         res.status(500).send('Failed to download file');
+//     }
+// });
+router.get('/download/:id', async (req, res) => {
+    console.log("Endpoint reached");
+
+    // Check if token is present
+    if (!req.query.token) return res.status(400).send('Token not found');
+    
     const fileId = req.params.id;
+    const token = req.query.token;
+    
+    try {
+        // Fetch the file metadata to get the original filename and extension
+        const metadataResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!metadataResponse.ok) {
+            return res.status(metadataResponse.status).send('Failed to retrieve file metadata');
+        }
+
+        const metadata = await metadataResponse.json();
+        const fileName = metadata.name; // This is the original filename with extension
+        console.log(`File Name from Metadata: ${fileName}`);
+
+        // Fetch the file content
+        const fileResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (fileResponse.ok) {
+            // Set the appropriate headers with the correct filename
+            res.setHeader('Content-Type', fileResponse.headers.get('Content-Type') || 'application/octet-stream');
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+            
+            // Pipe the file stream directly to the HTTP response
+            fileResponse.body.pipe(res);
+        } else {
+            console.log(fileResponse);
+            res.status(fileResponse.status).send('Failed to download file');
+        }
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        res.status(500).send('Failed to download file');
+    }
+});
+
+
+router.delete('/delete/:id', async (req, res) => {
+    console.log("Delete endpoint reached");
+
+    const token = req.body.token;
+    const fileId = req.params.id;
+    const uid = req.body.uid;  // Use request body to get the user ID
+
+    if (!token) return res.status(400).send('Token not found');
+    if (!uid) return res.status(400).send('User ID not provided');
 
     try {
-        await client.api(`/me/drive/items/${fileId}`).delete();
-        res.send({ message: 'File deleted successfully' });
+        // Delete file from OneDrive
+        const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            console.log(`Failed to delete file from OneDrive: ${response.status}`);
+            return res.status(response.status).send('Failed to delete file from OneDrive');
+        }
+
+        // Delete file record from database
+        const deleteResult = await pool.query(
+            'DELETE FROM files WHERE uid = ? AND itemid = ?', [uid, fileId]
+        );
+
+        if (deleteResult.affectedRows === 0) {
+            console.log('No record found in the database to delete.');
+            return res.status(404).send('File record not found in database');
+        }
+
+        console.log(`File with ID ${fileId} deleted successfully from both OneDrive and database.`);
+        res.status(200).json({ message: 'File deleted successfully' });
     } catch (error) {
         console.error('Error deleting file:', error);
         res.status(500).send('Failed to delete file');
     }
 });
 
-// Download file route
-router.post('/onedrive/download/:id', async (req, res) => {
-    if (req.body.token == null) return res.status(400).send('Token not found');
-    const client = getGraphClient(req.body.token);
-    const fileId = req.params.id;
 
-    try {
-        const response = await client.api(`/me/drive/items/${fileId}/content`).responseType('stream');
-        response.data.pipe(res);
-    } catch (error) {
-        console.error('Error downloading file:', error);
-        res.status(500).send('Failed to download file');
-    }
-});
 
 router.post('/refresh-onedrive', async (req, res) => {
     const { uid } = req.body;

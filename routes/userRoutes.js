@@ -17,6 +17,8 @@ const axios = require('axios');
 const { encryptCloud, decryptCloud } = require('./encrypthelper');
 const pool = require("../config/db.js");
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
+const fetch = require('node-fetch'); // Ensure you have 'node-fetch' installed or use the native 'fetch' if supported in your environment
+const { PassThrough } = require('stream');
 router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.get('/users', verifyToken, userController.getAllUsers);
@@ -191,39 +193,97 @@ router.post('/fileUpload', upload.single('file'), async (req, res) => {
         res.status(500).send('Failed to upload file to Google Drive');
     }
 });
+router.delete('/delete/:id', async (req, res) => {
+    console.log("Delete endpoint reached");
 
-router.post('/deleteFile/:id', (req, res) => {
-    if (req.body.token == null) return res.status(400).send('Token not found');
-    oAuth2Client.setCredentials({ access_token: req.body.token }); // Use access token
-    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
+    const token = req.body.token;
     const fileId = req.params.id;
-    drive.files.delete({ fileId: fileId })
-        .then(() => res.send({ message: 'File deleted successfully' }))
-        .catch(error => {
-            console.error('Error deleting file:', error);
-            res.status(500).send('Failed to delete file');
-        });
-});
-router.post('/download/:id', (req, res) => {
-    if (req.body.token == null) return res.status(400).send('Token not found');
-    oAuth2Client.setCredentials({ access_token: req.body.token }); // Use access token
-    const drive = google.drive({ version: 'v3', auth: oAuth2Client });
-    const fileId = req.params.id;
-    drive.files.get({ fileId: fileId, alt: 'media' }, { responseType: 'stream' },
-        (err, response) => {
-            if (err) {
-                console.error('Error downloading file:', err);
-                return res.status(500).send('Failed to download file');
+    const uid = req.body.uid;  // Use request body to get the user ID
+
+    if (!token) return res.status(400).send('Token not found');
+    if (!uid) return res.status(400).send('User ID not provided');
+
+    try {
+        // Delete file from Google Drive
+        const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-            response.data
-                .on('end', () => {
-                    console.log('Done');
-                })
-                .on('error', err => {
-                    console.log('Error', err);
-                })
-                .pipe(res);
         });
+
+        if (!response.ok) {
+            console.log(`Failed to delete file from Google Drive: ${response.status}`);
+            return res.status(response.status).send('Failed to delete file from Google Drive');
+        }
+
+        // Delete file record from database
+        const deleteResult = await pool.query(
+            'DELETE FROM files WHERE uid = ? AND itemid = ?', [uid, fileId]
+        );
+
+        if (deleteResult.affectedRows === 0) {
+            console.log('No record found in the database to delete.');
+            return res.status(404).send('File record not found in database');
+        }
+
+        console.log(`File with ID ${fileId} deleted successfully from both Google Drive and database.`);
+        res.status(200).json({ message: 'File deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting file:', error);
+        res.status(500).send('Failed to delete file');
+    }
+});
+
+
+router.get('/download/:id', async (req, res) => {
+    console.log("Endpoint reached");
+
+    // Check if token is present
+    if (!req.query.token) return res.status(400).send('Token not found');
+    
+    const fileId = req.params.id;
+    const token = req.query.token;
+    
+    try {
+        // Fetch the file metadata to get the original filename and extension
+        const metadataResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?fields=name,mimeType`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!metadataResponse.ok) {
+            return res.status(metadataResponse.status).send('Failed to retrieve file metadata');
+        }
+
+        const metadata = await metadataResponse.json();
+        const fileName = metadata.name; // This is the original filename with extension
+        const mimeType = metadata.mimeType || 'application/octet-stream'; // Get the MIME type from the metadata
+        console.log(`File Name from Metadata: ${fileName}`);
+
+        // Fetch the file content
+        const fileResponse = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (fileResponse.ok) {
+            // Set the appropriate headers with the correct filename and MIME type
+            res.setHeader('Content-Type', mimeType);
+            res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+            
+            // Pipe the file stream directly to the HTTP response
+            fileResponse.body.pipe(res);
+        } else {
+            console.log(fileResponse);
+            res.status(fileResponse.status).send('Failed to download file');
+        }
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        res.status(500).send('Failed to download file');
+    }
 });
 
 router.post('/getFilesByUid', verifyToken, async (req, res) => {

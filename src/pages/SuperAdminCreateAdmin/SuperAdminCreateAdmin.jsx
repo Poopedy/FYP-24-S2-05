@@ -6,9 +6,61 @@ import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { GrUserAdmin } from "react-icons/gr";
 import { RiAdminFill } from "react-icons/ri";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Define assess rights options
+const assessRightsOptions = [
+  { value: 1, label: 'Full Access' },
+  { value: 2, label: 'Read and Write' },
+  { value: 3, label: 'Read Only' }
+];
 
 const SuperAdminCreateAdmin = () => {
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [assessrights, setAssessRights] = useState('');
+
+  const handleAssessRightsChange = (e) => {
+    const selectedValue = parseInt(e.target.value, 10); // Convert the selected value to an integer
+    setAssessRights(selectedValue);
+  };
+
+  const handleCreate = async () => {
+    try {
+      // Check if the email already exists
+      const checkResponse = await axios.post('http://localhost:5000/api/checkExistence', {
+        email 
+      });
+
+      if (checkResponse.data.exists) {
+        alert('Email already registered.');
+        return;
+      }
+  
+      // Create the new user
+      const createUserResponse = await axios.post('http://localhost:5000/api/superadmin/createAdmin', {
+        username,
+        email,
+        password,
+        role: 'admin', 
+        assessrights
+      });
+  
+      console.log('Admin created:', createUserResponse.data);
+      alert("Admin created successfully!");
+      navigate('/superadmindashboard/:username');
+    } catch (error) {
+      console.error('Error creating user:', error);
+      alert('An error occurred while creating the user. Please try again.');
+    }
+  };
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
+  };
+
   return (
     <div className="super-admin-create-admin">
       <div className="sidebar">
@@ -19,7 +71,7 @@ const SuperAdminCreateAdmin = () => {
         <nav>
           <ul>
             <li className="superadminActive">
-              <Link to="/superadmindashboard">
+              <Link to="/superadmindashboard/:username">
               <RiAdminFill style={{ marginRight: '10px' }} />
               Admins
               </Link>
@@ -28,18 +80,6 @@ const SuperAdminCreateAdmin = () => {
               <Link to="/superadminviewuser">
               <FaUsers style={{ marginRight: '10px' }} />
               Users
-              </Link>
-            </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminadminactivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Admins Activity Log
-              </Link>
-            </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
               </Link>
             </li>
           </ul>
@@ -52,7 +92,7 @@ const SuperAdminCreateAdmin = () => {
           </Link>
           </div>
           <div className="superadminNotActive">
-          <Link to="/login">
+          <Link to="/login" onClick={handleLogOut}>
             <IoLogOut style={{ marginRight: '10px' }} />
             Logout
           </Link>
@@ -64,17 +104,13 @@ const SuperAdminCreateAdmin = () => {
           <h2>Create Admin Account</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
                 type="text"
-                name="name"
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
+                name="username"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </label>
             <label>
@@ -82,6 +118,9 @@ const SuperAdminCreateAdmin = () => {
               <input
                 type="email"
                 name="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </label>
             <label>
@@ -89,20 +128,30 @@ const SuperAdminCreateAdmin = () => {
               <input
                 type="password"
                 name="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </label>
             <label>
               Assess Rights:
-              <input
-                type="text"
+              <select  className='assessrights'
                 name="assessrights"
-              />
+                value={assessrights}
+                onChange={handleAssessRightsChange}
+              >
+                {assessRightsOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </label>
             <div className="form-buttons">
-              <Link to="/superadmindashboard"><button type="button" className="back">
+              <Link to="/superadmindashboard/:username"><button type="button" className="back">
                 Back
               </button></Link>
-              <button type="button" className="createadminaccount">
+              <button type="button" className="createadminaccount" onClick={handleCreate}>
                 Create Account
               </button>
             </div>

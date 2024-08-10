@@ -30,6 +30,8 @@ const UserAccountManagement = () => {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
       setPlanid(parsedUser.planid);
+    } else {
+      navigate('/login');
     }
   }, []); // Run only once to initialize planid
 
@@ -101,9 +103,8 @@ const UserAccountManagement = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete your account?')) {
         try {
-            // Call the delete API with the correct field name
             const response = await axios.post('http://localhost:5000/api/deleteAccount', {
-                email: user.email // Ensure this matches the backend expectation
+                email: user.email 
             });
 
             console.log(response.data.message);

@@ -6,7 +6,7 @@ import { IoLogOut } from "react-icons/io5";
 import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 // Mapping plan IDs to their respective names
@@ -20,6 +20,7 @@ const planNames = {
 const UserCloudServiceUpgrade = () => {
   const [planid, setPlanid] = useState(null); // Initialize planid state
   const [plan, setPlan] = useState({ name: '', price: 0, status: 'Inactive' });
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Retrieve user data from sessionStorage
@@ -28,6 +29,8 @@ const UserCloudServiceUpgrade = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setPlanid(parsedUser.planid);
+    } else {
+      navigate('/login');
     }
   }, []); // Run only once to initialize planid
 

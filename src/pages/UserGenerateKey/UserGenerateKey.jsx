@@ -48,6 +48,7 @@ const UserGenerateKey = () => {
       }
     } else {
       console.error('No userId found in session storage');
+      navigate('/login');
     }
   }, []);
 

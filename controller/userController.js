@@ -80,9 +80,9 @@ const userController = {
         }
     },
 
-    getAllUsers: async (req, res) => {
+    getAllEndUsers: async (req, res) => {
         try {
-            const users = await User.getAll();
+            const users = await User.getAllEndUsers();
             res.json(users);
         } catch (err) {
             res.status(500).json({ error: err.message });
@@ -150,6 +150,16 @@ const userController = {
             res.status(500).json({ valid: false, message: 'Server error' });
         }
     },
+    getAssessRights: async (req, res) => {
+        const email = req.body.email; 
+        try {
+        const result = await User.getRights(email);
+        console.log('Result from getRights:', result); // Check the output
+        res.json(result);
+        } catch (error) {
+        res.status(500).json({ error: error.message });
+        }
+    },
     update: async (req, res) => {
         const { uid } = req.params;
         const { updatedData } = req.body;
@@ -205,9 +215,9 @@ const userController = {
 
         try {
             await User.delete(email); // Pass the userId directly
-            res.status(200).json({ message: 'User deleted successfully' });
+            res.status(200).json({ message: 'Account deleted successfully' });
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error('Error deleting account:', error);
             return res.status(500).json({ message: 'Internal server error' });
         }
     },
@@ -294,6 +304,191 @@ const userController = {
             res.status(500).json({ error: 'Passphrase validation failed' });
         }
     },
+    createUser: async (req, res) => {
+        try {
+            const { email, username, password, role, planid } = req.body;
+    
+            if (!password) {
+                return res.status(400).json({ error: 'Password is required.' });
+            }
+    
+            const salt = await bcrypt.genSalt();
+            const hashedPassword = await bcrypt.hash(password, salt);
+    
+            await User.create({ email, username, password: hashedPassword, role, planid });
+            
+        } catch (err) {
+            console.error('Registration error:', err); // Log the error
+            res.status(500).json({ error: 'Internal Server Error', details: err.message });
+        }
+    },
+    updateUser: async (req, res) => {
+        try {
+            const currentEmail = req.params.email;
+            const { username, email } = req.body;
+    
+            // Find the user by email
+            const user = await User.findByEmail(currentEmail);
+    
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            
+            if (email !== currentEmail) {
+                const existingUser = await User.findByEmail(email);
+                if (existingUser) {
+                    return res.status(409).json({ message: 'Email already in use by another account' });
+                }
+            }
+    
+            // Save the updated user
+            await User.updateUser(currentEmail, email, username);
+    
+            res.status(200).json({ message: 'User updated successfully', user });
+        } catch (error) {
+            console.error('Error updating user:', error);
+            res.status(500).json({ message: 'Internal server error' });
+        }
+    },
+    deleteUser: async (req, res) => {
+        const userEmail = req.params.email; // Get email from route parameters
+
+        if (!userEmail) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        try {
+            await User.delete(userEmail); // Pass the userId directly
+            res.status(200).json({ message: 'Account deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    },
+    superupdateUser: async (req, res) => {
+        const currentEmail = req.params.email;
+        const updatedData = req.body;
+    
+        if (!currentEmail) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        try {
+            // Retrieve the current user data based on email
+            const currentUser = await User.findByEmail(currentEmail);
+            if (!currentUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+    
+            // Check for changes
+            const updates = {};
+            if (updatedData.username && updatedData.username !== currentUser.username) {
+                updates.username = updatedData.username;
+            }
+            if (updatedData.email && updatedData.email !== currentUser.email) {
+                // Check if new email already exists
+                const emailExists = await User.findByEmailAndExcludeCurrent(updatedData.email, currentUser.id);
+                if (emailExists) {
+                    return res.status(409).json({ message: 'Email already in use by another account' });
+                }
+                updates.email = updatedData.email;
+            }
+            if (updatedData.password) {  // Hash password if provided
+                const salt = await bcrypt.genSalt();
+                updates.password = await bcrypt.hash(updatedData.password, salt);
+            }
+    
+            // If no updates, return an error
+            if (Object.keys(updates).length === 0) {
+                return res.status(400).json({ message: 'No fields to update' });
+            }
+    
+            // Perform the update
+            await User.updateDetails(currentEmail, updates);
+            return res.status(200).json({ message: 'User updated successfully' });
+    
+        } catch (error) {
+            console.error('Error updating user:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    },    
+    getAllAdmins: async (req, res) => {
+        try {
+            const users = await User.getAllAdmins();
+            res.json(users);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    },
+    createAdmin: async (req, res) => {
+        try {
+            const { email, username, password, role, assessrights } = req.body;
+    
+            if (!password) {
+                return res.status(400).json({ error: 'Password is required.' });
+            }
+    
+            const salt = await bcrypt.genSalt();
+            const hashedPassword = await bcrypt.hash(password, salt);
+    
+            await User.createAdmin({ email, username, password: hashedPassword, role, assessrights });
+            
+        } catch (err) {
+            console.error('Registration error:', err); // Log the error
+            res.status(500).json({ error: 'Internal Server Error', details: err.message });
+        }
+    },
+    updateAdmin: async (req, res) => {
+        const { email } = req.params;
+        const { updatedData } = req.body;
+    
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+    
+        try {
+            const currentAdmin = await User.findByEmail(email);
+            if (!currentAdmin) {
+                return res.status(404).json({ message: 'Admin not found' });
+            }
+    
+            const updates = {};
+            if (updatedData.username && updatedData.username !== currentAdmin.username) {
+                updates.username = updatedData.username;
+            }
+
+            if (updatedData.email && updatedData.email !== currentAdmin.email) {
+                // Debugging output to check emailExists
+                console.log(`Checking if email ${updatedData.email} exists for another user...`);
+                const emailExists = await User.findByEmailAndExcludeCurrent(updatedData.email, currentAdmin.id);
+                console.log(`Email exists: ${emailExists}`);
+                if (emailExists) {
+                    return res.status(409).json({ message: 'Email already in use by another account' });
+                }
+                updates.email = updatedData.email;
+            }
+
+            if (updatedData.password) {
+                const salt = await bcrypt.genSalt();
+                updates.password = await bcrypt.hash(updatedData.password, salt);
+            }
+
+            if (updatedData.assessrights && updatedData.assessrights !== currentAdmin.assessrights) {
+                updates.assessrights = updatedData.assessrights;
+            }
+    
+            if (Object.keys(updates).length === 0) {
+                return res.status(400).json({ message: 'No fields to update' });
+            }
+    
+            await User.updateDetails(email, updates);
+            return res.status(200).json({ message: 'Admin updated successfully' });
+    
+        } catch (error) {
+            console.error('Error updating admin:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }       
 };
 
 module.exports = userController;

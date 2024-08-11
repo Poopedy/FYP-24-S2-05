@@ -1,6 +1,6 @@
 import { gapi } from 'gapi-script';
 import React, { useEffect, useRef, useState } from 'react';
-import { FaUser } from "react-icons/fa";
+import { FaUser, FaLock, FaUnlock } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { LuActivitySquare } from "react-icons/lu";

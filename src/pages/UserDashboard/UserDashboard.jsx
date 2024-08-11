@@ -148,11 +148,9 @@ const UserDashboard = () => {
 
     // Clean up interval on component unmount
     return () => clearInterval(interval);
-}, [navigate]);
+  }, [navigate]);
 
-if (!user) {
-    return <div>Loading...</div>;
-}
+
   
   const handleFileChange = (event) => {
     const uploadedFile = event.target.files[0];
@@ -177,7 +175,7 @@ if (!user) {
   };
 
   const handleUploadClick = () => {
-    if (fileInputRef.current) {
+    if (!isLocked && fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
@@ -190,12 +188,12 @@ if (!user) {
   }
   async function downloadGdrive(itemId, fileName) {
     const token = localStorage.getItem("gdtoken"); // Replace with your actual Google Drive token key
-  
+
     if (!token) {
       console.error('No token found');
       return;
     }
-  
+
     try {
       // Make a GET request to the download endpoint
       const response = await fetch(`https://cipherlink.xyz:5000/api/download/${itemId}?token=${encodeURIComponent(token)}`, {
@@ -204,25 +202,25 @@ if (!user) {
           'Content-Type': 'application/json'
         }
       });
-  
+
       if (response.ok) {
         const blob = await response.blob();
         
         // Decrypt the file
         const decryptedBlob = await decryptFile(blob);
-  
+
         // Create a URL for the decrypted Blob
         const downloadUrl = window.URL.createObjectURL(decryptedBlob);
-  
+
         // Create a link element and trigger the download
         const a = document.createElement('a');
         a.href = downloadUrl;
-  
+
         // Set the desired filename
         a.download = fileName; // Replace with the actual filename and extension
         document.body.appendChild(a);
         a.click();
-  
+
         // Clean up
         a.remove();
         window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
@@ -233,15 +231,15 @@ if (!user) {
       console.error('Error downloading file:', error);
     }
   }
-  
+
   async function downloadDropbox(fileId,fn) {
     const token = localStorage.getItem("dbtoken"); // Adjust token retrieval as needed
-  
+
     if (!token) {
       console.error('No token found');
       return;
     }
-  
+
     try {
       // Make a POST request to the Dropbox API to download the file
       const response = await fetch(`https://cipherlink.xyz:5000/api/dropbox/download/${fileId}?token=${encodeURIComponent(token)}`, {
@@ -250,13 +248,13 @@ if (!user) {
           'Content-Type': 'application/json'
         }
       });
-  
+
       if (response.ok) {
         const blob = await response.blob();
         
         // Decrypt the file
         const decryptedBlob = await decryptFile(blob);
-  
+
         // Create a URL for the decrypted Blob and trigger download
         const downloadUrl = window.URL.createObjectURL(decryptedBlob);
         const a = document.createElement('a');
@@ -274,110 +272,110 @@ if (!user) {
     }
   }
 
-//   async function 
-async function downloadOneDrive(itemid,fn) {
-  const token = localStorage.getItem("odtoken");
+  //   async function 
+  async function downloadOneDrive(itemid,fn) {
+    const token = localStorage.getItem("odtoken");
 
-  if (!token) {
-      console.error('No token found');
-      return;
+    if (!token) {
+        console.error('No token found');
+        return;
+    }
+
+    try {
+        // Make a GET request to the download endpoint
+        const response = await fetch(`https://cipherlink.xyz:5000/api/onedrive/download/${itemid}?token=${encodeURIComponent(token)}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            
+            // Decrypt the file
+            const decryptedBlob = await decryptFile(blob);
+
+            // Create a URL for the decrypted Blob
+            const downloadUrl = window.URL.createObjectURL(decryptedBlob);
+
+            // Create a link element and trigger the download
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+
+            // Set the desired filename
+            a.download = fn; // Replace with the actual filename and extension
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up
+            a.remove();
+            window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
+        } else {
+            console.error('Failed to download file');
+        }
+    } catch (error) {
+        console.error('Error downloading file:', error);
+    }
   }
 
-  try {
-      // Make a GET request to the download endpoint
-      const response = await fetch(`https://cipherlink.xyz:5000/api/onedrive/download/${itemid}?token=${encodeURIComponent(token)}`, {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json'
-          }
+  // Helper function to decrypt file
+  async function decryptFile(file) {
+    // Convert file to array buffer
+    const arrayBuffer = await file.arrayBuffer();
+
+    // Extract the IV (first 12 bytes) and the encrypted data
+    const iv = new Uint8Array(arrayBuffer.slice(0, 12)); // IV is the first 12 bytes
+    const encryptedData = new Uint8Array(arrayBuffer.slice(12)); // Encrypted data starts after the IV
+
+    // Get the CryptoKey object from the hardcoded key
+    const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
+
+    // Decrypt the file data
+    const decryptedBuffer = await crypto.subtle.decrypt(
+        {
+            name: 'AES-GCM',
+            iv: iv, // Initialization vector
+        },
+        cryptoKey, // Use the CryptoKey object
+        encryptedData
+    );
+
+    return new Blob([decryptedBuffer], { type: file.type });
+  }
+
+  async function deleteDropbox(fileId, uid) {
+    const token = localStorage.getItem("dbtoken");
+
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://cipherlink.xyz:5000/api/dropbox/delete/${fileId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          token: token,
+          uid: uid
+        })
       });
 
       if (response.ok) {
-          const blob = await response.blob();
-          
-          // Decrypt the file
-          const decryptedBlob = await decryptFile(blob);
-
-          // Create a URL for the decrypted Blob
-          const downloadUrl = window.URL.createObjectURL(decryptedBlob);
-
-          // Create a link element and trigger the download
-          const a = document.createElement('a');
-          a.href = downloadUrl;
-
-          // Set the desired filename
-          a.download = fn; // Replace with the actual filename and extension
-          document.body.appendChild(a);
-          a.click();
-
-          // Clean up
-          a.remove();
-          window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
+        console.log('File deleted successfully');
+        // You can add any additional code here to update the UI after deletion
+        fetchFilesByUid('dropbox');
       } else {
-          console.error('Failed to download file');
+        console.error('Failed to delete file');
       }
-  } catch (error) {
-      console.error('Error downloading file:', error);
-  }
-}
-
-// Helper function to decrypt file
-async function decryptFile(file) {
-  // Convert file to array buffer
-  const arrayBuffer = await file.arrayBuffer();
-
-  // Extract the IV (first 12 bytes) and the encrypted data
-  const iv = new Uint8Array(arrayBuffer.slice(0, 12)); // IV is the first 12 bytes
-  const encryptedData = new Uint8Array(arrayBuffer.slice(12)); // Encrypted data starts after the IV
-
-  // Get the CryptoKey object from the hardcoded key
-  const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
-
-  // Decrypt the file data
-  const decryptedBuffer = await crypto.subtle.decrypt(
-      {
-          name: 'AES-GCM',
-          iv: iv, // Initialization vector
-      },
-      cryptoKey, // Use the CryptoKey object
-      encryptedData
-  );
-
-  return new Blob([decryptedBuffer], { type: file.type });
-}
-
-async function deleteDropbox(fileId, uid) {
-  const token = localStorage.getItem("dbtoken");
-
-  if (!token) {
-    console.error('No token found');
-    return;
-  }
-
-  try {
-    const response = await fetch(`https://cipherlink.xyz:5000/api/dropbox/delete/${fileId}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        token: token,
-        uid: uid
-      })
-    });
-
-    if (response.ok) {
-      console.log('File deleted successfully');
-      // You can add any additional code here to update the UI after deletion
-      fetchFilesByUid('dropbox');
-    } else {
-      console.error('Failed to delete file');
+    } catch (error) {
+      console.error('Error deleting file:', error);
     }
-  } catch (error) {
-    console.error('Error deleting file:', error);
   }
-}
 
   async function deleteOneDrive(itemid,uid) {
     const token = localStorage.getItem("odtoken");
@@ -410,39 +408,39 @@ async function deleteDropbox(fileId, uid) {
     } catch (error) {
       console.error('Error deleting file:', error);
     }
-}
-async function deleteGdrive(itemid, uid) {
-  const token = localStorage.getItem("gdtoken");
-
-  if (!token) {
-    console.error('No token found');
-    return;
   }
+  async function deleteGdrive(itemid, uid) {
+    const token = localStorage.getItem("gdtoken");
 
-  try {
-    const response = await fetch(`https://cipherlink.xyz:5000/api/delete/${itemid}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        token: token,
-        uid: uid
-      })
-    });
-
-    if (response.ok) {
-      console.log('File deleted successfully');
-      fetchFilesByUid('drive');
-      // Additional UI updates can be added here after deletion
-    } else {
-      console.error('Failed to delete file');
+    if (!token) {
+      console.error('No token found');
+      return;
     }
-  } catch (error) {
-    console.error('Error deleting file:', error);
+
+    try {
+      const response = await fetch(`https://cipherlink.xyz:5000/api/delete/${itemid}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          token: token,
+          uid: uid
+        })
+      });
+
+      if (response.ok) {
+        console.log('File deleted successfully');
+        fetchFilesByUid('drive');
+        // Additional UI updates can be added here after deletion
+      } else {
+        console.error('Failed to delete file');
+      }
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
   }
-}
 
   function formatFileSize(bytes) {
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -541,28 +539,28 @@ async function deleteGdrive(itemid, uid) {
       alert('Please select a file first!');
       return;
     }
-  
+
     try {
       const token = localStorage.getItem('gdtoken'); // Replace 'gdriveToken' with your actual token key
       if (!token) {
         alert('User not authenticated!');
         return;
       }
-  
+
       // Encrypt the file before uploading
       const encryptedFile = await encryptFile(file);
-  
+
       const formData = new FormData();
       console.log("File to be uploaded:", encryptedFile);
       formData.append('file', encryptedFile, file.name); // Use the original file name
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
-  
+
       const response = await fetch('https://cipherlink.xyz:5000/api/fileUpload', {
         method: 'POST',
         body: formData,
       });
-  
+
       if (response.ok) {
         const responseData = await response.json();
         console.log('Response Data:', responseData);
@@ -877,25 +875,37 @@ async function deleteGdrive(itemid, uid) {
 
   const renderContent = () => {
     const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
+    const handleUpload = () => {
+      switch (activeTab) {
+        case 'Google Drive':
+          uploadFile();
+          break;
+        case 'OneDrive':
+          uploadFileToOneDrive();
+          break;
+        case 'Dropbox':
+          uploadFileToDropbox();
+          break;
+        default:
+          console.warn('No service selected');
+      }
+    };
     return (
       <>
         <h2>{activeTab} Files</h2>
         <div className="upload-container">
 
+        <input type="file" id="file-upload" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
           <label htmlFor="file-upload" className="upload-area">
-            Drag and drop files, browse or click the upload button
+            Click the upload button and browse your files
           </label>
 
-          <br></br>
-
-          {/* TEST USING THESE BUTTONS FIRST to merge with frontend  */}
+          {/* TEST USING THESE BUTTONS FIRST to merge with frontend 
           <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
           <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
           <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
-          <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button>
-          <button className="upload-button" onClick={uploadFileToDropbox}>Upload dropbox</button>
-          <button className="upload-button" onClick={uploadFile}>Upload gdrive</button>
-          <button className="upload-button" onClick={uploadFileToOneDrive}>Upload onedrive</button>
+          <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button> */}
+          <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
         </div>
         <table id="dynamic-table">
           <thead>
@@ -926,6 +936,13 @@ async function deleteGdrive(itemid, uid) {
     }
     setTabs(prevTabs => [...prevTabs, tabName]);
     setActiveTab(tabName);
+    if (tabName === 'Google Drive') {
+      connectCloud();
+    } else if (tabName === 'OneDrive') {
+      connectOneDrive();
+    } else if (tabName === 'Dropbox') {
+      connectDB();
+    }
   };
 
   const handleRemoveTab = (tabName) => {
@@ -1015,11 +1032,6 @@ async function deleteGdrive(itemid, uid) {
           </Popup>
         </div>
         <br></br>
-        <div className="tabs">
-          <button className={activeTab === 'Google Drive' ? 'active' : ''} onClick={() => connectCloud()}>Connect Google Drive</button>
-          <button className={activeTab === 'OneDrive' ? 'active' : ''} onClick={() => connectOneDrive()}>Connect OneDrive</button>
-          <button className={activeTab === 'Dropbox' ? 'active' : ''} onClick={() => connectDB()}>Connect Dropbox</button>
-        </div>
         <div className="content-wrapper">
           <section className="user-file">
             {renderContent()}
@@ -1027,6 +1039,18 @@ async function deleteGdrive(itemid, uid) {
           <RightSidebar file={selectedFile} />
         </div>
       </div>
+      {showPassphrasePopup && (
+        <Popup open={showPassphrasePopup} closeOnDocumentClick onClose={() => setShowPassphrasePopup(false)} modal>
+          <div className="modal-container">
+            <div className="modal">
+              <h3>Enter Passphrase</h3>
+              <input type="password" value={inputPassphrase} onChange={(e) => setInputPassphrase(e.target.value)} />
+              <button onClick={handlePassphraseSubmit}>Submit</button>
+              <button onClick={() => setShowPassphrasePopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </Popup>
+      )}
     </div>
   );
 };

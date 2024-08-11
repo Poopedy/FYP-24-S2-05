@@ -10,11 +10,11 @@ import { Link } from 'react-router-dom';
 
 const SuperAdminDashboard = () => {
   const admins = [
-    { name: 'Lyney Hearth', phone: '98765432', email: 'lyneyhearth@gmail.com', assessrights: 'Read & Write' },
-    { name: 'Allan Walker', phone: '87654987', email: 'allanwalker@gmail.com', assessrights: 'Read & Write' },
-    { name: 'Luca Leon', phone: '85124912', email: 'lucaleon@gmail.com', assessrights: 'Read' },
-    { name: 'Melony Owen', phone: '91984563', email: 'melonyowen@gmail.com', assessrights: 'Write' },
-    { name: 'Yilin Yon', phone: '90245611', email: 'yilinyon@gmail.com', assessrights: 'Read & Write' },
+    { username: 'Lyney Hearth', email: 'lyneyhearth@gmail.com', assessrights: 'Read & Write' },
+    { username: 'Allan Walker', email: 'allanwalker@gmail.com', assessrights: 'Read & Write' },
+    { username: 'Luca Leon', email: 'lucaleon@gmail.com', assessrights: 'Read' },
+    { username: 'Melony Owen', email: 'melonyowen@gmail.com', assessrights: 'Write' },
+    { username: 'Yilin Yon', email: 'yilinyon@gmail.com', assessrights: 'Read & Write' },
   ];
 
   return (
@@ -34,18 +34,6 @@ const SuperAdminDashboard = () => {
               <Link to="/superadminviewuser">
               <FaUsers style={{ marginRight: '10px' }} />
               Users
-              </Link>
-            </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminadminactivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Admins Activity Log
-              </Link>
-            </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
               </Link>
             </li>
           </ul>
@@ -82,8 +70,7 @@ const SuperAdminDashboard = () => {
           <table>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Phone</th>
+                <th>Username</th>
                 <th>Email</th>
                 <th>Assess Rights</th>
                 <th>Actions</th>
@@ -92,8 +79,7 @@ const SuperAdminDashboard = () => {
             <tbody>
               {admins.map((admin, index) => (
                 <tr key={index}>
-                  <td>{admin.name}</td>
-                  <td>{admin.phone}</td>
+                  <td>{admin.username}</td>
                   <td>{admin.email}</td>
                   <td>{admin.assessrights}</td>
                   <td>

@@ -10,17 +10,16 @@ import { Link } from 'react-router-dom';
 
 const SuperAdminAccountManagement = () => {
   const [superAdmin, setSuperAdmin] = useState({
-    name: 'Connor Chew',
-    phone: '89421432',
+    username: 'Connor Chew',
     email: 'connorchew@gmail.com',
     password: '***********',
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { username, value } = e.target;
     setSuperAdmin((prevSuperAdmin) => ({
       ...prevSuperAdmin,
-      [name]: value,
+      [username]: value,
     }));
   };
 
@@ -55,18 +54,6 @@ const SuperAdminAccountManagement = () => {
               Users
               </Link>
             </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminadminactivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Admins Activity Log
-              </Link>
-            </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
-              </Link>
-            </li>
           </ul>
         </nav>
         <div className="settings-logout">
@@ -87,20 +74,11 @@ const SuperAdminAccountManagement = () => {
         <h2>Account Details</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
-                type="text"
-                name="name"
-                value={superAdmin.name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
-                value={superAdmin.phone}
+                type="username"
+                name="username"
+                value={superAdmin.username}
                 onChange={handleChange}
               />
             </label>

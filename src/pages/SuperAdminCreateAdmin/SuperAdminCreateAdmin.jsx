@@ -30,18 +30,6 @@ const SuperAdminCreateAdmin = () => {
               Users
               </Link>
             </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminadminactivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Admins Activity Log
-              </Link>
-            </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
-              </Link>
-            </li>
           </ul>
         </nav>
         <div className="settings-logout">
@@ -64,17 +52,10 @@ const SuperAdminCreateAdmin = () => {
           <h2>Create Admin Account</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
-                type="text"
-                name="name"
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
+                type="username"
+                name="username"
               />
             </label>
             <label>

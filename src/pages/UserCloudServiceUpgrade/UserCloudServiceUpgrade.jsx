@@ -38,6 +38,7 @@ const UserCloudServiceUpgrade = () => {
 
     fetchPlan();
   }, [planid]); // Run whenever planid changes
+  const currentPlan = plan.name;
   return (
     <div className="user-cloud-service-upgrade">
       <div className="sidebar">
@@ -114,7 +115,7 @@ const UserCloudServiceUpgrade = () => {
               <p style={{ fontSize: '1.3em' }}><b>FREE</b></p>
               <p>Basic Plan</p>
               <Link to="/userpayment/1">
-                <button className='upgrade-button'>
+                <button className='upgrade-button' disabled={currentPlan === 'Basic'} style={currentPlan === 'Basic' ? { backgroundColor: 'grey', color: 'white', cursor: 'not-allowed' } : {}}>
                   Choose
                 </button>
               </Link>
@@ -130,7 +131,7 @@ const UserCloudServiceUpgrade = () => {
               <p style={{ fontSize: '1.3em' }}><b>SGD 4.99</b></p>
               <p>Subscription Plan</p>
               <Link to="/userpayment/2" >
-                <button className='upgrade-button'>
+                <button className='upgrade-button' disabled={currentPlan === 'Silver'} style={currentPlan === 'Silver' ? { backgroundColor: 'grey', color: 'white', cursor: 'not-allowed' } : {}}>
                   Choose
                 </button>
               </Link>
@@ -146,7 +147,7 @@ const UserCloudServiceUpgrade = () => {
               <p style={{ fontSize: '1.3em' }}><b>SGD 9.99</b></p>
               <p>Subscription Plan</p>
               <Link to="/userpayment/3">
-                <button className='upgrade-button'>
+                <button className='upgrade-button' disabled={currentPlan === 'Gold'} style={currentPlan === 'Gold' ? { backgroundColor: 'grey', color: 'white', cursor: 'not-allowed' } : {}}>
                   Choose
                 </button>
               </Link>

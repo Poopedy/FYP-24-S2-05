@@ -10,17 +10,16 @@ import { Link } from 'react-router-dom';
 
 const SuperAdminUpdateUser = () => {
   const [user, setUser] = useState({
-    name: 'Bonnie Lee',
-    phone: '88992348',
+    username: 'Bonnie Lee',
     email: 'bonnielee@gmail.com',
     password: '***********',
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { username, value } = e.target;
     setUser((prevUser) => ({
       ...prevUser,
-      [name]: value,
+      [username]: value,
     }));
   };
 
@@ -55,18 +54,6 @@ const SuperAdminUpdateUser = () => {
               Users
               </Link>
             </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminadminactivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Admins Activity Log
-              </Link>
-            </li>
-            <li className="superadminNotActive">
-              <Link to="/superadminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
-              </Link>
-            </li>
           </ul>
         </nav>
         <div className="settings-logout">
@@ -89,20 +76,11 @@ const SuperAdminUpdateUser = () => {
         <h2>Update User Account</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
-                type="text"
-                name="name"
-                value={user.name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
-                value={user.phone}
+                type="username"
+                name="username"
+                value={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -112,15 +90,6 @@ const SuperAdminUpdateUser = () => {
                 type="email"
                 name="email"
                 value={user.email}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Password:
-              <input
-                type="password"
-                name="password"
-                value={user.password}
                 onChange={handleChange}
               />
             </label>

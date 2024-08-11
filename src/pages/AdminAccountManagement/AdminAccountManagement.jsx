@@ -9,18 +9,17 @@ import { Link } from 'react-router-dom';
 
 const AdminAccountManagement = () => {
   const [user, setAdmin] = useState({
-    name: 'Lyney Hearth',
-    phone: '98765432',
+    username: 'Lyney Hearth',
     email: 'lyneyhearth@gmail.com',
     password: '***********',
     assessrights: 'Read & Write',
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { username, value } = e.target;
     setAdmin((prevAdmin) => ({
       ...prevAdmin,
-      [name]: value,
+      [username]: value,
     }));
   };
 
@@ -49,12 +48,6 @@ const AdminAccountManagement = () => {
                 Users
                 </Link>
                 </li>
-                <li className="adminNotActive">
-                <Link to="/adminuseractivity">
-                <LuActivitySquare style={{ marginRight: '10px' }} />
-                Users Activity Log
-                </Link>
-                </li>
             </ul>
         </nav>
         <div className="settings-logout">
@@ -75,20 +68,11 @@ const AdminAccountManagement = () => {
           <h2>Account Details</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
-                type="text"
-                name="name"
-                value={user.name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
-                value={user.phone}
+                type="username"
+                name="username"
+                value={user.username}
                 onChange={handleChange}
               />
             </label>

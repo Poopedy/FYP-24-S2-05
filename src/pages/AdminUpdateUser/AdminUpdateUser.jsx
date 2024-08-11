@@ -8,10 +8,8 @@ import { Link } from 'react-router-dom';
 
 const AdminUpdateUser = () => {
   const [user, setUser] = useState({
-    name: 'Bonnie Lee',
-    phone: '88992348',
+    username: 'Bonnie Lee',
     email: 'bonnielee@gmail.com',
-    password: '***********',
   });
 
   const handleChange = (e) => {
@@ -45,11 +43,6 @@ const AdminUpdateUser = () => {
           <FaUsers style={{ marginRight: '10px' }} />
           Users
           </li>
-          <li className="adminNotActive">
-          <Link to="/adminuseractivity">
-          <LuActivitySquare style={{ marginRight: '10px' }} />
-          Users Activity Log</Link>
-          </li>
         </ul>
       </nav>
       <div className="settings-logout">
@@ -72,20 +65,11 @@ const AdminUpdateUser = () => {
           <h2>Update User Account</h2>
           <form>
             <label>
-              Name:
+              Username:
               <input
-                type="text"
-                name="name"
-                value={user.name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="phone"
-                value={user.phone}
+                type="username"
+                name="username"
+                value={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -95,15 +79,6 @@ const AdminUpdateUser = () => {
                 type="email"
                 name="email"
                 value={user.email}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Password:
-              <input
-                type="password"
-                name="password"
-                value={user.password}
                 onChange={handleChange}
               />
             </label>

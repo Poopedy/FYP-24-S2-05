@@ -27,6 +27,7 @@ import SuperAdminUserActivity from './pages/SuperAdminUserActivity/SuperAdminUse
 import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/SuperAdminAccountManagement.jsx';
 import axios from 'axios';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
+import UserGenerateKey from './pages/UserGenerateKey/UserGenerateKey.jsx';
 // Set up Axios to include the token in the Authorization header for all requests
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
@@ -70,6 +71,7 @@ root.render(
         <Route path="/superadminuseractivity" element={<SuperAdminUserActivity />} />
         <Route path="/superadminaccmanagement" element={<SuperAdminAccountManagement />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/usergeneratekey" element={<UserGenerateKey />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

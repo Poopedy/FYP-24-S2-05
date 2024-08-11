@@ -28,7 +28,7 @@ import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/Sup
 import UserGenerateKey from './pages/UserGenerateKey/UserGenerateKey.jsx';
 import axios from 'axios';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
-import UserGenerateKey from './pages/UserGenerateKey/UserGenerateKey.jsx';
+
 // Set up Axios to include the token in the Authorization header for all requests
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');

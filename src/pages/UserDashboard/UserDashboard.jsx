@@ -40,7 +40,7 @@ const UserDashboard = () => {
         return;
       }
 
-      fetch('http://localhost:5000/api/gettokens', {
+      fetch('https://cipherlink.xyz:5000/api/gettokens', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const UserDashboard = () => {
     // Check if the token is already stored
     if (localStorage.getItem("gdtoken") == null) {
       // Send a POST request to your backend to exchange the code for a token
-      fetch('http://localhost:5000/api/getToken', {
+      fetch('https://cipherlink.xyz:5000/api/getToken', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ if (!user) {
   
     try {
       // Make a GET request to the download endpoint
-      const response = await fetch(`http://localhost:5000/api/download/${itemId}?token=${encodeURIComponent(token)}`, {
+      const response = await fetch(`https://cipherlink.xyz:5000/api/download/${itemId}?token=${encodeURIComponent(token)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -244,7 +244,7 @@ if (!user) {
   
     try {
       // Make a POST request to the Dropbox API to download the file
-      const response = await fetch(`http://localhost:5000/api/dropbox/download/${fileId}?token=${encodeURIComponent(token)}`, {
+      const response = await fetch(`https://cipherlink.xyz:5000/api/dropbox/download/${fileId}?token=${encodeURIComponent(token)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -285,7 +285,7 @@ async function downloadOneDrive(itemid,fn) {
 
   try {
       // Make a GET request to the download endpoint
-      const response = await fetch(`http://localhost:5000/api/onedrive/download/${itemid}?token=${encodeURIComponent(token)}`, {
+      const response = await fetch(`https://cipherlink.xyz:5000/api/onedrive/download/${itemid}?token=${encodeURIComponent(token)}`, {
           method: 'GET',
           headers: {
               'Content-Type': 'application/json'
@@ -355,7 +355,7 @@ async function deleteDropbox(fileId, uid) {
   }
 
   try {
-    const response = await fetch(`http://localhost:5000/api/dropbox/delete/${fileId}`, {
+    const response = await fetch(`https://cipherlink.xyz:5000/api/dropbox/delete/${fileId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -388,7 +388,7 @@ async function deleteDropbox(fileId, uid) {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/onedrive/delete/${itemid}`, {
+      const response = await fetch(`https://cipherlink.xyz:5000/api/onedrive/delete/${itemid}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -420,7 +420,7 @@ async function deleteGdrive(itemid, uid) {
   }
 
   try {
-    const response = await fetch(`http://localhost:5000/api/delete/${itemid}`, {
+    const response = await fetch(`https://cipherlink.xyz:5000/api/delete/${itemid}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -462,7 +462,7 @@ async function deleteGdrive(itemid, uid) {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/getFilesByUid', {
+      const response = await fetch('https://cipherlink.xyz:5000/api/getFilesByUid', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -558,7 +558,7 @@ async function deleteGdrive(itemid, uid) {
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
   
-      const response = await fetch('http://localhost:5000/api/fileUpload', {
+      const response = await fetch('https://cipherlink.xyz:5000/api/fileUpload', {
         method: 'POST',
         body: formData,
       });
@@ -601,7 +601,7 @@ async function deleteGdrive(itemid, uid) {
       formData.append('file', encryptedFile);
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
-      const response = await fetch('http://localhost:5000/api/dropbox/upload', {
+      const response = await fetch('https://cipherlink.xyz:5000/api/dropbox/upload', {
         method: 'POST',
         body: formData,
       });
@@ -641,7 +641,7 @@ async function deleteGdrive(itemid, uid) {
   //     formData.append('uid', user.id);
 
 
-  //     const response = await fetch('http://localhost:5000/api/onedrive/upload', {
+  //     const response = await fetch('https://cipherlink.xyz:5000/api/onedrive/upload', {
   //       method: 'POST',
   //       body: formData,
   //     });
@@ -721,7 +721,7 @@ async function deleteGdrive(itemid, uid) {
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
   
-      const response = await fetch('http://localhost:5000/api/onedrive/upload', {
+      const response = await fetch('https://cipherlink.xyz:5000/api/onedrive/upload', {
         method: 'POST',
         body: formData,
       });
@@ -744,7 +744,7 @@ async function deleteGdrive(itemid, uid) {
   // function connectCloud() {
   //   console.log("connecting");
   //   const uid = user.id; 
-  //   fetch('http://localhost:5000/api/getAuthURL?uid={}')
+  //   fetch('https://cipherlink.xyz:5000/api/getAuthURL?uid={}')
   //     .then(response => response.text())
   //     .then(url => {
   //       window.location.href = url; // Redirect user to the Google OAuth2 consent page
@@ -761,7 +761,7 @@ async function deleteGdrive(itemid, uid) {
       return;
     }
 
-    fetch(`http://localhost:5000/api/getAuthURL?token=${uid}`, {
+    fetch(`https://cipherlink.xyz:5000/api/getAuthURL?token=${uid}`, {
       method: 'GET',
     })
       .then(response => {
@@ -783,7 +783,7 @@ async function deleteGdrive(itemid, uid) {
   // THINK NOT USED MAYBE REMOVED
   // async function getDropboxToken() {
   //   try {
-  //     const response = await fetch('http://localhost:5000/api/dropbox/get-token', {
+  //     const response = await fetch('https://cipherlink.xyz:5000/api/dropbox/get-token', {
   //       method: 'GET',
   //       credentials: 'include' // This ensures cookies are sent with the request
   //     });
@@ -813,7 +813,7 @@ async function deleteGdrive(itemid, uid) {
       return;
     }
 
-    fetch(`http://localhost:5000/api/dropbox/authorize?uid=${uid}`, {
+    fetch(`https://cipherlink.xyz:5000/api/dropbox/authorize?uid=${uid}`, {
       method: 'GET',
     })
       .then(response => {
@@ -841,7 +841,7 @@ async function deleteGdrive(itemid, uid) {
       return;
     }
 
-    fetch(`http://localhost:5000/api/onedrive/authorize?uid=${uid}`, {
+    fetch(`https://cipherlink.xyz:5000/api/onedrive/authorize?uid=${uid}`, {
       method: 'GET',
     })
       .then(response => {
@@ -947,7 +947,7 @@ async function deleteGdrive(itemid, uid) {
       return;
   }
     try {
-      const response = await axios.post('http://localhost:5000/api/validatePassphrase', {
+      const response = await axios.post('https://cipherlink.xyz:5000/api/validatePassphrase', {
           userId: user.id,
           inputPassphrase: inputPassphrase
       });

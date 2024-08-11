@@ -26,7 +26,7 @@ const UserPayment = () => {
       if (!planid) return; // Do nothing if planid is not set
 
       try {
-        const response = await axios.post('http://localhost:5000/api/getplan', { planid });
+        const response = await axios.post('https://cipherlink.xyz:5000/api/getplan', { planid });
         const fetchedPlan = response.data;
         fetchedPlan.name = planNames[planid]; // Set the plan name using the mapping
         setPlan(fetchedPlan);

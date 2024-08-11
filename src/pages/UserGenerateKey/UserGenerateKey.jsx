@@ -33,7 +33,7 @@ const UserGenerateKey = () => {
       } else {
         const fetchPassphrase = async () => {
           try {
-            const response = await axios.get(`http://localhost:5000/api/passphrase/${user.id}`);
+            const response = await axios.get(`https://cipherlink.xyz:5000/api/passphrase/${user.id}`);
             if (response.data.passphrase) {
               setPassphrase(response.data.passphrase);
             } else {
@@ -73,7 +73,7 @@ const UserGenerateKey = () => {
       const encryptedData = await encryptWithPassphrase(encryptionKey, passphrase);
       const encryptedKeyString = btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
 
-      await axios.post('http://localhost:5000/api/keys', {
+      await axios.post('https://cipherlink.xyz:5000/api/keys', {
         userId: user.id,
         encryptedKey: encryptedKeyString
       });

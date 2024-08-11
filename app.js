@@ -59,8 +59,8 @@ app.use('/api/onedrive', onedriveRoutes);
 
 // Read SSL certificate and key
 const sslOptions = {
-    key: fs.readFileSync('privatekey.pem'),
-    cert: fs.readFileSync('cipherlink_xyz.pem')
+    key: fs.readFileSync('/etc/caddy/ssl/privatekey_unencrypted.pem'),
+    cert: fs.readFileSync('/etc/caddy/ssl/cipherlink_xyz.crt')
 };
 
 const PORT = process.env.PORT || 5000;

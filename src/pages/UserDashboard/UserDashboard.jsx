@@ -15,6 +15,7 @@ import 'reactjs-popup/dist/index.css';
 import './UserDashboard.css';
 
 const UserDashboard = () => {
+  const [tabs, setTabs] = useState([]);
   const [googleDriveFiles, setGoogleDriveFiles] = useState([]);
   const [oneDriveFiles, setOneDriveFiles] = useState([]);
   const [dropboxFiles, setDropboxFiles] = useState([]);
@@ -22,7 +23,11 @@ const UserDashboard = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [activeTab, setActiveTab] = useState('Google Drive');
   const fileInputRef = useRef(null);
-
+  const [isLocked, setIsLocked] = useState(true);
+  const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
+  const [inputPassphrase, setInputPassphrase] = useState('');
+  
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
   const updateToks = true;
@@ -111,11 +116,7 @@ const UserDashboard = () => {
   }
 
 
-  const [isLocked, setIsLocked] = useState(true);
-  const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
-  const [inputPassphrase, setInputPassphrase] = useState('');
   
-  const navigate = useNavigate();
   
   const getPassphraseFromSession = () => {
     const passphraseData = JSON.parse(sessionStorage.getItem('passphraseData'));

@@ -4,6 +4,7 @@ const User = require('../models/userModel');
 const Key = require('../models/keyModel')
 const { is } = require('express/lib/request');
 const verifyToken = require('../middlewares/authMiddleware');
+const fetch = require('node-fetch'); 
 const secret = 'fyp_jwt';
 
 const userController = {
@@ -71,6 +72,87 @@ const userController = {
             if (!isMatch) {
                 return res.status(401).json({ message: 'Invalid password' });
             }
+
+            const refreshGoogleToken = async (uid) => {
+                try {
+                    const response = await fetch('http://localhost:5000/api/refresh-google', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ uid }) // Send the UID in the request body
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+    
+                    const data = await response.json();
+                    console.log('Refreshed Google Access Token:', data.accessToken);
+    
+                    // Handle the refreshed access token as needed
+                    // For example, update your application's token storage
+    
+                } catch (error) {
+                    console.error('Error refreshing Google access token:', error);
+                }
+            };
+
+            const refreshOneDriveToken = async (uid) => {
+                try {
+                    const response = await fetch('http://localhost:5000/api/onedrive/refresh-onedrive', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ uid }) // Send the UID in the request body
+                    });
+            
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+            
+                    const data = await response.json();
+                    console.log('Refreshed OneDrive Access Token:', data.accessToken);
+            
+                    // Handle the refreshed access token as needed
+                    // For example, update your application's token storage
+            
+                } catch (error) {
+                    console.error('Error refreshing OneDrive access token:', error);
+                }
+            };
+
+            const refreshDropboxToken = async (uid) => {
+                try {
+                    const response = await fetch('http://localhost:5000/api/dropbox/refresh-dropbox', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ uid }) // Send the UID in the request body
+                    });
+            
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+            
+                    const data = await response.json();
+                    console.log('Refreshed Dropbox Access Token:', data.accessToken);
+            
+                    // Handle the refreshed access token as needed
+                    // For example, update your application's token storage
+            
+                } catch (error) {
+                    console.error('Error refreshing Dropbox access token:', error);
+                }
+            };
+            
+    
+            // Call the function to refresh Google token
+            await refreshGoogleToken(user.UID);
+            await refreshOneDriveToken(user.UID);
+            await refreshDropboxToken(user.UID);
 
             // Store user information in session
             req.session.user = {

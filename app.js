@@ -8,7 +8,8 @@ const keyRoutes = require('./routes/keyRoutes');
 const cors = require('cors'); // Import CORS middleware
 const dropboxRoutes = require('./routes/dropboxroute');
 const onedriveRoutes = require('./routes/onedriveroute');
-const app = express();
+const https = require('https'); // Import https module
+const fs = require('fs'); // Import file system module
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 
@@ -22,13 +23,16 @@ const dbOptions = {
 
 const sessionStore = new MySQLStore(dbOptions);
 
+const app = express();
+
 app.use(session({
     key: 'user_sid',
     secret: 'fyp11',
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
-    cookie: {secure:false,
+    cookie: {
+        secure: true, // Set to true for HTTPS
         maxAge: 1000 * 60 * 60 // 1 hour
     }
 }));
@@ -52,7 +56,16 @@ app.use('/api', planRoutes);
 app.use('/api', userRoutes);
 app.use('/api/dropbox', dropboxRoutes);
 app.use('/api/onedrive', onedriveRoutes);
+
+// Read SSL certificate and key
+const sslOptions = {
+    key: fs.readFileSync('privatekey.pem'),
+    cert: fs.readFileSync('cipherlink_xyz.pem')
+};
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+
+// Create HTTPS server
+https.createServer(sslOptions, app).listen(PORT, () => {
+    console.log(`HTTPS Server is running on port ${PORT}`);
 });

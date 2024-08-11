@@ -1063,48 +1063,43 @@ const Sidebar = () => {
   };
 
   return (
-  <div className="sidebar">
-    <div className="logoUser">
-      <img src="/images/CipherLinkLogo.png" alt="CipherLink Logo Login" />
-      <p>CipherLink Trusted Cloud</p>
-    </div>
-    <nav>
-      <ul>
-        <li className="userActive">
-          <PiFilesFill style={{ marginRight: '10px' }} />
-          My Files
-        </li>
-        <li className="userNotActive">
-          <Link to="/useractivitybilling">
-            <LuActivitySquare style={{ marginRight: '10px' }} />
-            Activity Log & Billing
+    <div className="sidebar">
+      <div className="logoUser">
+        <img src="/images/CipherLinkLogo.png" alt="CipherLink Logo Login" />
+        <p>CipherLink Trusted Cloud</p>
+      </div>
+      <nav>
+        <ul>
+          <li className="userActive">
+            <PiFilesFill style={{ marginRight: '10px' }} />
+            My Files
+          </li>
+        </ul>
+      </nav>
+      <div className="settings-logout">
+        <div className="userNotActive">
+          <Link to="/usercloudserviceupgrade">
+            <HiSparkles style={{ marginRight: '10px' }} />
+            Upgrade
           </Link>
-        </li>
-      </ul>
-    </nav>
-    <div className="settings-logout">
-      <div className="userNotActive">
-        <Link to="/usercloudserviceupgrade">
-          <HiSparkles style={{ marginRight: '10px' }} />
-          Upgrade
-        </Link>
-      </div>
-      <div className="userNotActive">
-        <Link to="/useraccmanagement">
-          <IoMdSettings style={{ marginRight: '10px' }} />
-          Settings
-        </Link>
-      </div>
-      <div className="userNotActive">
-        <Link to="/login" onClick={handleLogOut}>
-          <IoLogOut style={{ marginRight: '10px' }} />
-          Logout
-        </Link>
+        </div>
+        <div className="userNotActive">
+          <Link to="/useraccmanagement">
+            <IoMdSettings style={{ marginRight: '10px' }} />
+            Settings
+          </Link>
+        </div>
+        <div className="userNotActive">
+          <Link to="/login" onClick={handleLogOut}>
+            <IoLogOut style={{ marginRight: '10px' }} />
+            Logout
+          </Link>
+        </div>
       </div>
     </div>
-  </div>
-  );
-};
+    );
+  };
+  
 
 const RightSidebar = ({ file }) => {
   const [fileUrl, setFileUrl] = useState(null);

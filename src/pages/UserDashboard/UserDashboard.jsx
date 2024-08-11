@@ -988,11 +988,31 @@ async function deleteGdrive(itemid, uid) {
             <input type="text" placeholder="Search your files..." />
             <button>Search</button>
           </div>
+          <div className="lock-toggle" onClick={handleLockToggle}>
+            {isLocked ? <FaLock size={'1.3em'} /> : <FaUnlock size={'1.3em'}/>}
+          </div>
         </header>
+        
         <div className="tabs">
-          <button className={activeTab === 'Google Drive' ? 'active' : ''} onClick={() => setActiveTab('Google Drive')}>Google Drive</button>
-          <button className={activeTab === 'OneDrive' ? 'active' : ''} onClick={() => setActiveTab('OneDrive')}>OneDrive</button>
-          <button className={activeTab === 'Dropbox' ? 'active' : ''} onClick={() => setActiveTab('Dropbox')}>Dropbox</button>
+          {tabs.map(tab => (
+            <div key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`}>
+              <button className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
+              <button className="remove-tab-button" onClick={() => handleRemoveTab(tab)}>x</button>
+            </div>
+          ))}
+          <Popup trigger={<button className="add-tab-button">+</button>} modal className="popup-modal">
+            {close => (
+              <div className="modal-container">
+                <div className="modal">
+                  <h3>Select Cloud Service</h3>
+                  <button onClick={() => { handleAddTab('Google Drive'); close(); }}>Google Drive</button>
+                  <button onClick={() => { handleAddTab('OneDrive'); close(); }}>OneDrive</button>
+                  <button onClick={() => { handleAddTab('Dropbox'); close(); }}>Dropbox</button>
+                  <button onClick={close}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </Popup>
         </div>
         <br></br>
         <div className="tabs">

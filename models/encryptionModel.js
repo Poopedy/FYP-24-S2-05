@@ -20,7 +20,7 @@ export async function encryptFile(file, key) {
 }
 
 // Function to encrypt user key with passphrase
-export async function encryptWithPassphrase(key, passphrase) {
+export async function encryptWithPassphrase(data, passphrase) {
     const enc = new TextEncoder();
     // change passphrase to a valid cryptographic key
     const passphraseKey = await window.crypto.subtle.importKey(
@@ -43,7 +43,7 @@ export async function encryptWithPassphrase(key, passphrase) {
       true,
       ['encrypt']
     );
-    // encrypt user encryption key with passphrase key
+    // encrypt user encryption key or token with passphrase key
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const encryptedKey = await window.crypto.subtle.encrypt(
       {
@@ -51,7 +51,7 @@ export async function encryptWithPassphrase(key, passphrase) {
         iv: iv
       },
       derivedKey,
-      enc.encode(key)
+      enc.encode(data)
     );
   
     // Concatenate salt, iv, and encryptedKey

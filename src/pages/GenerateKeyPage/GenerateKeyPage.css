@@ -147,20 +147,20 @@ color: #221f25;
 font-weight: 700;
 }
 
-.Generate{
-  width: 50%;
-  height: 40px;
-  transform: translate(50%, -50%);
-  background: #D3AEFE;
-  border: none;
-  outline: none;
-  border-radius: 40px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-  cursor: pointer;
-  font-size: 16px;
-  color: #221f25;
-  font-weight: 700;
-  }
+  .Generate{
+    width: 36%;
+    height: 47px;
+    transform: translate(50%, -50%);
+    background: #D3AEFE;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    font-size: 16px;
+    color: #221f25;
+    font-weight: 700;
+    }
 
 .Proceed{
   width: 100%;

@@ -1,17 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AdminUpdateUser.css';
 import { FaUsers } from "react-icons/fa";
 import { LuActivitySquare } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Mapping plan IDs to their respective names
+const planNames = {
+  1: 'Basic',
+  2: 'Silver',
+  3: 'Gold'
+};
 
 const AdminUpdateUser = () => {
-  const [user, setUser] = useState({
-    username: 'Bonnie Lee',
-    email: 'bonnielee@gmail.com',
-  });
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(location.state?.user || {});
 
+  // Ensure the currentEmail is part of the user object
+  useEffect(() => {
+    if (!user.currentEmail && user.email) {
+      setUser(prev => ({ ...prev, currentEmail: prev.email }));
+    }
+  }, [user.email]);  
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUser((prevUser) => ({
@@ -20,14 +34,52 @@ const AdminUpdateUser = () => {
     }));
   };
 
-  const handleUpdate = () => {
-    // Handle update logic
-    console.log('User updated:', user);
+  const handleUpdate = async () => {
+    try {
+      // Send current email as part of URL and new username and email in the request body
+      const response = await axios.post(`http://localhost:5000/api/admin/updateUser/${user.currentEmail}`, {
+        username: user.username,
+        email: user.email,
+      });
+      console.log('User updated:', response.data);
+      // Navigate back to the dashboard or show a success message
+      navigate('/admindashboard/:username');
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+        alert('The email is already in use by another account.');
+      } else {
+      console.error('Error updating user:', error);
+      }
+    }
+  };
+  
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this account?')) {
+      const userEmail = user.email; 
+      if (!userEmail) {
+          console.error('User email is undefined');
+          return;
+      }
+
+      try {
+          const response = await axios.delete(`http://localhost:5000/api/admin/${userEmail}`);
+          
+          if (response.status === 200) {
+              console.log('User deleted:', userEmail);
+              navigate('/admindashboard/:username');
+          } else {
+              console.error('Failed to delete user');
+          }
+      } catch (error) {
+        console.error('Error deleting user account:', error);
+        alert('An error occurred while deleting this account. Please try again.');
+    }
+    }
   };
 
-  const handleDelete = () => {
-    // Handle delete logic
-    console.log('User deleted');
+  const handleLogOut = () => {
+    sessionStorage.clear();
   };
 
   return (
@@ -40,8 +92,10 @@ const AdminUpdateUser = () => {
       <nav>
         <ul>
           <li className="adminActive">
-          <FaUsers style={{ marginRight: '10px' }} />
-          Users
+          <Link to="/admindashboard/:username">
+                <FaUsers style={{ marginRight: '10px' }} />
+                Users
+            </Link>
           </li>
         </ul>
       </nav>
@@ -53,7 +107,7 @@ const AdminUpdateUser = () => {
         </Link>
         </div>
         <div className="adminNotActive">
-        <Link to="/login">
+        <Link to="/login" onClick={handleLogOut}>
         <IoLogOut style={{ marginRight: '10px' }} />
         Logout
         </Link>
@@ -67,9 +121,9 @@ const AdminUpdateUser = () => {
             <label>
               Username:
               <input
-                type="username"
+                type="text"
                 name="username"
-                value={user.username}
+                defaultValue={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -78,12 +132,21 @@ const AdminUpdateUser = () => {
               <input
                 type="email"
                 name="email"
-                value={user.email}
+                defaultValue={user.email}
                 onChange={handleChange}
               />
             </label>
+            <label>
+              Plan:
+              <input
+                type="plan"
+                name="plan"
+                readOnly
+                defaultValue={planNames[user.planid]}
+              />
+            </label>
             <div className="form-buttons">
-              <Link to="/admindashboard"><button type="button" className="back">
+              <Link to="/admindashboard/:username"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="updateaccount" onClick={handleUpdate}>

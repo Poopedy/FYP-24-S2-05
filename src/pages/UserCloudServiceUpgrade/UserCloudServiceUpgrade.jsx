@@ -6,12 +6,21 @@ import { IoLogOut } from "react-icons/io5";
 import { LuActivitySquare } from "react-icons/lu";
 import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+
+// Mapping plan IDs to their respective names
+const planNames = {
+  1: 'Basic',
+  2: 'Silver',
+  3: 'Gold'
+};
+
 
 const UserCloudServiceUpgrade = () => {
   const [planid, setPlanid] = useState(null); // Initialize planid state
   const [plan, setPlan] = useState({ name: '', price: 0, status: 'Inactive' });
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Retrieve user data from sessionStorage
@@ -20,6 +29,8 @@ const UserCloudServiceUpgrade = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setPlanid(parsedUser.planid);
+    } else {
+      navigate('/login');
     }
   }, []); // Run only once to initialize planid
 
@@ -29,8 +40,9 @@ const UserCloudServiceUpgrade = () => {
 
       try {
         const response = await axios.post('http://localhost:5000/api/getplan', { planid });
-        console.log('Plan data:', response.data);
-        setPlan(response.data);
+        const fetchedPlan = response.data;
+        fetchedPlan.name = planNames[planid]; // Set the plan name using the mapping
+        setPlan(fetchedPlan);
       } catch (error) {
         console.error('Error fetching plan details:', error);
       }
@@ -38,7 +50,11 @@ const UserCloudServiceUpgrade = () => {
 
     fetchPlan();
   }, [planid]); // Run whenever planid changes
-  const currentPlan = plan.name;
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
+  };
+
   return (
     <div className="user-cloud-service-upgrade">
       <div className="sidebar">
@@ -68,7 +84,7 @@ const UserCloudServiceUpgrade = () => {
             </Link>
           </div>
           <div className="userNotActive">
-            <Link to="/login">
+            <Link to="/login" onClick={handleLogOut}>
               <IoLogOut style={{ marginRight: '10px' }} />
               Logout
             </Link>

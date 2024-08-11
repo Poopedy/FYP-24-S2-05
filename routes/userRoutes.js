@@ -18,12 +18,19 @@ const { encryptCloud, decryptCloud } = require('./encrypthelper');
 const pool = require("../config/db.js");
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const fetch = require('node-fetch'); // Ensure you have 'node-fetch' installed or use the native 'fetch' if supported in your environment
-const { PassThrough } = require('stream');
+const { PassThrough } = require('stream');const { verify } = require('crypto');
+
 router.post('/register', userController.register);
 router.post('/login', userController.login);
-router.get('/users', verifyToken, userController.getAllUsers);
+router.get('/users', verifyToken, userController.getAllEndUsers);
 router.post('/usertest', userController.userTest);
 router.get('/profile', userController.getProfile);
+router.post('/checkExistence', userController.checkEmail);
+router.put('/updateAccount/:uid', verifyToken, userController.update);
+router.post('/deleteAccount', verifyToken, userController.delete);
+router.post('/verify', userController.verifyEmailAndPassphrase);
+router.post('/resetPassword', userController.resetPassword);
+router.post('/getAssessRights', verifyToken, userController.getAssessRights);
 
 // routes for passphrase CRUD operations
 router.post('/passphrase', verifyToken, userController.createPassphrase);
@@ -31,7 +38,15 @@ router.get('/passphrase/:userId', verifyToken, userController.getPassphrase);
 router.put('/passphrase', verifyToken, userController.updatePassphrase);
 router.delete('/passphrase/:userId', verifyToken, userController.deletePassphrase);
 router.post('/validatePassphrase', verifyToken, userController.validatePassphrase);
-router.post('/saveEncryptionKey', verifyToken, userController.saveEncryptionKey);
+
+// routes for admin and super admin
+router.post('/admin/updateUser/:email', verifyToken, userController.updateUser);
+router.delete('/admin/:email', verifyToken, userController.deleteUser);
+router.post('/admin/createUser', verifyToken, userController.createUser);
+router.get('/admins', verifyToken, userController.getAllAdmins);
+router.put('/superadmin/updateAdmin/:email', verifyToken, userController.updateAdmin);
+router.post('/superadmin/createAdmin', verifyToken, userController.createAdmin);
+router.post('/superadmin/superupdateUser/:email', verifyToken, userController.superupdateUser);
 
 router.post('/logout', (req, res) => {
     req.session.destroy((err) => {

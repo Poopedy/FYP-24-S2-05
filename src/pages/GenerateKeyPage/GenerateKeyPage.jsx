@@ -54,7 +54,7 @@ const GenerateKeyPage = () => {
         passphrase
       });
 
-      await axios.post('http://localhost:5000/api/saveEncryptionKey', {
+      await axios.post('http://localhost:5000/api/keys', {
         userId,
         encryptedKey: encryptedKeyString
       });

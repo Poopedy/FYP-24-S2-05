@@ -1,4 +1,4 @@
-import React, { useState }  from 'react';
+import React, { useState, useEffect }  from 'react';
 import './SuperAdminUpdateAdmin.css';
 import { FaUsers } from "react-icons/fa";
 import { LuActivitySquare } from "react-icons/lu";
@@ -6,32 +6,104 @@ import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { GrUserAdmin } from "react-icons/gr";
 import { RiAdminFill } from "react-icons/ri";
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Define assess rights options
+const assessRightsOptions = [
+  { value: 1, label: 'Full Access' },
+  { value: 2, label: 'Read and Write' },
+  { value: 3, label: 'Read Only' }
+];
 
 const SuperAdminUpdateAdmin = () => {
-  const [admin, setAdmin] = useState({
-    username: 'Lyney Hearth',
-    email: 'lyneyhearth@gmail.com',
-    password: '***********',
-    assessrights: 'Read & Write',
-  });
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [admin, setAdmin] = useState(location.state?.admin || {});
+
+  useEffect(() => {
+    if (!admin.currentEmail && admin.email) {
+      setAdmin(prev => ({ ...prev, currentEmail: prev.email }));
+    }
+  }, [admin.email]);  
 
   const handleChange = (e) => {
-    const { username, value } = e.target;
+    const { name, value } = e.target;
     setAdmin((prevAdmin) => ({
       ...prevAdmin,
-      [username]: value,
+      [name]: value,
     }));
   };
 
-  const handleUpdate = () => {
-    // Handle update logic
-    console.log('Admin updated:', admin);
+  const handleAssessRightsChange = (e) => {
+    const selectedValue = parseInt(e.target.value, 10); // Convert the selected value to an integer
+    setAdmin((prevAdmin) => ({
+      ...prevAdmin,
+      assessrights: selectedValue,
+    }));
   };
 
-  const handleDelete = () => {
-    // Handle delete logic
-    console.log('Admin deleted');
+  const handleUpdate = async () => {
+    try {
+        const updatedData = {
+            username: admin.username,
+            email: admin.email,
+            assessrights: admin.assessrights
+        };
+
+        if (admin.password) {
+            updatedData.password = admin.password;
+        }
+
+        console.log(updatedData);
+
+        const response = await axios.put(`http://localhost:5000/api/superadmin/updateAdmin/${admin.currentEmail}`, {
+            updatedData
+        });
+
+        console.log('Admin updated:', response.data);
+
+        // Update local state with updated admin info
+        const updatedAdmin = { ...admin, ...updatedData };
+        setAdmin(updatedAdmin);
+        alert('Admin updated successfully!');
+        navigate('/superadmindashboard/:username');
+    } catch (error) {
+        if (error.response && error.response.status === 409) {
+            alert('The email is already in use by another account.');
+        } else {
+            console.error('Error updating admin details:', error);
+            alert('An error occurred while updating the admin.');
+        }
+    }
+};
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this account?')) {
+      const adminEmail = admin.email; 
+      if (!adminEmail) {
+          console.error('Admin email is undefined');
+          return;
+      }
+
+      try {
+          const response = await axios.delete(`http://localhost:5000/api/admin/${adminEmail}`);
+          
+          if (response.status === 200) {
+              console.log('Admin deleted:', adminEmail);
+              navigate('/superadmindashboard/:username');
+          } else {
+              console.error('Failed to delete admin');
+          }
+      } catch (error) {
+        console.error('Error deleting admin account:', error);
+        alert('An error occurred while deleting this account. Please try again.');
+    }
+    }
+  };
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
   };
 
   return (
@@ -44,7 +116,7 @@ const SuperAdminUpdateAdmin = () => {
         <nav>
           <ul>
             <li className="superadminActive">
-              <Link to="/superadmindashboard">
+              <Link to="/superadmindashboard/:username">
               <RiAdminFill style={{ marginRight: '10px' }} />
               Admins
               </Link>
@@ -65,7 +137,7 @@ const SuperAdminUpdateAdmin = () => {
           </Link>
           </div>
           <div className="superadminNotActive">
-          <Link to="/login">
+          <Link to="/login" onClick={handleLogOut}>
             <IoLogOut style={{ marginRight: '10px' }} />
             Logout
           </Link>
@@ -79,9 +151,9 @@ const SuperAdminUpdateAdmin = () => {
             <label>
               Username:
               <input
-                type="username"
+                type="text"
                 name="username"
-                value={admin.username}
+                defaultValue={admin.username}
                 onChange={handleChange}
               />
             </label>
@@ -90,7 +162,7 @@ const SuperAdminUpdateAdmin = () => {
               <input
                 type="email"
                 name="email"
-                value={admin.email}
+                defaultValue={admin.email}
                 onChange={handleChange}
               />
             </label>
@@ -99,21 +171,26 @@ const SuperAdminUpdateAdmin = () => {
               <input
                 type="password"
                 name="password"
-                value={admin.password}
+                defaultValue=''
                 onChange={handleChange}
               />
             </label>
             <label>
               Assess Rights:
-              <input
-                type="text"
-                name="assassrights"
-                value={admin.assessrights}
-                onChange={handleChange}
-              />
+              <select  className='assessrights'
+                name="assessrights"
+                value={admin.assessrights || ''}
+                onChange={handleAssessRightsChange}
+              >
+                {assessRightsOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </label>
             <div className="form-buttons">
-              <Link to="/superadmindashboard"><button type="button" className="back">
+              <Link to="/superadmindashboard/:username"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="updateaccount" onClick={handleUpdate}>

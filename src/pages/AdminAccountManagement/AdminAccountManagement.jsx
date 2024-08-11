@@ -1,37 +1,131 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AdminAccountManagement.css';
 import { FaUsers } from "react-icons/fa";
 import { LuActivitySquare } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { RiAdminFill } from "react-icons/ri";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const assessRightsNames = {
+  1: 'Full Access',
+  2: 'Read and Write',
+  3: 'Read Only',
+};
 
 const AdminAccountManagement = () => {
-  const [user, setAdmin] = useState({
-    username: 'Lyney Hearth',
-    email: 'lyneyhearth@gmail.com',
-    password: '***********',
-    assessrights: 'Read & Write',
+  const [user, setUser] = useState({
+    id: '',
+    username: '',
+    email: '',
+    password: '',
+    assessrights: '',
   });
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const storedUser = sessionStorage.getItem('user');
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        
+        try {
+          // Make a request to get the assess rights from the backend
+          const response = await axios.post('http://localhost:5000/api/getAssessRights', { 
+            email: parsedUser.email
+          });
+          
+          const assessRightsValue = response.data.assessrights;
+          console.log(assessRightsValue);
+          // Check if assessRightsValue is valid and set it
+          if (assessRightsValue && assessRightsNames[assessRightsValue]) {
+            parsedUser.assessrights = assessRightsNames[assessRightsValue]; // Map the numeric value to the corresponding string
+          } else {
+            parsedUser.assessrights = ''; // Default to empty if not valid
+          }
+
+          setUser(parsedUser);
+        } catch (error) {
+          console.error('Error fetching assess rights:', error);
+        }
+      } else {
+        navigate('/login');
+      }
+    };
+
+    fetchUserDetails();
+  }, [navigate]);
+
   const handleChange = (e) => {
-    const { username, value } = e.target;
-    setAdmin((prevAdmin) => ({
+    const { name, value } = e.target;
+    setUser((prevAdmin) => ({
       ...prevAdmin,
       [username]: value,
     }));
   };
 
-  const handleUpdate = () => {
-    // Handle update logic
-    console.log('Admin updated:', user);
+  const handleUpdate = async () => {
+    try {
+      const updatedData = {
+          username: user.username,
+          email: user.email,
+      };
+
+      if (user.password) {  // Only add the password if it was changed
+          updatedData.password = user.password;
+      }
+
+      const response = await axios.put(`http://localhost:5000/api/updateAccount/${user.id}`, {
+        updatedData
+      });
+
+      console.log('User updated:', response.data);
+      // Create an updated user object excluding the password
+      const updatedUser = { ...user, ...updatedData };
+      delete updatedUser.password; // Exclude password from session storage
+
+      // Update session storage with the new user data
+      sessionStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Update local state
+      setUser(updatedUser);
+      alert('User updated successfully!');
+    } catch (error) {
+      if (error.response && error.response.status === 409) {
+          alert('The email is already in use by another account.');
+      } else {
+          console.error('Error updating user details:', error);
+      }
+    }
   };
 
-  const handleDelete = () => {
-    // Handle delete logic
-    console.log('Admin deleted');
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete your account?')) {
+      try {
+          const response = await axios.post('http://localhost:5000/api/deleteAccount', {
+              email: user.email 
+          });
+
+          console.log(response.data.message);
+
+          // Clear session storage
+          sessionStorage.clear();
+
+          // Redirect to login page
+          navigate('/login');
+
+      } catch (error) {
+          console.error('Error deleting user account:', error);
+          alert('An error occurred while deleting your account. Please try again.');
+      }
+  }
   };
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
+  }
 
   return (
     <div className="admin-account-management">
@@ -43,7 +137,7 @@ const AdminAccountManagement = () => {
         <nav>
             <ul>
                 <li className="adminNotActive">
-                <Link to="/admindashboard">
+                <Link to="/admindashboard/:username">
                 <FaUsers style={{ marginRight: '10px' }} />
                 Users
                 </Link>
@@ -56,7 +150,7 @@ const AdminAccountManagement = () => {
             Settings
             </div>
             <div className="adminNotActive">
-            <Link to="/login">
+            <Link to="/login" onClick={handleLogOut}>
             <IoLogOut style={{ marginRight: '10px' }} />
             Logout
             </Link>
@@ -70,9 +164,9 @@ const AdminAccountManagement = () => {
             <label>
               Username:
               <input
-                type="username"
+                type="text"
                 name="username"
-                value={user.username}
+                defaultValue={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -81,7 +175,7 @@ const AdminAccountManagement = () => {
               <input
                 type="email"
                 name="email"
-                value={user.email}
+                defaultValue={user.email}
                 onChange={handleChange}
               />
             </label>
@@ -90,14 +184,14 @@ const AdminAccountManagement = () => {
               <input
                 type="password"
                 name="password"
-                value={user.password}
+                defaultValue={user.password}
                 onChange={handleChange}
               />
             </label>
             <label>
               Assess Rights:
               <input
-                type="assessrights"
+                type="text"
                 name="assessrights"
                 value={user.assessrights} readOnly
                 onChange={handleChange}
@@ -105,7 +199,7 @@ const AdminAccountManagement = () => {
               />
             </label>
             <div className="form-buttons">
-              <Link to="/admindashboard"><button type="button" className="back">
+              <Link to="/admindashboard/:username"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="adminupdateaccount" onClick={handleUpdate}>

@@ -124,7 +124,7 @@ const UserDashboard = () => {
         const currentTime = Date.now();
 
         // Check if the passphrase has expired (5 minutes lifespan)
-        if (currentTime - timestamp > 5 * 60 * 1000) {
+        if (currentTime - timestamp > 30 * 60 * 1000) {
             sessionStorage.removeItem('passphraseData');
             return null;
         }
@@ -938,8 +938,6 @@ async function deleteGdrive(itemid, uid) {
   const handleLockToggle = () => {
     if (isLocked) {
       setShowPassphrasePopup(true);
-    } else {
-      setIsLocked(true);
     }
   };
 
@@ -965,7 +963,7 @@ async function deleteGdrive(itemid, uid) {
         // Clear the passphrase after 5 minutes
         setTimeout(() => {
             sessionStorage.removeItem('passphraseData');
-        }, 5 * 60 * 1000); // 5 minutes lifespan for the passphrase
+        }, 30 * 60 * 1000); // 5 minutes lifespan for the passphrase
 
         setIsLocked(false);
         setShowPassphrasePopup(false);
@@ -973,6 +971,7 @@ async function deleteGdrive(itemid, uid) {
       }
   } catch (error) {
       console.error('Failed to get user\'s passphrase', error);
+      alert("Invalid Passphrase. Please try again.")
   }
   };
 
@@ -1012,7 +1011,13 @@ async function deleteGdrive(itemid, uid) {
   );
 };
 
-const Sidebar = () => (
+const Sidebar = () => {
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
+  };
+
+  return (
   <div className="sidebar">
     <div className="logoUser">
       <img src="/images/CipherLinkLogo.png" alt="CipherLink Logo Login" />
@@ -1046,14 +1051,15 @@ const Sidebar = () => (
         </Link>
       </div>
       <div className="userNotActive">
-        <Link to="/login">
+        <Link to="/login" onClick={handleLogOut}>
           <IoLogOut style={{ marginRight: '10px' }} />
           Logout
         </Link>
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const RightSidebar = ({ file }) => {
   const [fileUrl, setFileUrl] = useState(null);

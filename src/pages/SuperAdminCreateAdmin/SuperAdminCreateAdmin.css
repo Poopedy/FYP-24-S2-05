@@ -145,3 +145,7 @@
 .superadmin-create-admin .form-buttons .back, .createadminaccount {
   margin-right: 10px;
 }
+
+.assessrights {
+  background-color: #d3a6ff;
+}

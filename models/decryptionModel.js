@@ -25,9 +25,9 @@ export async function decryptFile(encryptedBlob) {
 
 // Function to decrypt user encryption key with passphrase
 export async function decryptWithPassphrase(encryptedData, passphrase) {
-    const salt = encryptedData.slice(0, 16);
+  const salt = encryptedData.slice(0, 16);
   const iv = encryptedData.slice(16, 28);
-  const encryptedKey = encryptedData.slice(28);
+  const data = encryptedData.slice(28);
 
   const enc = new TextEncoder();
   const passphraseKey = await window.crypto.subtle.importKey(
@@ -57,8 +57,8 @@ export async function decryptWithPassphrase(encryptedData, passphrase) {
       iv: iv
     },
     derivedKey,
-    encryptedKey
+    data
   );
 
-  return new TextDecoder().decode(decryptedKey);
+  return new TextDecoder().decode(data);
 }

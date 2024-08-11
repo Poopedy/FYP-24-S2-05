@@ -25,6 +25,7 @@ import SuperAdminUpdateUser from './pages/SuperAdminUpdateUser/SuperAdminUpdateU
 import SuperAdminAdminActivity from './pages/SuperAdminAdminActivity/SuperAdminAdminActivity.jsx';
 import SuperAdminUserActivity from './pages/SuperAdminUserActivity/SuperAdminUserActivity.jsx';
 import SuperAdminAccountManagement from './pages/SuperAdminAccountManagement/SuperAdminAccountManagement.jsx';
+import UserGenerateKey from './pages/UserGenerateKey/UserGenerateKey.jsx';
 import axios from 'axios';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword.jsx';
 import UserGenerateKey from './pages/UserGenerateKey/UserGenerateKey.jsx';

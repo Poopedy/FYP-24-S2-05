@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './SuperAdminDashboard.css';
 import { FaUsers } from "react-icons/fa";
 import { LuActivitySquare } from "react-icons/lu";
@@ -6,16 +6,81 @@ import { IoMdSettings } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { GrUserAdmin } from "react-icons/gr";
 import { RiAdminFill } from "react-icons/ri";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// Define hardcoded assess rights
+const assessRightsMapping = {
+  1: 'Full Access',
+  2: 'Read and Write',
+  3: 'Read Only'
+};
 
 const SuperAdminDashboard = () => {
-  const admins = [
-    { username: 'Lyney Hearth', email: 'lyneyhearth@gmail.com', assessrights: 'Read & Write' },
-    { username: 'Allan Walker', email: 'allanwalker@gmail.com', assessrights: 'Read & Write' },
-    { username: 'Luca Leon', email: 'lucaleon@gmail.com', assessrights: 'Read' },
-    { username: 'Melony Owen', email: 'melonyowen@gmail.com', assessrights: 'Write' },
-    { username: 'Yilin Yon', email: 'yilinyon@gmail.com', assessrights: 'Read & Write' },
-  ];
+  const [user, setUser] = useState('');
+  const [admin, setAdmin] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(''); 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem('user');
+
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+    } else {
+      navigate('/login');
+    }
+
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/admins');
+        setAdmin(response.data);
+      } catch (error) {
+        console.error('Error fetching users: ', error);
+      }
+    };
+
+    fetchUsers();
+  }, [navigate]);
+
+  const handleUpdateClick = (admin) => {
+    navigate('/superadminupdateadmin', { state: { admin } })
+  };
+
+  const handleDelete = async (admin) => {
+    if (window.confirm('Are you sure you want to delete this account?')) {
+      const adminEmail = admin.email; 
+      if (!adminEmail) {
+          console.error('Admin email is undefined');
+          return;
+      }
+
+      try {
+          const response = await axios.delete(`http://localhost:5000/api/admin/${adminEmail}`);
+          
+          if (response.status === 200) {
+              console.log('Admin deleted:', adminEmail);
+              setAdmin((prevAdmins) => prevAdmins.filter((u) => u.email !== adminEmail));
+          } else {
+              console.error('Failed to delete admin');
+          }
+      } catch (error) {
+        console.error('Error deleting admin account:', error);
+        alert('An error occurred while deleting this account. Please try again.');
+    }
+    }
+  };
+
+  const handleLogOut = () => {
+    sessionStorage.clear();
+  };
+
+  // Function to filter users based on the search query
+  const filteredAdmin = admin.filter((admin) => 
+    admin.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    admin.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="super-admin-dashboard">
@@ -46,7 +111,7 @@ const SuperAdminDashboard = () => {
           </Link>
           </div>
           <div className="superadminNotActive">
-          <Link to="/login">
+          <Link to="/login" onClick={handleLogOut}>
             <IoLogOut style={{ marginRight: '10px' }} />
             Logout
           </Link>
@@ -57,10 +122,15 @@ const SuperAdminDashboard = () => {
         <header>
           <div className="welcome">
           <GrUserAdmin style={{ marginRight: '10px' }} />
-          Welcome, Super Admin
+          Welcome, {user.username}!
           </div>
           <div className="search-bar">
-            <input type="text" placeholder="Search your admins..." />
+            <input 
+              type="text" 
+              placeholder="Search by username/email..." 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+            />
             <button>Search</button>
           </div>
         </header>
@@ -70,21 +140,21 @@ const SuperAdminDashboard = () => {
           <table>
             <thead>
               <tr>
-                <th>Username</th>
+                <th>Name</th>
                 <th>Email</th>
                 <th>Assess Rights</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {admins.map((admin, index) => (
+              {filteredAdmin.map((admin, index) => (
                 <tr key={index}>
                   <td>{admin.username}</td>
                   <td>{admin.email}</td>
-                  <td>{admin.assessrights}</td>
+                  <td>{assessRightsMapping[admin.assessrights] || ''}</td>
                   <td>
-                    <Link to="/superadminupdateadmin"><button className="updateadmin">Update</button></Link>
-                    <button className="deleteadmin">Delete</button>
+                    <button className="updateadmin" onClick={() => handleUpdateClick(admin)}>Update</button>
+                    <button className="deleteadmin" onClick={() => handleDelete(admin)}>Delete</button>
                   </td>
                 </tr>
               ))}

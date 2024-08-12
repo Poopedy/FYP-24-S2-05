@@ -57,7 +57,7 @@ const SuperAdminUpdateAdmin = () => {
 
         console.log(updatedData);
 
-        const response = await axios.put(`http://localhost:5000/api/superadmin/updateAdmin/${admin.currentEmail}`, {
+        const response = await axios.put(`https://cipherlink.xyz:5000/api/superadmin/updateAdmin/${admin.currentEmail}`, {
             updatedData
         });
 
@@ -87,7 +87,7 @@ const SuperAdminUpdateAdmin = () => {
       }
 
       try {
-          const response = await axios.delete(`http://localhost:5000/api/admin/${adminEmail}`);
+          const response = await axios.delete(`https://cipherlink.xyz:5000/api/admin/${adminEmail}`);
           
           if (response.status === 200) {
               console.log('Admin deleted:', adminEmail);

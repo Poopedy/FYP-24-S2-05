@@ -23,7 +23,7 @@ const ForgotPassword = () => {
   const handlePassphraseSubmit = async () => {
     try {
       // Verify email and passphrase
-      const response = await axios.post('http://localhost:5000/api/verify', { 
+      const response = await axios.post('https://cipherlink.xyz:5000/api/verify', { 
         email, 
         passphrase 
       });
@@ -50,7 +50,7 @@ const ForgotPassword = () => {
 
     try {
       // Submit the new password
-      await axios.post('http://localhost:5000/api/resetPassword', { 
+      await axios.post('https://cipherlink.xyz:5000/api/resetPassword', { 
         email, 
         password 
       });

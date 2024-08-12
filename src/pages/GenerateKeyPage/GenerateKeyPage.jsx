@@ -49,12 +49,12 @@ const GenerateKeyPage = () => {
       // Convert encryptedData (Array) to Base64 string
       const encryptedKeyString = btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
 
-      await axios.put('http://localhost:5000/api/passphrase', {
+      await axios.put('https://cipherlink.xyz:5000/api/passphrase', {
         userId,
         passphrase
       });
 
-      await axios.post('http://localhost:5000/api/keys', {
+      await axios.post('https://cipherlink.xyz:5000/api/keys', {
         userId,
         encryptedKey: encryptedKeyString
       });

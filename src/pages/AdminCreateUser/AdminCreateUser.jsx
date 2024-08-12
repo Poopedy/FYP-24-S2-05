@@ -16,7 +16,7 @@ const AdminCreateUser = () => {
   const handleCreate = async () => {
     try {
       // Check if the email already exists
-      const checkResponse = await axios.post('http://localhost:5000/api/checkExistence', {
+      const checkResponse = await axios.post('https://cipherlink.xyz:5000/api/checkExistence', {
         email 
       });
 
@@ -26,7 +26,7 @@ const AdminCreateUser = () => {
       }
   
       // Create the new user
-      const createUserResponse = await axios.post('http://localhost:5000/api/admin/createUser', {
+      const createUserResponse = await axios.post('https://cipherlink.xyz:5000/api/admin/createUser', {
         username,
         email,
         password,

@@ -34,7 +34,7 @@ const SuperAdminDashboard = () => {
 
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/admins');
+        const response = await axios.get('https://cipherlink.xyz:5000/api/admins');
         setAdmin(response.data);
       } catch (error) {
         console.error('Error fetching users: ', error);
@@ -57,7 +57,7 @@ const SuperAdminDashboard = () => {
       }
 
       try {
-          const response = await axios.delete(`http://localhost:5000/api/admin/${adminEmail}`);
+          const response = await axios.delete(`https://cipherlink.xyz:5000/api/admin/${adminEmail}`);
           
           if (response.status === 200) {
               console.log('Admin deleted:', adminEmail);

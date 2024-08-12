@@ -34,7 +34,7 @@ const SuperAdminAccountManagement = () => {
         
         try {
           // Make a request to get the assess rights from the backend
-          const response = await axios.post('http://localhost:5000/api/getAssessRights', { 
+          const response = await axios.post('https://cipherlink.xyz:5000/api/getAssessRights', { 
             email: parsedUser.email
           });
           
@@ -78,7 +78,7 @@ const SuperAdminAccountManagement = () => {
           updatedData.password = user.password;
       }
 
-      const response = await axios.put(`http://localhost:5000/api/updateAccount/${user.id}`, {
+      const response = await axios.put(`https://cipherlink.xyz:5000/api/updateAccount/${user.id}`, {
         updatedData
       });
 

@@ -49,7 +49,7 @@ const SuperAdminUpdateUser = () => {
       }
       
       // Send current email as part of URL and new details in the request body
-      const response = await axios.post(`http://localhost:5000/api/superadmin/superupdateUser/${user.currentEmail}`, 
+      const response = await axios.post(`https://cipherlink.xyz:5000/api/superadmin/superupdateUser/${user.currentEmail}`, 
         updateData
       );
       console.log('User updated:', response.data);
@@ -75,7 +75,7 @@ const SuperAdminUpdateUser = () => {
       }
 
       try {
-          const response = await axios.delete(`http://localhost:5000/api/admin/${userEmail}`);
+          const response = await axios.delete(`https://cipherlink.xyz:5000/api/admin/${userEmail}`);
           
           if (response.status === 200) {
               console.log('User deleted:', userEmail);

@@ -23,7 +23,7 @@ const RegisterPage = () => {
     try {
 
       // Check if the email already exists
-      const checkResponse = await axios.post('http://localhost:5000/api/checkExistence', {
+      const checkResponse = await axios.post('https://cipherlink.xyz:5000/api/checkExistence', {
         email 
       });
 
@@ -32,7 +32,7 @@ const RegisterPage = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:5000/api/register', {
+      const response = await axios.post('https://cipherlink.xyz:5000/api/register', {
         email,
         username,
         password,

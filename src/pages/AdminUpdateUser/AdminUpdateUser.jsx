@@ -37,7 +37,7 @@ const AdminUpdateUser = () => {
   const handleUpdate = async () => {
     try {
       // Send current email as part of URL and new username and email in the request body
-      const response = await axios.post(`http://localhost:5000/api/admin/updateUser/${user.currentEmail}`, {
+      const response = await axios.post(`https://cipherlink.xyz:5000/api/admin/updateUser/${user.currentEmail}`, {
         username: user.username,
         email: user.email,
       });
@@ -63,7 +63,7 @@ const AdminUpdateUser = () => {
       }
 
       try {
-          const response = await axios.delete(`http://localhost:5000/api/admin/${userEmail}`);
+          const response = await axios.delete(`https://cipherlink.xyz:5000/api/admin/${userEmail}`);
           
           if (response.status === 200) {
               console.log('User deleted:', userEmail);

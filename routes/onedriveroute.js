@@ -100,9 +100,14 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     console.log("hello");
     const token = req.body.token;
     const uid = req.body.uid;
+    const keyId = req.body.keyid;
 
     if (!token) {
         return res.status(401).send('Not authenticated');
+    }
+
+    if (!keyId) {
+        return res.status(400).send('Key ID not found');
     }
 
     const file = req.file;
@@ -117,8 +122,6 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const fileType = file.mimetype
 
     console.log(originalFileName);
-
-
 
     try {
         const fileContents = fs.readFileSync(filePath);
@@ -139,8 +142,8 @@ router.post('/upload', upload.single('file'), async (req, res) => {
                 originalFileName, // Use the original file name
                 response.data.id, // Use the file ID from OneDrive response
                 fileSize, // Use the size of the file
-                req.body.uid,
-                1234, // Example keyid; replace with your actual logic
+                uid,
+                keyId, // Example keyid; replace with your actual logic
                 fileType
             ]
         );

@@ -242,7 +242,7 @@ const userController = {
         res.status(500).json({ error: error.message });
         }
     },
-    update: async (req, res) => {
+    updateAccount: async (req, res) => {
         const { uid } = req.params;
         const { updatedData } = req.body;
 
@@ -288,7 +288,7 @@ const userController = {
             return res.status(500).json({ message: 'Internal server error' });
         }
     },
-    delete: async (req, res) => {
+    deleteAccount: async (req, res) => {
         const { email } = req.body; // Use destructuring to extract userId
 
         if (!email) {

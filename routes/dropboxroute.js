@@ -116,9 +116,15 @@ router.get('/redirect', async (req, res) => {
 router.post('/upload', upload.single('file'), async (req, res) => {
     const token = req.body.token;
     const uid = req.body.uid;
+    const keyId = req.body.keyid;
+
     console.log(req.body);
     if (!token) {
         return res.status(401).send('Not authenticated');
+    }
+
+    if (!keyId) {
+        return res.status(400).send('Key ID not found');
     }
 
     const file = req.file;
@@ -159,7 +165,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
                 dropboxFileId, // Using Dropbox file ID as filelocation
                 fileSize,
                 uid,
-                1234,
+                keyId,
                 fileType
             ]
         );

@@ -8,7 +8,7 @@ import { PiFilesFill } from "react-icons/pi";
 import { HiSparkles } from "react-icons/hi2";
 import { Link, useNavigate  } from 'react-router-dom';
 import { encryptFile } from '../../../models/encryptionModel';
-import { decryptFile } from '../../../models/decryptionModel';
+import { decryptFile, decryptWithPassphrase } from '../../../models/decryptionModel';
 import Popup from 'reactjs-popup';
 import axios from 'axios';
 import 'reactjs-popup/dist/index.css';
@@ -135,9 +135,36 @@ const UserDashboard = () => {
 
     return null;
   };
+
+  const getKeyDataFromSession = () => {
+    const keyData = JSON.parse(sessionStorage.getItem('keyData'));
+    if (keyData) {
+      const { keyId, encryptedKey, timestamp } = keyData;
+      const currentTime = Date.now();
+  
+      // Check if the data has expired (30 minutes lifespan)
+      if (currentTime - timestamp > 30 * 60 * 1000) {
+        sessionStorage.removeItem('keyData');
+        return { keyId: null, encryptedKey: null };
+      }
+  
+      return { keyId, encryptedKey };
+    }
+  
+    return { keyId: null, encryptedKey: null };
+  };
   
   useEffect(() => {
-    
+    // Retrieve user data from sessionStorage
+    const storedUser = sessionStorage.getItem('user');
+
+    if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+    } else {
+        // Redirect to login if no user data is found in sessionStorage
+        navigate('/login');
+    }
 
     // Set up interval to check passphrase expiration
     const interval = setInterval(() => {
@@ -184,14 +211,59 @@ const UserDashboard = () => {
   const handleSelectFile = (file) => {
     setSelectedFile(file);
   };
+
+  const getUserKey = async () => {
+    if (!user || !user.id) {
+      console.error('User ID not found');
+    }
+  
+    try {
+      const response = await axios.get(`http://localhost:5000/api/keys/user/${user.id}`);
+      console.log('Response from getUserKey:', response);
+  
+      if (response.status === 200) {
+        const key = response.data;
+        console.log('Retrieved encryption key:', key);
+        if (key.length === 0) {
+          alert('No encryption keys found for this user.');
+        } else {
+          // Store encryptedKey and keyId in sessionStorage
+          const keyData = {
+            keyId: key.idKey,
+            encryptedKey: key.encryptedkey,
+            timestamp: Date.now()
+          };
+          sessionStorage.setItem('keyData', JSON.stringify(keyData));
+  
+          // Clear the key data after 30 minutes
+          setTimeout(() => {
+            sessionStorage.removeItem('keyData');
+          }, 30 * 60 * 1000); // 30 minutes lifespan for the key data
+        }
+      } else {
+        alert('Failed to fetch encryption keys.');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user keys:', error);
+      alert('Error fetching encryption keys. Please try again.');
+      return null;
+    }
+  };
+
   function getToken() {
     return localStorage.getItem('token'); // Adjust according to your storage mechanism
   }
-  async function downloadGdrive(itemId, fileName) {
+  async function downloadGdrive(itemId, fileName, keyId) {
     const token = localStorage.getItem("gdtoken"); // Replace with your actual Google Drive token key
 
     if (!token) {
       console.error('No token found');
+      return;
+    }
+    const passphrase = getPassphraseFromSession();
+    if (!passphrase) {
+      alert('Passphrase not found or expired!');
       return;
     }
 
@@ -203,25 +275,29 @@ const UserDashboard = () => {
           'Content-Type': 'application/json'
         }
       });
+      const encryptedKey = await axios.get(`http://localhost:5000/api/keys/${keyId}`);
 
       if (response.ok) {
         const blob = await response.blob();
+
+        // decrypt encryption key
+        const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
         
         // Decrypt the file
-        const decryptedBlob = await decryptFile(blob);
-
+        const decryptedBlob = await decryptFile(blob, encryptionKey);
+  
         // Create a URL for the decrypted Blob
         const downloadUrl = window.URL.createObjectURL(decryptedBlob);
-
+  
         // Create a link element and trigger the download
         const a = document.createElement('a');
         a.href = downloadUrl;
-
+  
         // Set the desired filename
         a.download = fileName; // Replace with the actual filename and extension
         document.body.appendChild(a);
         a.click();
-
+  
         // Clean up
         a.remove();
         window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
@@ -233,11 +309,16 @@ const UserDashboard = () => {
     }
   }
 
-  async function downloadDropbox(fileId,fn) {
+  async function downloadDropbox(fileId,fn, keyId) {
     const token = localStorage.getItem("dbtoken"); // Adjust token retrieval as needed
 
     if (!token) {
       console.error('No token found');
+      return;
+    }
+    const passphrase = getPassphraseFromSession();
+    if (!passphrase) {
+      alert('Passphrase not found or expired!');
       return;
     }
 
@@ -249,13 +330,17 @@ const UserDashboard = () => {
           'Content-Type': 'application/json'
         }
       });
+      const encryptedKey = await axios.get(`http://localhost:5000/api/keys/${keyId}`);
 
       if (response.ok) {
         const blob = await response.blob();
         
+        // decrypt encryption key
+        const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
+        
         // Decrypt the file
-        const decryptedBlob = await decryptFile(blob);
-
+        const decryptedBlob = await decryptFile(blob, encryptionKey);
+  
         // Create a URL for the decrypted Blob and trigger download
         const downloadUrl = window.URL.createObjectURL(decryptedBlob);
         const a = document.createElement('a');
@@ -274,12 +359,17 @@ const UserDashboard = () => {
   }
 
   //   async function 
-  async function downloadOneDrive(itemid,fn) {
+  async function downloadOneDrive(itemid,fn, keyId) {
     const token = localStorage.getItem("odtoken");
 
     if (!token) {
         console.error('No token found');
         return;
+    }
+    const passphrase = getPassphraseFromSession();
+    if (!passphrase) {
+      alert('Passphrase not found or expired!');
+      return;
     }
 
     try {
@@ -290,28 +380,32 @@ const UserDashboard = () => {
                 'Content-Type': 'application/json'
             }
         });
+        const encryptedKey = await axios.get(`http://localhost:5000/api/keys/${keyId}`);
 
         if (response.ok) {
-            const blob = await response.blob();
-            
-            // Decrypt the file
-            const decryptedBlob = await decryptFile(blob);
+          const blob = await response.blob();
+          
+          // decrypt encryption key
+          const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
+          
+          // Decrypt the file
+          const decryptedBlob = await decryptFile(blob, encryptionKey);
 
-            // Create a URL for the decrypted Blob
-            const downloadUrl = window.URL.createObjectURL(decryptedBlob);
+          // Create a URL for the decrypted Blob
+          const downloadUrl = window.URL.createObjectURL(decryptedBlob);
 
-            // Create a link element and trigger the download
-            const a = document.createElement('a');
-            a.href = downloadUrl;
+          // Create a link element and trigger the download
+          const a = document.createElement('a');
+          a.href = downloadUrl;
 
-            // Set the desired filename
-            a.download = fn; // Replace with the actual filename and extension
-            document.body.appendChild(a);
-            a.click();
+          // Set the desired filename
+          a.download = fn; // Replace with the actual filename and extension
+          document.body.appendChild(a);
+          a.click();
 
-            // Clean up
-            a.remove();
-            window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
+          // Clean up
+          a.remove();
+          window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
         } else {
             console.error('Failed to download file');
         }
@@ -321,29 +415,7 @@ const UserDashboard = () => {
   }
 
   // Helper function to decrypt file
-  async function decryptFile(file) {
-    // Convert file to array buffer
-    const arrayBuffer = await file.arrayBuffer();
-
-    // Extract the IV (first 12 bytes) and the encrypted data
-    const iv = new Uint8Array(arrayBuffer.slice(0, 12)); // IV is the first 12 bytes
-    const encryptedData = new Uint8Array(arrayBuffer.slice(12)); // Encrypted data starts after the IV
-
-    // Get the CryptoKey object from the hardcoded key
-    const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
-
-    // Decrypt the file data
-    const decryptedBuffer = await crypto.subtle.decrypt(
-        {
-            name: 'AES-GCM',
-            iv: iv, // Initialization vector
-        },
-        cryptoKey, // Use the CryptoKey object
-        encryptedData
-    );
-
-    return new Blob([decryptedBuffer], { type: file.type });
-  }
+  
 
   async function deleteDropbox(fileId, uid) {
     const token = localStorage.getItem("dbtoken");
@@ -510,11 +582,11 @@ const UserDashboard = () => {
       downloadButton.textContent = 'Download';
 
       if (file.filelocation === "dropbox") {
-        downloadButton.addEventListener('click', () => downloadDropbox(file.itemid,file.filename));
+        downloadButton.addEventListener('click', () => downloadDropbox(file.itemid,file.filename,file.keyid));
       } else if (file.filelocation === "onedrive") {
-        downloadButton.addEventListener('click', () => downloadOneDrive(file.itemid,file.filename));
+        downloadButton.addEventListener('click', () => downloadOneDrive(file.itemid,file.filename,file.keyid));
       } else if (file.filelocation === "drive") {
-        downloadButton.addEventListener('click', () => downloadGdrive(file.itemid,file.filename));
+        downloadButton.addEventListener('click', () => downloadGdrive(file.itemid,file.filename,file.keyid));
       }
       actionsCell.appendChild(downloadButton);
 
@@ -540,6 +612,16 @@ const UserDashboard = () => {
       alert('Please select a file first!');
       return;
     }
+    const passphrase = getPassphraseFromSession();
+    if (!passphrase) {
+      alert('Passphrase not found or expired!');
+      return;
+    }
+    const { keyId, encryptedKey } = getKeyDataFromSession();
+    if (!keyId || !encryptedKey) {
+      alert('Encryption key data not available or expired.');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('gdtoken'); // Replace 'gdriveToken' with your actual token key
@@ -548,14 +630,17 @@ const UserDashboard = () => {
         return;
       }
 
+      // decrypt encryption key
+      const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
       // Encrypt the file before uploading
-      const encryptedFile = await encryptFile(file);
+      const encryptedFile = await encryptFile(file,encryptionKey);
 
       const formData = new FormData();
       console.log("File to be uploaded:", encryptedFile);
       formData.append('file', encryptedFile, file.name); // Use the original file name
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
+      formData.append('keyid', keyId);
 
       const response = await fetch('https://cipherlink.xyz:5000/api/fileUpload', {
         method: 'POST',
@@ -582,6 +667,16 @@ const UserDashboard = () => {
       alert('Please select a file first!');
       return;
     }
+    const passphrase = getPassphraseFromSession();
+    if (!passphrase) {
+      alert('Passphrase not found or expired!');
+      return;
+    }
+    const { keyId, encryptedKey } = getKeyDataFromSession();
+    if (!keyId || !encryptedKey) {
+      alert('Encryption key data not available or expired.');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('dbtoken');
@@ -589,8 +684,10 @@ const UserDashboard = () => {
         alert('User not authenticated!');
         return;
       }
+      // decrypt encryption key
+      const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
 
-      let encryptedFile = await encryptFile(file);
+      let encryptedFile = await encryptFile(file,encryptionKey);
       console.log(file.type);
       console.log(file.name);
       const formData = new FormData();
@@ -600,6 +697,7 @@ const UserDashboard = () => {
       formData.append('file', encryptedFile);
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
+      formData.append('keyid', keyId);
       const response = await fetch('https://cipherlink.xyz:5000/api/dropbox/upload', {
         method: 'POST',
         body: formData,
@@ -678,29 +776,22 @@ const UserDashboard = () => {
     );
   }
   
-  async function encryptFile(file) {
-    // Convert file to array buffer
-    const arrayBuffer = await file.arrayBuffer();
   
-    // Get the CryptoKey object from the raw key material
-    const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
-  
-    // Encrypt the file data
-    const encryptedBuffer = await crypto.subtle.encrypt(
-      {
-        name: 'AES-GCM',
-        iv: iv, // Initialization vector (should be randomly generated in practice)
-      },
-      cryptoKey, // Use the CryptoKey object
-      arrayBuffer
-    );
-  
-    return new Blob([iv, new Uint8Array(encryptedBuffer)], { type: file.type });
-  }
   
   const uploadFileToOneDrive = async () => {
     if (!file) {
       alert('Please select a file first!');
+      return;
+    }
+    const passphrase = getPassphraseFromSession();
+    if (!passphrase) {
+      alert('Passphrase not found or expired!');
+      return;
+    }
+
+    const { keyId, encryptedKey } = getKeyDataFromSession();
+    if (!keyId || !encryptedKey) {
+      alert('Encryption key data not available or expired.');
       return;
     }
   
@@ -710,15 +801,18 @@ const UserDashboard = () => {
         alert('User not authenticated!');
         return;
       }
+      // decrypt encryption key
+      const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
   
       // Encrypt the file before uploading
-      const encryptedFile = await encryptFile(file);
+      const encryptedFile = await encryptFile(file,encryptionKey);
   
       const formData = new FormData();
       console.log("File to be uploaded:", encryptedFile);
       formData.append('file', encryptedFile, file.name); // Use original file name
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
+      formData.append('keyid', keyId);
   
       const response = await fetch('https://cipherlink.xyz:5000/api/onedrive/upload', {
         method: 'POST',
@@ -977,6 +1071,7 @@ const UserDashboard = () => {
             timestamp: Date.now()
         };
         sessionStorage.setItem('passphraseData', JSON.stringify(passphraseData));
+        getUserKey();
 
         // Clear the passphrase after 5 minutes
         setTimeout(() => {
@@ -1000,7 +1095,7 @@ const UserDashboard = () => {
         <header>
           <div className="welcome">
             <FaUser style={{ marginRight: '10px' }} />
-            Welcome, User
+            Welcome, {user.username}
           </div>
           <div className="search-bar">
             <input type="text" placeholder="Search your files..." />

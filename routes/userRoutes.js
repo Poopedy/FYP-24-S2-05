@@ -151,8 +151,12 @@ router.post('/fileUpload', upload.single('file'), async (req, res) => {
     if (!req.body.token) {
         return res.status(400).send('Token not found');
     }
+    if (!req.body.keyid) {
+        return res.status(400).send('Key ID not found');
+    }
     const uid = req.body.uid;
     const token = req.body.token; // Directly use the access token
+    const keyId = req.body.keyid;
     oAuth2Client.setCredentials({ access_token: token });
 
     const drive = google.drive({ version: 'v3', auth: oAuth2Client });
@@ -192,7 +196,7 @@ router.post('/fileUpload', upload.single('file'), async (req, res) => {
                 driveResponse.data.id,
                 fileSize,
                 uid,
-                1234, // Assuming keyid is the fileId in this case; adjust if needed
+                keyId, // Assuming keyid is the fileId in this case; adjust if needed
                 fileType
             ]
         );

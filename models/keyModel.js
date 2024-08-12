@@ -3,27 +3,27 @@ const db = require('../config/db');
 
 const Key = {
     create: async (userId, encryptedKey) => {
-        const sql = 'INSERT INTO `keys` (uid, encryptedkey) VALUES (?, ?)';
+        const sql = 'INSERT INTO CIPHERLINK.key (uid, encryptedkey) VALUES (?, ?)';
         await db.query(sql, [userId, encryptedKey]);
     },
     findById: async (keyid) => {
-        const [rows] = await db.query('SELECT * FROM `keys` WHERE keyid = ?', [keyid]);
+        const [rows] = await db.query('SELECT * FROM CIPHERLINK.key WHERE idKey = ?', [keyid]);
         return rows[0];
     },
     findByUserId: async (uid) => {
-        const [rows] = await db.query('SELECT * FROM `keys` WHERE uid = ?', [uid]);
+        const [rows] = await db.query('SELECT * FROM CIPHERLINK.key WHERE uid = ?', [uid]);
         return rows;
     },
     getAll: async () => {
-        const [rows] = await db.query('SELECT * FROM `keys`');
+        const [rows] = await db.query('SELECT * FROM CIPHERLINK.key');
         return rows;
     },
     update: async (userId, key) => {
-        const sql = 'UPDATE `keys` SET encryptedkey = ? WHERE uid = ?';
+        const sql = 'UPDATE CIPHERLINK.key SET encryptedkey = ? WHERE uid = ?';
         await db.query(sql, [key, userId]);
     },
     delete: async (keyid) => {
-        const sql = 'DELETE FROM `keys` WHERE keyid = ?';
+        const sql = 'DELETE FROM CIPHERLINK.key WHERE keyid = ?';
         await db.query(sql, [keyid]);
     }
 };

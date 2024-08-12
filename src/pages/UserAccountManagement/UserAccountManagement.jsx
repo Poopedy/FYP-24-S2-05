@@ -40,7 +40,7 @@ const UserAccountManagement = () => {
       if (!planid) return; // Do nothing if planid is not set
 
       try {
-        const response = await axios.post('http://localhost:5000/api/getplan', { planid });
+        const response = await axios.post('https://cipherlink.xyz:5000/api/getplan', { planid });
         const fetchedPlan = response.data;
         fetchedPlan.name = planNames[planid]; // Set the plan name using the mapping
         setPlan(fetchedPlan);
@@ -76,7 +76,7 @@ const UserAccountManagement = () => {
           updatedData.password = user.password;
       }
 
-      const response = await axios.put(`http://localhost:5000/api/updateAccount/${user.id}`, {
+      const response = await axios.put(`https://cipherlink.xyz:5000/api/updateAccount/${user.id}`, {
         updatedData
       });
 
@@ -103,7 +103,7 @@ const UserAccountManagement = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete your account?')) {
         try {
-            const response = await axios.post('http://localhost:5000/api/deleteAccount', {
+            const response = await axios.post('https://cipherlink.xyz:5000/api/deleteAccount', {
                 email: user.email 
             });
 
@@ -135,7 +135,7 @@ const UserAccountManagement = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/validatePassphrase', {
+      const response = await axios.post('https://cipherlink.xyz:5000/api/validatePassphrase', {
           userId: user.id,
           inputPassphrase: inputPassphrase
       });

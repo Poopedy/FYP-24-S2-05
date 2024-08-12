@@ -219,7 +219,7 @@ const UserDashboard = () => {
     }
   
     try {
-      const response = await axios.get(`http://localhost:5000/api/keys/user/${user.id}`);
+      const response = await axios.get(`https://cipherlink.xyz:5000/api/keys/user/${user.id}`);
       console.log('Response from getUserKey:', response);
   
       if (response.status === 200) {
@@ -276,7 +276,7 @@ const UserDashboard = () => {
           'Content-Type': 'application/json'
         }
       });
-      const encryptedKey = await axios.get(`http://localhost:5000/api/keys/${keyId}`);
+      const encryptedKey = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
 
       if (response.ok) {
         const blob = await response.blob();
@@ -331,7 +331,7 @@ const UserDashboard = () => {
           'Content-Type': 'application/json'
         }
       });
-      const encryptedKey = await axios.get(`http://localhost:5000/api/keys/${keyId}`);
+      const encryptedKey = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
 
       if (response.ok) {
         const blob = await response.blob();
@@ -381,7 +381,7 @@ const UserDashboard = () => {
                 'Content-Type': 'application/json'
             }
         });
-        const encryptedKey = await axios.get(`http://localhost:5000/api/keys/${keyId}`);
+        const encryptedKey = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
 
         if (response.ok) {
           const blob = await response.blob();

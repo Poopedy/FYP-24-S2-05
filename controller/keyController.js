@@ -4,14 +4,11 @@ const Key = require('../models/keyModel');
 const keyController = {
     createKey: async (req, res) => {
         try {
-            const { userId, encryptedKey } = req.body;
-            if (!userId || !encryptedKey) {
-                return res.status(400).json({ error: 'User ID and encrypted key are required.' });
-            }
-            await Key.create(userId, encryptedKey);
-            res.json({ message: 'Encryption key created successfully.' });
+            const keyData = req.body;
+            await Key.create(keyData);
+            res.status(201).json({ message: 'Key created successfully' });
         } catch (err) {
-            res.status(500).json({ message: 'Encryption key error' });
+            res.status(500).json({ error: err.message });
         }
     },
     getKeyById: async (req, res) => {
@@ -30,7 +27,12 @@ const keyController = {
         try {
             const uid = req.params.uid;
             const keys = await Key.findByUserId(uid);
-            res.json(keys);
+
+            if (keys.length === 0) {
+                return res.status(404).json({ error: 'No keys found for this user' });
+            }
+
+            res.json(keys[0]);
         } catch (err) {
             res.status(500).json({ error: err.message });
         }
@@ -45,9 +47,9 @@ const keyController = {
     },
     updateKey: async (req, res) => {
         try {
-            const userId = req.params.uid;
+            const keyid = req.params.keyid;
             const keyData = req.body;
-            await Key.update(userId, keyData);
+            await Key.update(keyid, keyData);
             res.json({ message: 'Key updated successfully' });
         } catch (err) {
             res.status(500).json({ error: err.message });

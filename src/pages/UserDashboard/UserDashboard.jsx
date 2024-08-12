@@ -26,7 +26,7 @@ const UserDashboard = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
   const [inputPassphrase, setInputPassphrase] = useState('');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState('');
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
@@ -161,6 +161,7 @@ const UserDashboard = () => {
     if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
+        console.log(user);
     } else {
         // Redirect to login if no user data is found in sessionStorage
         navigate('/login');

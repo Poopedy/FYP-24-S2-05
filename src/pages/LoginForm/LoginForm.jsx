@@ -52,7 +52,7 @@ const LoginForm = () => {
       if (role === 'admin') {
           navigate('/admindashboard/${username}');
       } else if (role === 'user') {
-          navigate('/userdashboard',{state : {username}});
+          navigate('/userdashboard');
       } else if (role === 'superadmin') {
           navigate('/superadmindashboard/${username}');
       } else {

@@ -26,13 +26,13 @@ const UserDashboard = () => {
   const [isLocked, setIsLocked] = useState(true);
   const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
   const [inputPassphrase, setInputPassphrase] = useState('');
-  
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
   const updateToks = true;
   const reftok = urlParams.get('refreshtokens');
-  const user = JSON.parse(sessionStorage.getItem('user'));
+  
   if (reftok) {
 
   }

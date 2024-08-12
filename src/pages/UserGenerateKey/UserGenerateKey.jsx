@@ -30,22 +30,7 @@ const UserGenerateKey = () => {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         setPassphrase(parsedData.passphrase);
-      } else {
-        const fetchPassphrase = async () => {
-          try {
-            const response = await axios.get(`http://localhost:5000/api/passphrase/${user.id}`);
-            if (response.data.passphrase) {
-              setPassphrase(response.data.passphrase);
-            } else {
-              console.error('Passphrase not found in response: ', response.data);
-            }
-          } catch (error) {
-            console.error('Error fetching passphrase: ', error);
-          }
-        };
-
-        fetchPassphrase();
-      }
+      } 
     } else {
       console.error('No userId found in session storage');
       navigate('/login');

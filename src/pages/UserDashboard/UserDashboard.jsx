@@ -35,7 +35,7 @@ const UserDashboard = () => {
         const { passphrase, timestamp } = passphraseData;
         const currentTime = Date.now();
 
-        // Check if the passphrase has expired (5 minutes lifespan)
+        // Check if the passphrase has expired (30 minutes lifespan)
         if (currentTime - timestamp > 30 * 60 * 1000) {
             sessionStorage.removeItem('passphraseData');
             return null;
@@ -46,6 +46,25 @@ const UserDashboard = () => {
 
     return null;
   };
+
+  const getKeyDataFromSession = () => {
+    const keyData = JSON.parse(sessionStorage.getItem('keyData'));
+    if (keyData) {
+      const { keyId, encryptedKey, timestamp } = keyData;
+      const currentTime = Date.now();
+  
+      // Check if the data has expired (30 minutes lifespan)
+      if (currentTime - timestamp > 30 * 60 * 1000) {
+        sessionStorage.removeItem('keyData');
+        return { keyId: null, encryptedKey: null };
+      }
+  
+      return { keyId, encryptedKey };
+    }
+  
+    return { keyId: null, encryptedKey: null };
+  };
+  
   
   useEffect(() => {
     // Retrieve user data from sessionStorage
@@ -190,6 +209,46 @@ if (!user) {
     }
   };
 
+  // get user's encryption key
+  const getUserKey = async () => {
+    if (!user || !user.id) {
+      console.error('User ID not found');
+    }
+  
+    try {
+      const response = await axios.get(`http://localhost:5000/api/keys/user/${user.id}`);
+  
+      if (response.status === 200) {
+        const key = response.data;
+        console.log('Retrieved encryption key:', key);
+        if (key.length === 0) {
+          alert('No encryption keys found for this user.');
+        } else {
+          // Store encryptedKey and keyId in sessionStorage
+          const keyData = {
+            keyId: key.idKey,
+            encryptedKey: key.encryptedkey,
+            timestamp: Date.now()
+          };
+          sessionStorage.setItem('keyData', JSON.stringify(keyData));
+  
+          // Clear the key data after 30 minutes
+          setTimeout(() => {
+            sessionStorage.removeItem('keyData');
+          }, 30 * 60 * 1000); // 30 minutes lifespan for the key data
+        }
+      } else {
+        alert('Failed to fetch encryption keys.');
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching user keys:', error);
+      alert('Error fetching encryption keys. Please try again.');
+      return null;
+    }
+  };
+  
+
   const handlePassphraseSubmit = async () => {
     if (!user || !user.id) {
       alert('User ID not found');
@@ -208,11 +267,12 @@ if (!user) {
             timestamp: Date.now()
         };
         sessionStorage.setItem('passphraseData', JSON.stringify(passphraseData));
+        getUserKey();
 
-        // Clear the passphrase after 5 minutes
+        // Clear the passphrase after 30 minutes
         setTimeout(() => {
             sessionStorage.removeItem('passphraseData');
-        }, 30 * 60 * 1000); // 5 minutes lifespan for the passphrase
+        }, 30 * 60 * 1000); // 30 minutes lifespan for the passphrase
 
         setIsLocked(false);
         setShowPassphrasePopup(false);

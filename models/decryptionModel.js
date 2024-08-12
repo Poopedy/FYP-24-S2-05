@@ -1,5 +1,5 @@
 // Function to decrypt a file
-export async function decryptFile(encryptedBlob) {
+export async function decryptFile(encryptedBlob, key) {
     // Convert encryptedBlob to Uint8Array
     const encryptedData = await encryptedBlob.arrayBuffer();
     const encryptedBytes = new Uint8Array(encryptedData);

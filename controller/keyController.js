@@ -30,7 +30,12 @@ const keyController = {
         try {
             const uid = req.params.uid;
             const keys = await Key.findByUserId(uid);
-            res.json(keys);
+
+            if (keys.length === 0) {
+                return res.status(404).json({ error: 'No keys found for this user' });
+            }
+
+            res.json(keys[0]);
         } catch (err) {
             res.status(500).json({ error: err.message });
         }

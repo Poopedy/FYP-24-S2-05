@@ -91,28 +91,31 @@ const UserDashboard = () => {
     const uid = user.id; // Assuming user.id holds the UID
 
     // Check if the token is already stored
-    // if (localStorage.getItem("gdtoken") == null) {
+    if (!localStorage.getItem("gdtoken")) {
       // Send a POST request to your backend to exchange the code for a token
-      fetch('https://cipherlink.xyz:5000/api/getToken', {
+      fetch('http://localhost:5000/api/getToken', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ code, uid }), // Include the UID in the request body
       })
-        .then(response => response.json())
-        .then(token => {
-          console.log('Access token:', token);
-          localStorage.setItem('gdtoken', JSON.stringify(token));
-          window.history.replaceState(null, '', location.pathname);
+        .then(response => response.text()) // Use .text() since you're getting plain text
+        .then(accessToken => {
+          console.log('Access token:', accessToken);
+          try {
+            localStorage.setItem('gdtoken', accessToken); // Store the access token directly
+          } catch (e) {
+            console.error('Error saving token to localStorage:', e);
+          }
+          window.location.reload();
 
           // Store or use the token as needed
         })
         .catch(error => console.error('Error fetching token:', error));
-    // }
-
+    }
   } else {
-    // console.error('Authorization code not found.');
+    console.error('Authorization code not found.');
   }
 
 

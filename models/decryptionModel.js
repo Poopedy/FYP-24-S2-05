@@ -24,10 +24,11 @@ export async function decryptFile(encryptedBlob, key) {
 }
 
 // Function to decrypt user encryption key with passphrase
-export async function decryptWithPassphrase(encryptedData, passphrase) {
-  const salt = encryptedData.slice(0, 16);
-  const iv = encryptedData.slice(16, 28);
-  const data = encryptedData.slice(28);
+export async function decryptWithPassphrase(encryptedKeyBuffer, passphrase) {
+  // Extract salt, iv, and encrypted key from the buffer
+  const salt = new Uint8Array(encryptedKeyBuffer.slice(0, 16));
+  const iv = new Uint8Array(encryptedKeyBuffer.slice(16, 28));
+  const data = encryptedKeyBuffer.slice(28);
 
   const enc = new TextEncoder();
   const passphraseKey = await window.crypto.subtle.importKey(
@@ -41,7 +42,7 @@ export async function decryptWithPassphrase(encryptedData, passphrase) {
   const derivedKey = await window.crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt: salt, // Ensure salt is passed as a Uint8Array
       iterations: 100000,
       hash: 'SHA-256'
     },
@@ -54,11 +55,18 @@ export async function decryptWithPassphrase(encryptedData, passphrase) {
   const decryptedKey = await window.crypto.subtle.decrypt(
     {
       name: 'AES-GCM',
-      iv: iv
+      iv: iv // Ensure IV is passed as a Uint8Array
     },
     derivedKey,
     data
   );
 
-  return new TextDecoder().decode(data);
+  // Import the decrypted key as a CryptoKey object for future use
+  return await window.crypto.subtle.importKey(
+    'raw',
+    decryptedKey,
+    { name: 'AES-GCM' },
+    true,
+    ['encrypt', 'decrypt']
+  );
 }

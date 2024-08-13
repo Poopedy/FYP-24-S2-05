@@ -1001,6 +1001,12 @@ const UserDashboard = () => {
           <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
           <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
           <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button> */}
+          <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
+          <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
+          <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button>
+          <button className="upload-button" onClick={uploadFileToDropbox}>Upload dropbox</button>
+          <button className="upload-button" onClick={uploadFile}>Upload gdrive</button>
+          <button className="upload-button" onClick={uploadFileToOneDrive}>Upload onedrive</button>
           <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
         </div>
         <table id="dynamic-table">

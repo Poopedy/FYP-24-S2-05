@@ -104,8 +104,8 @@ router.post('/getToken', async (req, res) => {
         // Send the token back in the response
         res.send(tokens.access_token);
     } catch (err) {
-        console.error('Error retrieving access token', err);
-        res.status(400).send('Error retrieving access token');
+        console.error('Error retrieving access token:', err.message || err);
+        res.status(400).send('Error retrieving access token:, ${err.message || err}');
     }
 });
 

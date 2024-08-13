@@ -7,7 +7,13 @@ export async function decryptFile(encryptedBlob, key) {
   // Split IV and encrypted data
   const ivBytes = encryptedBytes.slice(0, 12); // IV length is 12 bytes
   const encryptedBytesOnly = encryptedBytes.slice(12);
-
+  // Verify that ivBytes and encryptedBytesOnly are correct lengths
+  if (ivBytes.length !== 12) {
+    alert("Invalid IV length.");
+  }
+  if (encryptedBytesOnly.byteLength < 1) {
+    alert("Encrypted data is too small.");
+  }
   // Decrypt using the imported key and IV
   const decrypted = await window.crypto.subtle.decrypt(
       {
@@ -29,7 +35,11 @@ export async function decryptWithPassphrase(encryptedKeyBuffer, passphrase) {
 const salt = new Uint8Array(encryptedKeyBuffer.slice(0, 16));
 const iv = new Uint8Array(encryptedKeyBuffer.slice(16, 28));
 const data = encryptedKeyBuffer.slice(28);
-
+// Ensure data length is sufficient
+if (data.byteLength < 1) {
+  alert("Encrypted key data is too small.");
+}
+else {alert("encrypted key data good")}
 const enc = new TextEncoder();
 const passphraseKey = await window.crypto.subtle.importKey(
   'raw',
@@ -58,7 +68,7 @@ const decryptedKey = await window.crypto.subtle.decrypt(
     iv: iv // Ensure IV is passed as a Uint8Array
   },
   derivedKey,
-  data
+  new Uint8Array(data)
 );
 
 // Import the decrypted key as a CryptoKey object for future use

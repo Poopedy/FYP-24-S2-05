@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 // Placeholder encryption key (32 bytes long)
-const ENCRYPTION_KEY = '80b928fdd7121bfe67cd2258072f8adac56be9b6ee522dfc5e3c06aa54021897'; // Replace with a secure key later
+const ENCRYPTION_KEY = '80b928fdd7121bfe67cd2258072f8ada'; // Replace with a secure key later
 
 function encryptCloud(text) {
     try {

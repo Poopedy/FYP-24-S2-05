@@ -65,7 +65,7 @@ const userController = {
 
             const refreshGoogleToken = async (uid) => {
                 try {
-                    const response = await fetch('http://localhost:5000/api/refresh-google', {
+                    const response = await fetch('https://cipherlink.xyz:5000/api/refresh-google', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -90,7 +90,7 @@ const userController = {
 
             const refreshOneDriveToken = async (uid) => {
                 try {
-                    const response = await fetch('http://localhost:5000/api/onedrive/refresh-onedrive', {
+                    const response = await fetch('https://cipherlink.xyz:5000/api/onedrive/refresh-onedrive', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ const userController = {
 
             const refreshDropboxToken = async (uid) => {
                 try {
-                    const response = await fetch('http://localhost:5000/api/dropbox/refresh-dropbox', {
+                    const response = await fetch('https://cipherlink.xyz:5000/api/dropbox/refresh-dropbox', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

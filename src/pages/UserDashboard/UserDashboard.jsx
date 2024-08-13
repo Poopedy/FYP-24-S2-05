@@ -91,7 +91,7 @@ const UserDashboard = () => {
     const uid = user.id; // Assuming user.id holds the UID
 
     // Check if the token is already stored
-    if (localStorage.getItem("gdtoken") == null) {
+    // if (localStorage.getItem("gdtoken") == null) {
       // Send a POST request to your backend to exchange the code for a token
       fetch('https://cipherlink.xyz:5000/api/getToken', {
         method: 'POST',
@@ -109,7 +109,7 @@ const UserDashboard = () => {
           // Store or use the token as needed
         })
         .catch(error => console.error('Error fetching token:', error));
-    }
+    // }
 
   } else {
     // console.error('Authorization code not found.');
@@ -991,7 +991,7 @@ const UserDashboard = () => {
         <h2>{activeTab} Files</h2>
         <div className="upload-container">
 
-        <input type="file" id="file-upload" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileChange} />
+        <input type="file" id="file-upload" ref={fileInputRef}  onChange={handleFileChange} />
           <label htmlFor="file-upload" className="upload-area">
             Click the upload button and browse your files
           </label>

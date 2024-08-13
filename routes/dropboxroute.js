@@ -7,7 +7,7 @@ const router = express.Router();
 const dbcred = JSON.parse(fs.readFileSync('./config/dbcred.json'));
 const CLIENT_ID = dbcred.CLIENT_ID;
 const CLIENT_SECRET = dbcred.CLIENT_SECRET;
-const REDIRECT_URI = 'http://localhost:5000/api/dropbox/redirect';
+const REDIRECT_URI = 'https://cipherlink.xyz:5000/api/dropbox/redirect';
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const pool = require("../config/db.js");
@@ -15,7 +15,7 @@ const verifyToken = require('../middlewares/authMiddleware');
 const { encryptCloud, decryptCloud } = require('./encrypthelper');
 
 // function authorize() {
-//     return 'https://www.dropbox.com/oauth2/authorize?client_id=a60rwgu156bdp1o&redirect_uri=http://localhost:5000/api/dropbox/redirect&response_type=code&token_access_type=offline';
+//     return 'https://www.dropbox.com/oauth2/authorize?client_id=a60rwgu156bdp1o&redirect_uri=https://cipherlink.xyz:5000/api/dropbox/redirect&response_type=code&token_access_type=offline';
 // }
 
 // router.get('/authorize', (req, res) => {
@@ -105,7 +105,7 @@ router.get('/redirect', async (req, res) => {
             [uid, "dropbox", encryptCloud(accessToken), encryptCloud(refreshToken)]
         );
 
-        return res.redirect('http://localhost:5173/userdashboard'); // Adjust the URL as needed
+        return res.redirect('https://cipherlink.xyz/userdashboard'); // Adjust the URL as needed
     } catch (error) {
         console.error('Error exchanging code for token:', error);
         return res.status(500).send('Failed to exchange code for token');

@@ -3,8 +3,8 @@ const db = require('../config/db');
 
 const Key = {
     create: async (data) => {
-        const sql = 'INSERT INTO CIPHERLINK.key (idKey, uid, datecreated, encryptedkey) VALUES (?, ?, ?, ?)';
-        await db.query(sql, [data.keyid, data.uid, data.datecreated, data.encryptedkey]);
+        const sql = 'INSERT INTO CIPHERLINK.key ( uid,  encryptedkey) VALUES ( ?, ?)';
+        await db.query(sql, [ data.uid,  data.encryptedkey]);
     },
     findById: async (keyid) => {
         const [rows] = await db.query('SELECT encryptedkey FROM CIPHERLINK.key WHERE idKey = ?', [keyid]);

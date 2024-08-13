@@ -6,7 +6,7 @@ const router = express.Router();
 const odcred = JSON.parse(fs.readFileSync('./config/odcred.json'));
 const CLIENT_ID = odcred.CLIENT_ID;
 const CLIENT_SECRET = odcred.CLIENT_SECRET;
-const REDIRECT_URI = 'http://localhost:5000/api/onedrive/redirect';
+const REDIRECT_URI = 'https://cipherlink.xyz:5000/api/onedrive/redirect';
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const pool = require("../config/db.js");
@@ -63,7 +63,7 @@ router.get('/redirect', async (req, res) => {
             [uid, "onedrive", encryptCloud(accessToken), encryptCloud(refreshToken)]
         );
 
-        return res.redirect('http://localhost:5173/userdashboard'); // Adjust the URL as needed
+        return res.redirect('https://cipherlink.xyz/userdashboard'); // Adjust the URL as needed
     } catch (error) {
         console.error('Error exchanging code for token:', error);
         return res.status(500).send('Failed to exchange code for token');

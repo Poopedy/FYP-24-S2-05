@@ -132,30 +132,41 @@ const UserAccountManagement = () => {
     if (!user || !user.id) {
       alert('User ID not found');
       return;
-    }
-
+  }
     try {
       const response = await axios.post('https://cipherlink.xyz:5000/api/validatePassphrase', {
           userId: user.id,
           inputPassphrase: inputPassphrase
       });
-
+      
       if (response.data.message === 'Passphrase is valid') {
+        // Store the passphrase with a timestamp in sessionStorage
+        const passphraseData = {
+            passphrase: inputPassphrase,
+            timestamp: Date.now()
+        };
+        sessionStorage.setItem('passphraseData', JSON.stringify(passphraseData));
+
+        // Clear the passphrase after 30 minutes
+        setTimeout(() => {
+            sessionStorage.removeItem('passphraseData');
+        }, 30 * 60 * 1000); // 30 minutes lifespan for the passphrase
+
         setIsPassphraseCorrect(true);
         setIsLocked(false);
         setShowPassphrasePopup(false);
         setInputPassphrase('');  // Clear the passphrase input
       }
-    } catch (error) {
+  } catch (error) {
       console.error('Failed to get user\'s passphrase', error);
       alert("Invalid Passphrase. Please try again.")
-    }
-
+  }
   };
 
   const handleLogOut = () => {
     sessionStorage.clear();
   };
+
 
   return (
     <div className="user-account-management">

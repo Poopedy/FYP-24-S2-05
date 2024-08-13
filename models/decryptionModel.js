@@ -58,7 +58,7 @@ export async function decryptWithPassphrase(encryptedKeyBuffer, passphrase) {
       iv: iv // Ensure IV is passed as a Uint8Array
     },
     derivedKey,
-    data
+    new Uint8Array(data)
   );
 
   // Import the decrypted key as a CryptoKey object for future use

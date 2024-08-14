@@ -1407,13 +1407,13 @@ const Sidebar = () => {
 const RightSidebar = ({ file }) => {
   const [fileUrl, setFileUrl] = useState(null);
 
-  useEffect(() => {
-    if (file) {
-      const url = URL.createObjectURL(file.file);
-      setFileUrl(url);
-      return () => URL.revokeObjectURL(url);
-    }
-  }, [file]);
+  // useEffect(() => {
+  //   if (file) {
+  //     const url = URL.createObjectURL(file.file);
+  //     setFileUrl(url);
+  //     return () => URL.revokeObjectURL(url);
+  //   }
+  // }, [file]);
 
   const handleDownload = () => {
     if (fileUrl) {
@@ -1436,9 +1436,9 @@ const RightSidebar = ({ file }) => {
             <li><strong>File Type:</strong> {file.filetype}</li>
             <li><strong>File Size:</strong> {file.filesize}</li>
           </ul>
-          <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button>
+          {/* <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button> */}
           {/* <button className="download-button" onClick={handleDownload}>Download</button> */}
-          {file.filetype.startsWith('image/') && (
+          {/* {file.filetype.startsWith('image/') && (
             <img src={fileUrl} alt={file.filename} style={{ maxWidth: '100%' }} />
           )}
           {file.filetype === 'application/pdf' && (
@@ -1446,7 +1446,7 @@ const RightSidebar = ({ file }) => {
           )}
           {file.filetype === 'text/plain' && (
             <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} title={file.filename}></iframe>
-          )}
+          )} */}
         </>
       ) : (
         <p>Please, select a file to see the details</p>

@@ -20,6 +20,7 @@ const UserDashboard = () => {
   const [oneDriveFiles, setOneDriveFiles] = useState([]);
   const [dropboxFiles, setDropboxFiles] = useState([]);
   const [file, setFile] = useState(null);
+  const [previewFile, setPreviewFile] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [activeTab, setActiveTab] = useState('Google Drive');
   const fileInputRef = useRef(null);
@@ -188,12 +189,12 @@ const UserDashboard = () => {
     const uploadedFile = event.target.files[0];
     if (uploadedFile) {
 
-      // const newFile = {
-      //   filename: uploadedFile.name,
-      //   filetype: uploadedFile.type,
-      //   filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
-      //   file: uploadedFile
-      // };
+      const newFile = {
+        filename: uploadedFile.name,
+        filetype: uploadedFile.type,
+        filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
+        file: uploadedFile
+      };
       // if (activeTab === 'Google Drive') {
       //   setGoogleDriveFiles(prevFiles => [...prevFiles, newFile]);
       // } else if (activeTab === 'OneDrive') {
@@ -203,6 +204,8 @@ const UserDashboard = () => {
       // }
       console.log(uploadedFile);
       setFile(uploadedFile);
+      setPreviewFile(newFile);
+
     }
   };
   // const handleFileChange = (event) => {
@@ -1188,6 +1191,21 @@ const UserDashboard = () => {
           console.warn('No service selected');
       }
     };
+    const handleRefresh = () => {
+      switch (activeTab) {
+        case 'Google Drive':
+          fetchFilesByUid('drive');  // Fetch files from Google Drive
+          break;
+        case 'OneDrive':
+          fetchFilesByUid('onedrive');  // Fetch files from OneDrive
+          break;
+        case 'Dropbox':
+          fetchFilesByUid('dropbox');  // Fetch files from Dropbox
+          break;
+        default:
+          console.warn('No service selected');
+      }
+    };
     return (
       <div className="content-wrapper">
         <div className="main-content">
@@ -1197,14 +1215,8 @@ const UserDashboard = () => {
             <label htmlFor="file-upload" className="upload-area">
               Click the upload button and browse your files
             </label>
-            {/* Other buttons for fetching and uploading files */}
-            <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
-            <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
-            <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button>
-            {/* <button className="upload-button" onClick={uploadFileToDropbox}>Upload dropbox</button>
-            <button className="upload-button" onClick={uploadFile}>Upload gdrive</button>
-            <button className="upload-button" onClick={uploadFileToOneDrive}>Upload onedrive</button> */}
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
+            <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
           <table id="dynamic-table">
             <thead>
@@ -1220,7 +1232,7 @@ const UserDashboard = () => {
             </tbody>
           </table>
         </div>
-        <RightSidebar file= {file} />
+        <RightSidebar file={previewFile} />
       </div>
     );
   };
@@ -1435,9 +1447,9 @@ const RightSidebar = ({ file }) => {
       
         <>
           <ul>
-            <li><strong>File Name:</strong> {file.filename}</li>
-            <li><strong>File Type:</strong> {file.filetype}</li>
-            <li><strong>File Size:</strong> {file.filesize}</li>
+            <li><strong>File Name:</strong> File</li>
+            <li><strong>File Type:</strong> </li>
+            <li><strong>File Size:</strong> </li>
           </ul>
           <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button>
           {/* <button className="download-button" onClick={handleDownload}>Download</button> */}

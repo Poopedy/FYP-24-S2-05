@@ -208,12 +208,14 @@ const UserDashboard = () => {
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
-      setFile({
-        file: selectedFile,
-        filename: selectedFile.name,
-        filetype: selectedFile.type,
-        filesize: selectedFile.size,
-      });
+      // setFile({
+      //   file: selectedFile,
+      //   filename: selectedFile.name,
+      //   filetype: selectedFile.type,
+      //   filesize: selectedFile.size,
+      // });
+      console.log(selectedFile instanceof File);
+      setFile(selectedFile);
     }
   };
 

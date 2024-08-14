@@ -61,7 +61,7 @@ router.post('/logout', (req, res) => {
 router.get('/', (req, res) => res.send(' API Running'));
 router.get('/userdashboard', (req, res) => {
     // Handle the request, e.g., render a page or send JSON data
-    res.redirect('https://cipherlink.xyz/userdashboard')
+    res.redirect('http://localhost:5000/userdashboard')
   });
 
 router.get('/getAuthURL', (req, res) => {

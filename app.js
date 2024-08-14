@@ -57,15 +57,14 @@ app.use('/api', userRoutes);
 app.use('/api/dropbox', dropboxRoutes);
 app.use('/api/onedrive', onedriveRoutes);
 
-// Read SSL certificate and key
+/* Read SSL certificate and key
 const sslOptions = {
     key: fs.readFileSync('/etc/caddy/ssl/privatekey_unencrypted.pem'),
     cert: fs.readFileSync('/etc/caddy/ssl/cipherlink_xyz.crt')
 };
+*/
 
 const PORT = process.env.PORT || 5000;
-
-// Create HTTPS server
-https.createServer(sslOptions, app).listen(PORT, () => {
-    console.log(`HTTPS Server is running on port ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });

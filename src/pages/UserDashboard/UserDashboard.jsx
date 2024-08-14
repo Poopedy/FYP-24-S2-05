@@ -322,7 +322,7 @@ const UserDashboard = () => {
     } catch (error) {
       console.error('Error downloading file:', error);
     }
-  }
+  };
 
   async function downloadDropbox(fileId,fn, keyId) {
     const token = localStorage.getItem("dbtoken"); // Adjust token retrieval as needed
@@ -382,7 +382,7 @@ const UserDashboard = () => {
     } catch (error) {
       console.error('Error downloading file:', error);
     }
-  }
+  };
 
   //   async function 
   async function downloadOneDrive(itemid,fn, keyId) {
@@ -451,7 +451,7 @@ const UserDashboard = () => {
     } catch (error) {
         console.error('Error downloading file:', error);
     }
-  }
+  };
 
   // Helper function to decrypt file
 
@@ -487,7 +487,7 @@ const UserDashboard = () => {
     } catch (error) {
       console.error('Error deleting file:', error);
     }
-  }
+  };
 
   async function deleteOneDrive(itemid, uid) {
     const token = localStorage.getItem("odtoken");
@@ -520,7 +520,7 @@ const UserDashboard = () => {
     } catch (error) {
       console.error('Error deleting file:', error);
     }
-  }
+  };
   async function deleteGdrive(itemid, uid) {
     const token = localStorage.getItem("gdtoken");
 
@@ -552,7 +552,7 @@ const UserDashboard = () => {
     } catch (error) {
       console.error('Error deleting file:', error);
     }
-  }
+  };
 
   function formatFileSize(bytes) {
     const units = ['bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -594,7 +594,7 @@ const UserDashboard = () => {
     } catch (error) {
       console.error('Error fetching files:', error);
     }
-  }
+  };
 
   function populateTable(data) {
     const tableBody = document.querySelector('#dynamic-table tbody');
@@ -644,7 +644,7 @@ const UserDashboard = () => {
       row.appendChild(actionsCell);
       tableBody.appendChild(row);
     });
-  }
+  };
 
   const uploadFile = async () => {
     if (!file) {
@@ -833,7 +833,7 @@ const UserDashboard = () => {
       false, 
       ['encrypt', 'decrypt'] 
     ); 
-  }
+  };
   // async function encryptFile(file) {    // Convert file to array buffer
   //   const arrayBuffer = await file.arrayBuffer();  
   //   // Get the CryptoKey object from the raw key material    

@@ -1,82 +1,105 @@
 // Function to decrypt a file
 export async function decryptFile(encryptedBlob, key) {
-  // Convert encryptedBlob to Uint8Array
-  const encryptedData = await encryptedBlob.arrayBuffer();
-  const encryptedBytes = new Uint8Array(encryptedData);
+  try {
+    console.log(key);
+    // Convert encryptedBlob to ArrayBuffer
+    const encryptedData = await encryptedBlob.arrayBuffer();
+    const encryptedBytes = new Uint8Array(encryptedData);
 
-  // Split IV and encrypted data
-  const ivBytes = encryptedBytes.slice(0, 12); // IV length is 12 bytes
-  const encryptedBytesOnly = encryptedBytes.slice(12);
-  // Verify that ivBytes and encryptedBytesOnly are correct lengths
-  if (ivBytes.length !== 12) {
-    alert("Invalid IV length.");
-  }
-  if (encryptedBytesOnly.byteLength < 1) {
-    alert("Encrypted data is too small.");
-  }
-  // Decrypt using the imported key and IV
-  const decrypted = await window.crypto.subtle.decrypt(
+    // Extract IV and encrypted data
+    const ivBytes = encryptedBytes.slice(0, 12); // IV length is 12 bytes
+    const encryptedBytesOnly = encryptedBytes.slice(12);
+
+    // Decrypt using the imported key and IV
+    const decrypted = await window.crypto.subtle.decrypt(
       {
-          name: 'AES-GCM',
-          iv: ivBytes,
+        name: 'AES-GCM',
+        iv: ivBytes,
+        tagLength: 128, // Ensure this matches the encryption tag length
       },
       key,
       encryptedBytesOnly
-  );
+    );
 
-  // Create a Blob from the decrypted data
-  const decryptedBlob = new Blob([decrypted], { type: encryptedBlob.type });
-  return decryptedBlob;
+    // Create a Blob from the decrypted data
+    const decryptedBlob = new Blob([decrypted], { type: encryptedBlob.type });
+    return decryptedBlob;
+
+  } catch (error) {
+    console.error('Error decrypting file:', error);
+    throw new Error('Error decrypting file: ' + error.message);
+  }
 }
 
-// Function to decrypt user encryption key with passphrase
-export async function decryptWithPassphrase(encryptedKeyBuffer, passphrase) {
-// Extract salt, iv, and encrypted key from the buffer
-const salt = new Uint8Array(encryptedKeyBuffer.slice(0, 16));
-const iv = new Uint8Array(encryptedKeyBuffer.slice(16, 28));
-const data = encryptedKeyBuffer.slice(28);
-// Ensure data length is sufficient
-if (data.byteLength < 1) {
-  alert("Encrypted key data is too small.");
-}
-else {alert("encrypted key data good")}
-const enc = new TextEncoder();
-const passphraseKey = await window.crypto.subtle.importKey(
-  'raw',
-  enc.encode(passphrase),
-  'PBKDF2',
-  false,
-  ['deriveKey']
-);
 
-const derivedKey = await window.crypto.subtle.deriveKey(
-  {
-    name: 'PBKDF2',
-    salt: salt, // Ensure salt is passed as a Uint8Array
-    iterations: 100000,
-    hash: 'SHA-256'
-  },
-  passphraseKey,
-  { name: 'AES-GCM', length: 256 },
-  true,
-  ['decrypt']
-);
+export async function decryptWithPassphrase(encryptedKeyString, passphrase) {
+  console.log(typeof encryptedKeyString);
+  const decodedString = atob(encryptedKeyString);
+  // Decode base64 string to Uint8Array
+  const encryptedKeyBuffer = new Uint8Array(decodedString.split('').map(char => char.charCodeAt(0)));
+  console.log(encryptedKeyBuffer);
+  console.log(typeof encryptedKeyBuffer);
+  console.log(encryptedKeyBuffer instanceof Uint8Array);
+  console.log(encryptedKeyBuffer.length);
 
-const decryptedKey = await window.crypto.subtle.decrypt(
-  {
-    name: 'AES-GCM',
-    iv: iv // Ensure IV is passed as a Uint8Array
-  },
-  derivedKey,
-  new Uint8Array(data)
-);
+  // Extract components
+  const salt = new Uint8Array(encryptedKeyBuffer.slice(0, 16));
+  const iv = new Uint8Array(encryptedKeyBuffer.slice(16, 28));
+  const data = encryptedKeyBuffer.slice(28); 
 
-// Import the decrypted key as a CryptoKey object for future use
-return await window.crypto.subtle.importKey(
-  'raw',
-  decryptedKey,
-  { name: 'AES-GCM' },
-  true,
-  ['encrypt', 'decrypt']
-);
+  console.log(salt.length);
+  console.log(iv.length);
+  console.log(data.byteLength);
+
+  // Ensure data length is valid
+  if (data.byteLength < 1) {
+    throw new Error('Encrypted key data is too small.');
+  }
+
+  try {
+    const enc = new TextEncoder();
+    const passphraseKey = await window.crypto.subtle.importKey(
+      'raw',
+      enc.encode(passphrase),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+
+    const derivedKey = await window.crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: 100000,
+        hash: 'SHA-256'
+      },
+      passphraseKey,
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['decrypt']
+    );
+
+    const decryptedKey = await window.crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: iv,
+        tagLength: 128 // Ensure this matches the encryption tag length
+      },
+      derivedKey,
+      data
+    );
+
+    const encryptionKey = await window.crypto.subtle.importKey(
+      'raw',
+      decryptedKey,
+      { name: 'AES-GCM' },
+      true,
+      ['encrypt', 'decrypt']
+    );
+
+    return encryptionKey;
+  } catch (error) {
+    console.error('Error during decryption:', error);
+    throw new Error('Error during decryption: ' + error.message);
+  }
 }

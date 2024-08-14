@@ -188,19 +188,19 @@ const UserDashboard = () => {
     const uploadedFile = event.target.files[0];
     if (uploadedFile) {
 
-      const newFile = {
-        filename: uploadedFile.name,
-        filetype: uploadedFile.type,
-        filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
-        file: uploadedFile
-      };
-      if (activeTab === 'Google Drive') {
-        setGoogleDriveFiles(prevFiles => [...prevFiles, newFile]);
-      } else if (activeTab === 'OneDrive') {
-        setOneDriveFiles(prevFiles => [...prevFiles, newFile]);
-      } else if (activeTab === 'Dropbox') {
-        setDropboxFiles(prevFiles => [...prevFiles, newFile]);
-      }
+      // const newFile = {
+      //   filename: uploadedFile.name,
+      //   filetype: uploadedFile.type,
+      //   filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
+      //   file: uploadedFile
+      // };
+      // if (activeTab === 'Google Drive') {
+      //   setGoogleDriveFiles(prevFiles => [...prevFiles, newFile]);
+      // } else if (activeTab === 'OneDrive') {
+      //   setOneDriveFiles(prevFiles => [...prevFiles, newFile]);
+      // } else if (activeTab === 'Dropbox') {
+      //   setDropboxFiles(prevFiles => [...prevFiles, newFile]);
+      // }
       console.log(uploadedFile);
       setFile(uploadedFile);
     }
@@ -1169,7 +1169,7 @@ const UserDashboard = () => {
   }, [tabs]);
 
   const renderContent = () => {
-    const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
+    // const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
     const handleUpload = () => {
       switch (activeTab) {
         case 'Google Drive':
@@ -1217,7 +1217,7 @@ const UserDashboard = () => {
             </tbody>
           </table>
         </div>
-        <RightSidebar file={file} />
+        <RightSidebar file= {file} />
       </div>
     );
   };
@@ -1407,13 +1407,13 @@ const Sidebar = () => {
 const RightSidebar = ({ file }) => {
   const [fileUrl, setFileUrl] = useState(null);
 
-  // useEffect(() => {
-  //   if (file) {
-  //     const url = URL.createObjectURL(file.file);
-  //     setFileUrl(url);
-  //     return () => URL.revokeObjectURL(url);
-  //   }
-  // }, [file]);
+  useEffect(() => {
+    if (file) {
+      const url = URL.createObjectURL(file.file);
+      setFileUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [file]);
 
   const handleDownload = () => {
     if (fileUrl) {
@@ -1429,14 +1429,14 @@ const RightSidebar = ({ file }) => {
   return (
     <div className="right-sidebar">
       <h3>File Details</h3>
-      {file ? (
+      
         <>
           <ul>
             <li><strong>File Name:</strong> {file.filename}</li>
             <li><strong>File Type:</strong> {file.filetype}</li>
             <li><strong>File Size:</strong> {file.filesize}</li>
           </ul>
-          {/* <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button> */}
+          <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button>
           {/* <button className="download-button" onClick={handleDownload}>Download</button> */}
           {/* {file.filetype.startsWith('image/') && (
             <img src={fileUrl} alt={file.filename} style={{ maxWidth: '100%' }} />
@@ -1448,9 +1448,7 @@ const RightSidebar = ({ file }) => {
             <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} title={file.filename}></iframe>
           )} */}
         </>
-      ) : (
-        <p>Please, select a file to see the details</p>
-      )}
+       
     </div>
   );
 };

@@ -1170,19 +1170,19 @@ const UserDashboard = () => {
 
   const renderContent = () => {
     // const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
-    const handleUpload = () => {
+    const handleUpload = async () => {
       switch (activeTab) {
         case 'Google Drive':
-          uploadFile();
-          fetchFilesByUid('drive');
+          await uploadFile();  // Upload to Google Drive
+          fetchFilesByUid('drive');  // Fetch files from Google Drive
           break;
         case 'OneDrive':
-          uploadFileToOneDrive();
-          fetchFilesByUid('onedrive');
+          await uploadFileToOneDrive();  // Upload to OneDrive
+          fetchFilesByUid('onedrive');  // Fetch files from OneDrive
           break;
         case 'Dropbox':
-          uploadFileToDropbox();
-          fetchFilesByUid('dropbox');
+          await uploadFileToDropbox();  // Upload to Dropbox
+          fetchFilesByUid('dropbox');  // Fetch files from Dropbox
           break;
         default:
           console.warn('No service selected');

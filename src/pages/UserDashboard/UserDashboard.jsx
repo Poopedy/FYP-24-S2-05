@@ -793,18 +793,22 @@ const UserDashboard = () => {
       ['encrypt', 'decrypt']
     );
   }
-
-  // async function encryptFile(file) {    // Convert file to array buffer
-  //   const arrayBuffer = await file.arrayBuffer();
-  //   // Get the CryptoKey object from the raw key material    const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
-  //   // Encrypt the file data
-  //   const encryptedBuffer = await crypto.subtle.encrypt({
-  //     name: 'AES-GCM', iv: iv, // Initialization vector (should be randomly generated in practice)
-  //   },
-  //     cryptoKey, // Use the CryptoKey object      arrayBuffer
-  //   ); const blobr = new Blob([iv, new Uint8Array(encryptedBuffer)], { type: file.type });
-  //   console.log(blobr); return blobr;
-  // }
+  async function encryptFile(file) {    // Convert file to array buffer
+    const arrayBuffer = await file.arrayBuffer();  
+    // Get the CryptoKey object from the raw key material    
+    const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
+      // Encrypt the file data
+    const encryptedBuffer = await crypto.subtle.encrypt(      {
+        name: 'AES-GCM',        
+        iv: iv, // Initialization vector (should be randomly generated in practice)
+      },
+      cryptoKey, // Use the CryptoKey object      
+      arrayBuffer
+    );    
+    const blobr = new Blob([iv, new Uint8Array(encryptedBuffer)], { 
+      type: file.type });
+    console.log(blobr);    return blobr;
+  }  
   const uploadFileToOneDrive = async () => {
     if (!file) {
       alert('Please select a file first!'); return;
@@ -818,8 +822,11 @@ const UserDashboard = () => {
       // Encrypt the file before uploading
       const encryptedFile = await encryptFile(file); console.log(encryptedFile);
       const formData = new FormData();
-      console.log("File to be uploaded:", encryptedFile); formData.append('file', encryptedFile, file.name); // Use original file name
-      formData.append('token', token); // Directly append the token as a string      formData.append('uid', user.id);
+      console.log("File to be uploaded:", encryptedFile); 
+      formData.append('file', encryptedFile, file.name); // Use original file name
+      formData.append('token', token); // Directly append the token as a string      
+      formData.append('uid', user.id);
+      formData.append('keyid', 1234);
       const response = await fetch('https://cipherlink.xyz:5000/api/onedrive/upload', {
         method: 'POST', body: formData,
       });
@@ -834,6 +841,7 @@ const UserDashboard = () => {
       console.error('Error uploading file:', error); alert('An error occurred during file upload.');
     }
   };
+
 
   // const uploadFileToOneDrive = async () => {
   //   console.log(file);
@@ -903,330 +911,330 @@ const UserDashboard = () => {
   //     console.error('Error uploading file:', error);
   //     alert('An error occurred during file upload.');
   //   }
-};
+  // };
 
-// function connectCloud() {
-//   console.log("connecting");
-//   const uid = user.id; 
-//   fetch('https://cipherlink.xyz:5000/api/getAuthURL?uid={}')
-//     .then(response => response.text())
-//     .then(url => {
-//       window.location.href = url; // Redirect user to the Google OAuth2 consent page
-//     });
-// }
+  // function connectCloud() {
+  //   console.log("connecting");
+  //   const uid = user.id; 
+  //   fetch('https://cipherlink.xyz:5000/api/getAuthURL?uid={}')
+  //     .then(response => response.text())
+  //     .then(url => {
+  //       window.location.href = url; // Redirect user to the Google OAuth2 consent page
+  //     });
+  // }
 
-function connectCloud() {
-  console.log("Connecting to Google Drive");
+  function connectCloud() {
+    console.log("Connecting to Google Drive");
 
-  const uid = user.id; // Retrieve the UID from local storage
+    const uid = user.id; // Retrieve the UID from local storage
 
-  if (!uid) {
-    console.error('No user ID found in local storage');
-    return;
+    if (!uid) {
+      console.error('No user ID found in local storage');
+      return;
+    }
+
+    fetch(`https://cipherlink.xyz:5000/api/getAuthURL?token=${uid}`, {
+      method: 'GET',
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();
+      })
+      .then(authUrl => {
+        console.log("Redirecting to Google Drive authorization page:", authUrl);
+        window.location.href = authUrl; // Redirect user to Google OAuth2 consent page
+      })
+      .catch(error => console.error('Error fetching Google Drive authorization URL:', error));
+
+    console.log("HELLO WORLD");
   }
 
-  fetch(`https://cipherlink.xyz:5000/api/getAuthURL?token=${uid}`, {
-    method: 'GET',
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.text();
+
+  // THINK NOT USED MAYBE REMOVED
+  // async function getDropboxToken() {
+  //   try {
+  //     const response = await fetch('https://cipherlink.xyz:5000/api/dropbox/get-token', {
+  //       method: 'GET',
+  //       credentials: 'include' // This ensures cookies are sent with the request
+  //     });
+
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       console.log('Dropbox Token:', data.token);
+  //       // Now you can use the token as needed
+  //       return data.token; // Return the token if needed
+  //     } else {
+  //       console.error('Failed to fetch token:', response.statusText);
+  //       return null; // Return null if the request failed
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching token:', error);
+  //     return null; // Return null if an error occurred
+  //   }
+  // }
+
+  function connectDB() {
+    console.log("Connecting to Dropbox");
+
+    const uid = user.id; // Retrieve the UID from local storage
+
+    if (!uid) {
+      console.error('No user ID found in local storage');
+      return;
+    }
+
+    fetch(`https://cipherlink.xyz:5000/api/dropbox/authorize?uid=${uid}`, {
+      method: 'GET',
     })
-    .then(authUrl => {
-      console.log("Redirecting to Google Drive authorization page:", authUrl);
-      window.location.href = authUrl; // Redirect user to Google OAuth2 consent page
-    })
-    .catch(error => console.error('Error fetching Google Drive authorization URL:', error));
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Redirecting to Dropbox authorization page:", data.authUrl);
+        window.location.href = data.authUrl; // Redirect user to Dropbox OAuth2 consent page
+      })
+      .catch(error => console.error('Error fetching Dropbox authorization URL:', error));
 
-  console.log("HELLO WORLD");
-}
-
-
-// THINK NOT USED MAYBE REMOVED
-// async function getDropboxToken() {
-//   try {
-//     const response = await fetch('https://cipherlink.xyz:5000/api/dropbox/get-token', {
-//       method: 'GET',
-//       credentials: 'include' // This ensures cookies are sent with the request
-//     });
-
-//     if (response.ok) {
-//       const data = await response.json();
-//       console.log('Dropbox Token:', data.token);
-//       // Now you can use the token as needed
-//       return data.token; // Return the token if needed
-//     } else {
-//       console.error('Failed to fetch token:', response.statusText);
-//       return null; // Return null if the request failed
-//     }
-//   } catch (error) {
-//     console.error('Error fetching token:', error);
-//     return null; // Return null if an error occurred
-//   }
-// }
-
-function connectDB() {
-  console.log("Connecting to Dropbox");
-
-  const uid = user.id; // Retrieve the UID from local storage
-
-  if (!uid) {
-    console.error('No user ID found in local storage');
-    return;
+    console.log("HELLO WORLD");
   }
 
-  fetch(`https://cipherlink.xyz:5000/api/dropbox/authorize?uid=${uid}`, {
-    method: 'GET',
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
+  function connectOneDrive() {
+    console.log("Connecting to OneDrive");
+
+    const uid = user.id; // Retrieve the UID from local storage
+
+    if (!uid) {
+      console.error('No user ID found in local storage');
+      return;
+    }
+
+    fetch(`https://cipherlink.xyz:5000/api/onedrive/authorize?uid=${uid}`, {
+      method: 'GET',
     })
-    .then(data => {
-      console.log("Redirecting to Dropbox authorization page:", data.authUrl);
-      window.location.href = data.authUrl; // Redirect user to Dropbox OAuth2 consent page
-    })
-    .catch(error => console.error('Error fetching Dropbox authorization URL:', error));
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Redirecting to OneDrive authorization page:", data.authUrl);
+        window.location.href = data.authUrl; // Redirect user to OneDrive OAuth2 consent page
+      })
+      .catch(error => console.error('Error fetching OneDrive authorization URL:', error));
 
-  console.log("HELLO WORLD");
-}
-
-function connectOneDrive() {
-  console.log("Connecting to OneDrive");
-
-  const uid = user.id; // Retrieve the UID from local storage
-
-  if (!uid) {
-    console.error('No user ID found in local storage');
-    return;
+    console.log("HELLO WORLD");
   }
 
-  fetch(`https://cipherlink.xyz:5000/api/onedrive/authorize?uid=${uid}`, {
-    method: 'GET',
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+  const handleRemoveFile = (fileToRemove) => {
+    const removeFile = (setFiles) => {
+      setFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
+      if (selectedFile === fileToRemove) {
+        setSelectedFile(null);
       }
-      return response.json();
-    })
-    .then(data => {
-      console.log("Redirecting to OneDrive authorization page:", data.authUrl);
-      window.location.href = data.authUrl; // Redirect user to OneDrive OAuth2 consent page
-    })
-    .catch(error => console.error('Error fetching OneDrive authorization URL:', error));
-
-  console.log("HELLO WORLD");
-}
-
-const handleRemoveFile = (fileToRemove) => {
-  const removeFile = (setFiles) => {
-    setFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
-    if (selectedFile === fileToRemove) {
-      setSelectedFile(null);
+    };
+    if (activeTab === 'Google Drive') {
+      removeFile(setGoogleDriveFiles);
+    } else if (activeTab === 'OneDrive') {
+      removeFile(setOneDriveFiles);
+    } else if (activeTab === 'Dropbox') {
+      removeFile(setDropboxFiles);
     }
   };
-  if (activeTab === 'Google Drive') {
-    removeFile(setGoogleDriveFiles);
-  } else if (activeTab === 'OneDrive') {
-    removeFile(setOneDriveFiles);
-  } else if (activeTab === 'Dropbox') {
-    removeFile(setDropboxFiles);
-  }
-};
 
-const renderContent = () => {
-  const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
-  const handleUpload = () => {
-    switch (activeTab) {
-      case 'Google Drive':
-        uploadFile();
-        break;
-      case 'OneDrive':
-        uploadFileToOneDrive();
-        break;
-      case 'Dropbox':
-        uploadFileToDropbox();
-        break;
-      default:
-        console.warn('No service selected');
-    }
-  };
-  return (
-    <>
-      <h2>{activeTab} Files</h2>
-      <div className="upload-container">
+  const renderContent = () => {
+    const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
+    const handleUpload = () => {
+      switch (activeTab) {
+        case 'Google Drive':
+          uploadFile();
+          break;
+        case 'OneDrive':
+          uploadFileToOneDrive();
+          break;
+        case 'Dropbox':
+          uploadFileToDropbox();
+          break;
+        default:
+          console.warn('No service selected');
+      }
+    };
+    return (
+      <>
+        <h2>{activeTab} Files</h2>
+        <div className="upload-container">
 
-        <input type="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
-        <label htmlFor="file-upload" className="upload-area">
-          Click the upload button and browse your files
-        </label>
+          <input type="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
+          <label htmlFor="file-upload" className="upload-area">
+            Click the upload button and browse your files
+          </label>
 
-        {/* TEST USING THESE BUTTONS FIRST to merge with frontend 
+          {/* TEST USING THESE BUTTONS FIRST to merge with frontend 
           <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
           <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
           <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
           <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button> */}
-        <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
-        <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
-        <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button>
-        <button className="upload-button" onClick={uploadFileToDropbox}>Upload dropbox</button>
-        <button className="upload-button" onClick={uploadFile}>Upload gdrive</button>
-        <button className="upload-button" onClick={uploadFileToOneDrive}>Upload onedrive</button>
-        <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
-      </div>
-      <table id="dynamic-table">
-        <thead>
-          <tr>
-            <th>File Name</th>
-            <th>File Type</th>
-            <th>File Size</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
+          <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
+          <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
+          <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button>
+          <button className="upload-button" onClick={uploadFileToDropbox}>Upload dropbox</button>
+          <button className="upload-button" onClick={uploadFile}>Upload gdrive</button>
+          <button className="upload-button" onClick={uploadFileToOneDrive}>Upload onedrive</button>
+          <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
+        </div>
+        <table id="dynamic-table">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>File Type</th>
+              <th>File Size</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
 
-        </tbody>
-      </table>
-      {/* <div id="pagination-controls">
+          </tbody>
+        </table>
+        {/* <div id="pagination-controls">
           <button id="prev-page">Previous</button>
           <span id="page-info"></span>
           <button id="next-page">Next</button>
         </div> */}
-    </>
+      </>
+    );
+  };
+
+  const handleAddTab = (tabName) => {
+    if (tabs.includes(tabName)) {
+      alert(`Tab for ${tabName} already exists.`);
+      return;
+    }
+    setTabs(prevTabs => [...prevTabs, tabName]);
+    setActiveTab(tabName);
+    if (tabName === 'Google Drive') {
+      connectCloud();
+    } else if (tabName === 'OneDrive') {
+      connectOneDrive();
+    } else if (tabName === 'Dropbox') {
+      connectDB();
+    }
+  };
+
+  const handleRemoveTab = (tabName) => {
+    setTabs(prevTabs => prevTabs.filter(tab => tab !== tabName));
+    if (activeTab === tabName) {
+      setActiveTab(tabs.length > 0 ? tabs[0] : '');
+    }
+  };
+
+  const handleLockToggle = () => {
+    if (isLocked) {
+      setShowPassphrasePopup(true);
+    }
+  };
+
+  const handlePassphraseSubmit = async () => {
+    if (!user || !user.id) {
+      alert('User ID not found');
+      return;
+    }
+    try {
+      const response = await axios.post('https://cipherlink.xyz:5000/api/validatePassphrase', {
+        userId: user.id,
+        inputPassphrase: inputPassphrase
+      });
+
+      if (response.data.message === 'Passphrase is valid') {
+        // Store the passphrase with a timestamp in sessionStorage
+        const passphraseData = {
+          passphrase: inputPassphrase,
+          timestamp: Date.now()
+        };
+        sessionStorage.setItem('passphraseData', JSON.stringify(passphraseData));
+        getUserKey();
+
+        // Clear the passphrase after 5 minutes
+        setTimeout(() => {
+          sessionStorage.removeItem('passphraseData');
+        }, 30 * 60 * 1000); // 5 minutes lifespan for the passphrase
+
+        setIsLocked(false);
+        setShowPassphrasePopup(false);
+        setInputPassphrase('');  // Clear the passphrase input
+      }
+    } catch (error) {
+      console.error('Failed to get user\'s passphrase', error);
+      alert("Invalid Passphrase. Please try again.")
+    }
+  };
+
+  return (
+    <div className="user-dashboard">
+      <Sidebar />
+      <div className="main-content-user-dashboard">
+        <header>
+          <div className="welcome">
+            <FaUser style={{ marginRight: '10px' }} />
+            Welcome, {user.username}
+          </div>
+          <div className="search-bar">
+            <input type="text" placeholder="Search your files..." />
+            <button>Search</button>
+          </div>
+          <div className="lock-toggle" onClick={handleLockToggle}>
+            {isLocked ? <FaLock size={'1.3em'} /> : <FaUnlock size={'1.3em'} />}
+          </div>
+        </header>
+
+        <div className="tabs">
+          {tabs.map(tab => (
+            <div key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`}>
+              <button className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
+              <button className="remove-tab-button" onClick={() => handleRemoveTab(tab)}>x</button>
+            </div>
+          ))}
+          <Popup trigger={<button className="add-tab-button">+</button>} modal className="popup-modal">
+            {close => (
+              <div className="modal-container">
+                <div className="modal">
+                  <h3>Select Cloud Service</h3>
+                  <button onClick={() => { handleAddTab('Google Drive'); close(); }}>Google Drive</button>
+                  <button onClick={() => { handleAddTab('OneDrive'); close(); }}>OneDrive</button>
+                  <button onClick={() => { handleAddTab('Dropbox'); close(); }}>Dropbox</button>
+                  <button onClick={close}>Cancel</button>
+                </div>
+              </div>
+            )}
+          </Popup>
+        </div>
+        <br></br>
+        <div className="content-wrapper">
+          <section className="user-file">
+            {renderContent()}
+          </section>
+          <RightSidebar file={selectedFile} />
+        </div>
+      </div>
+      {showPassphrasePopup && (
+        <Popup open={showPassphrasePopup} closeOnDocumentClick onClose={() => setShowPassphrasePopup(false)} modal>
+          <div className="modal-container">
+            <div className="modal">
+              <h3>Enter Passphrase</h3>
+              <input type="password" value={inputPassphrase} onChange={(e) => setInputPassphrase(e.target.value)} />
+              <button onClick={handlePassphraseSubmit}>Submit</button>
+              <button onClick={() => setShowPassphrasePopup(false)}>Cancel</button>
+            </div>
+          </div>
+        </Popup>
+      )}
+    </div>
   );
 };
-
-const handleAddTab = (tabName) => {
-  if (tabs.includes(tabName)) {
-    alert(`Tab for ${tabName} already exists.`);
-    return;
-  }
-  setTabs(prevTabs => [...prevTabs, tabName]);
-  setActiveTab(tabName);
-  if (tabName === 'Google Drive') {
-    connectCloud();
-  } else if (tabName === 'OneDrive') {
-    connectOneDrive();
-  } else if (tabName === 'Dropbox') {
-    connectDB();
-  }
-};
-
-const handleRemoveTab = (tabName) => {
-  setTabs(prevTabs => prevTabs.filter(tab => tab !== tabName));
-  if (activeTab === tabName) {
-    setActiveTab(tabs.length > 0 ? tabs[0] : '');
-  }
-};
-
-const handleLockToggle = () => {
-  if (isLocked) {
-    setShowPassphrasePopup(true);
-  }
-};
-
-const handlePassphraseSubmit = async () => {
-  if (!user || !user.id) {
-    alert('User ID not found');
-    return;
-  }
-  try {
-    const response = await axios.post('https://cipherlink.xyz:5000/api/validatePassphrase', {
-      userId: user.id,
-      inputPassphrase: inputPassphrase
-    });
-
-    if (response.data.message === 'Passphrase is valid') {
-      // Store the passphrase with a timestamp in sessionStorage
-      const passphraseData = {
-        passphrase: inputPassphrase,
-        timestamp: Date.now()
-      };
-      sessionStorage.setItem('passphraseData', JSON.stringify(passphraseData));
-      getUserKey();
-
-      // Clear the passphrase after 5 minutes
-      setTimeout(() => {
-        sessionStorage.removeItem('passphraseData');
-      }, 30 * 60 * 1000); // 5 minutes lifespan for the passphrase
-
-      setIsLocked(false);
-      setShowPassphrasePopup(false);
-      setInputPassphrase('');  // Clear the passphrase input
-    }
-  } catch (error) {
-    console.error('Failed to get user\'s passphrase', error);
-    alert("Invalid Passphrase. Please try again.")
-  }
-};
-
-return (
-  <div className="user-dashboard">
-    <Sidebar />
-    <div className="main-content-user-dashboard">
-      <header>
-        <div className="welcome">
-          <FaUser style={{ marginRight: '10px' }} />
-          Welcome, {user.username}
-        </div>
-        <div className="search-bar">
-          <input type="text" placeholder="Search your files..." />
-          <button>Search</button>
-        </div>
-        <div className="lock-toggle" onClick={handleLockToggle}>
-          {isLocked ? <FaLock size={'1.3em'} /> : <FaUnlock size={'1.3em'} />}
-        </div>
-      </header>
-
-      <div className="tabs">
-        {tabs.map(tab => (
-          <div key={tab} className={`tab ${activeTab === tab ? 'active' : ''}`}>
-            <button className={`tab-button ${activeTab === tab ? 'active' : ''}`} onClick={() => setActiveTab(tab)}>{tab}</button>
-            <button className="remove-tab-button" onClick={() => handleRemoveTab(tab)}>x</button>
-          </div>
-        ))}
-        <Popup trigger={<button className="add-tab-button">+</button>} modal className="popup-modal">
-          {close => (
-            <div className="modal-container">
-              <div className="modal">
-                <h3>Select Cloud Service</h3>
-                <button onClick={() => { handleAddTab('Google Drive'); close(); }}>Google Drive</button>
-                <button onClick={() => { handleAddTab('OneDrive'); close(); }}>OneDrive</button>
-                <button onClick={() => { handleAddTab('Dropbox'); close(); }}>Dropbox</button>
-                <button onClick={close}>Cancel</button>
-              </div>
-            </div>
-          )}
-        </Popup>
-      </div>
-      <br></br>
-      <div className="content-wrapper">
-        <section className="user-file">
-          {renderContent()}
-        </section>
-        <RightSidebar file={selectedFile} />
-      </div>
-    </div>
-    {showPassphrasePopup && (
-      <Popup open={showPassphrasePopup} closeOnDocumentClick onClose={() => setShowPassphrasePopup(false)} modal>
-        <div className="modal-container">
-          <div className="modal">
-            <h3>Enter Passphrase</h3>
-            <input type="password" value={inputPassphrase} onChange={(e) => setInputPassphrase(e.target.value)} />
-            <button onClick={handlePassphraseSubmit}>Submit</button>
-            <button onClick={() => setShowPassphrasePopup(false)}>Cancel</button>
-          </div>
-        </div>
-      </Popup>
-    )}
-  </div>
-);
-
 
 const Sidebar = () => {
 

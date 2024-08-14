@@ -184,25 +184,36 @@ const UserDashboard = () => {
 
 
 
-  const handleFileChange = (event) => {
-    const uploadedFile = event.target.files[0];
-    if (uploadedFile) {
+  // const handleFileChange = (event) => {
+  //   const uploadedFile = event.target.files[0];
+  //   if (uploadedFile) {
 
-      const newFile = {
-        filename: uploadedFile.name,
-        filetype: uploadedFile.type,
-        filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
-        file: uploadedFile
-      };
-      if (activeTab === 'Google Drive') {
-        setGoogleDriveFiles(prevFiles => [...prevFiles, newFile]);
-      } else if (activeTab === 'OneDrive') {
-        setOneDriveFiles(prevFiles => [...prevFiles, newFile]);
-      } else if (activeTab === 'Dropbox') {
-        setDropboxFiles(prevFiles => [...prevFiles, newFile]);
-      }
-      console.log(uploadedFile);
-      setFile(uploadedFile);
+  //     const newFile = {
+  //       filename: uploadedFile.name,
+  //       filetype: uploadedFile.type,
+  //       filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
+  //       file: uploadedFile
+  //     };
+  //     if (activeTab === 'Google Drive') {
+  //       setGoogleDriveFiles(prevFiles => [...prevFiles, newFile]);
+  //     } else if (activeTab === 'OneDrive') {
+  //       setOneDriveFiles(prevFiles => [...prevFiles, newFile]);
+  //     } else if (activeTab === 'Dropbox') {
+  //       setDropboxFiles(prevFiles => [...prevFiles, newFile]);
+  //     }
+  //     console.log(uploadedFile);
+  //     setFile(uploadedFile);
+  //   }
+  // };
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      setFile({
+        file: selectedFile,
+        filename: selectedFile.name,
+        filetype: selectedFile.type,
+        filesize: selectedFile.size,
+      });
     }
   };
 
@@ -1173,47 +1184,39 @@ const UserDashboard = () => {
       }
     };
     return (
-      <>
-        <h2>{activeTab} Files</h2>
-        <div className="upload-container">
-
-          <input type="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
-          <label htmlFor="file-upload" className="upload-area">
-            Click the upload button and browse your files
-          </label>
-
-          {/* TEST USING THESE BUTTONS FIRST to merge with frontend 
-          <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
-          <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
-          <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
-          <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button> */}
-          <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
-          <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
-          <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button>
-          <button className="upload-button" onClick={uploadFileToDropbox}>Upload dropbox</button>
-          <button className="upload-button" onClick={uploadFile}>Upload gdrive</button>
-          <button className="upload-button" onClick={uploadFileToOneDrive}>Upload onedrive</button>
-          <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
+      <div className="content-wrapper">
+        <div className="main-content">
+          <h2>{activeTab} Files</h2>
+          <div className="upload-container">
+            <input type="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
+            <label htmlFor="file-upload" className="upload-area">
+              Click the upload button and browse your files
+            </label>
+            {/* Other buttons for fetching and uploading files */}
+            <button className="upload-button" onClick={() => fetchFilesByUid('dropbox')}>fetchFiles db</button>
+            <button className="upload-button" onClick={() => fetchFilesByUid('drive')}>fetchFiles gdrive</button>
+            <button className="upload-button" onClick={() => fetchFilesByUid('onedrive')}>fetchFiles onedrive</button>
+            <button className="upload-button" onClick={uploadFileToDropbox}>Upload dropbox</button>
+            <button className="upload-button" onClick={uploadFile}>Upload gdrive</button>
+            <button className="upload-button" onClick={uploadFileToOneDrive}>Upload onedrive</button>
+            <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
+          </div>
+          <table id="dynamic-table">
+            <thead>
+              <tr>
+                <th>File Name</th>
+                <th>File Type</th>
+                <th>File Size</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Table content */}
+            </tbody>
+          </table>
         </div>
-        <table id="dynamic-table">
-          <thead>
-            <tr>
-              <th>File Name</th>
-              <th>File Type</th>
-              <th>File Size</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-
-          </tbody>
-        </table>
-        {/* <div id="pagination-controls">
-          <button id="prev-page">Previous</button>
-          <span id="page-info"></span>
-          <button id="next-page">Next</button>
-        </div> */}
-      </>
+        <RightSidebar file={file} />
+      </div>
     );
   };
 

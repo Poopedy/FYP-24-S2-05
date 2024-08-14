@@ -184,40 +184,40 @@ const UserDashboard = () => {
 
 
 
-  // const handleFileChange = (event) => {
-  //   const uploadedFile = event.target.files[0];
-  //   if (uploadedFile) {
-
-  //     const newFile = {
-  //       filename: uploadedFile.name,
-  //       filetype: uploadedFile.type,
-  //       filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
-  //       file: uploadedFile
-  //     };
-  //     if (activeTab === 'Google Drive') {
-  //       setGoogleDriveFiles(prevFiles => [...prevFiles, newFile]);
-  //     } else if (activeTab === 'OneDrive') {
-  //       setOneDriveFiles(prevFiles => [...prevFiles, newFile]);
-  //     } else if (activeTab === 'Dropbox') {
-  //       setDropboxFiles(prevFiles => [...prevFiles, newFile]);
-  //     }
-  //     console.log(uploadedFile);
-  //     setFile(uploadedFile);
-  //   }
-  // };
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (selectedFile) {
-      // setFile({
-      //   file: selectedFile,
-      //   filename: selectedFile.name,
-      //   filetype: selectedFile.type,
-      //   filesize: selectedFile.size,
-      // });
-      console.log(selectedFile instanceof File);
-      setFile(selectedFile);
+    const uploadedFile = event.target.files[0];
+    if (uploadedFile) {
+
+      const newFile = {
+        filename: uploadedFile.name,
+        filetype: uploadedFile.type,
+        filesize: `${(uploadedFile.size / 1024).toFixed(2)}KB`,
+        file: uploadedFile
+      };
+      if (activeTab === 'Google Drive') {
+        setGoogleDriveFiles(prevFiles => [...prevFiles, newFile]);
+      } else if (activeTab === 'OneDrive') {
+        setOneDriveFiles(prevFiles => [...prevFiles, newFile]);
+      } else if (activeTab === 'Dropbox') {
+        setDropboxFiles(prevFiles => [...prevFiles, newFile]);
+      }
+      console.log(uploadedFile);
+      setFile(uploadedFile);
     }
   };
+  // const handleFileChange = (event) => {
+  //   const selectedFile = event.target.files[0];
+  //   if (selectedFile) {
+  //     // setFile({
+  //     //   file: selectedFile,
+  //     //   filename: selectedFile.name,
+  //     //   filetype: selectedFile.type,
+  //     //   filesize: selectedFile.size,
+  //     // });
+  //     console.log(selectedFile instanceof File);
+  //     setFile(selectedFile);
+  //   }
+  // };
 
   const handleUploadClick = () => {
     if (!isLocked && fileInputRef.current) {
@@ -1141,7 +1141,7 @@ const UserDashboard = () => {
     // Load the tabs from localStorage when the component mounts
     const storedTabs = JSON.parse(localStorage.getItem('tabs')) || [];
     const googleToken = localStorage.getItem('gdtoken');
-    const oneDriveToken = localStorage.getItem('oneDriveToken');
+    const oneDriveToken = localStorage.getItem('odtoken');
     const dropboxToken = localStorage.getItem('dropboxToken');
 
     const initialTabs = [...storedTabs];

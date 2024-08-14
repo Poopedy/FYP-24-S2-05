@@ -1,3 +1,10 @@
+import React, { useState, useEffect } from 'react';
+import './GenerateKeyPage.css';
+import { Link, useNavigate } from 'react-router-dom';
+import { generate256BitKey } from '../../../utilities/clientKeyUtilities';
+import { encryptWithPassphrase } from '../../../models/encryptionModel';
+import axios from 'axios';
+
 const GenerateKeyPage = () => {
   const [userId, setUserId] = useState(null);
   // State to store the generated key

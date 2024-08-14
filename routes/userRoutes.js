@@ -162,7 +162,7 @@ router.get('/redirect', async (req, res) => {
         );
 
         // Redirect the user back to the application
-        return res.redirect('http://localhost:5173/userdashboard'); // Adjust the URL as needed
+        return res.redirect('https://cipherlink.xyz/userdashboard'); // Adjust the URL as needed
     } catch (error) {
         console.error('Error exchanging code for token:', error);
         return res.status(500).send('Failed to exchange code for token');

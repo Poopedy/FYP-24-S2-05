@@ -1435,7 +1435,7 @@ const RightSidebar = ({ file }) => {
             <li><strong>File Size:</strong> {file.filesize}</li>
           </ul>
           <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button>
-          <button className="download-button" onClick={handleDownload}>Download</button>
+          {/* <button className="download-button" onClick={handleDownload}>Download</button> */}
           {file.filetype.startsWith('image/') && (
             <img src={fileUrl} alt={file.filename} style={{ maxWidth: '100%' }} />
           )}

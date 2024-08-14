@@ -279,29 +279,40 @@ const UserDashboard = () => {
           'Content-Type': 'application/json'
         }
       });
-      const encryptedKey = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
+      const encryptedData = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
+      console.log(encryptedData);
+      console.log(typeof encryptedData);
+      
+      const encryptedKey = encryptedData.data.encryptedkey;
+      console.log(encryptedKey);
+      console.log(typeof encryptedKey);
+      console.log(encryptedKey instanceof Uint8Array);
+      console.log(encryptedKey.length);
 
       if (response.ok) {
         const blob = await response.blob();
 
         // decrypt encryption key
-        const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
-
+        const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+        // check whether is it 256 bit key
+        const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+        const keyArray = new Uint8Array(keyBuffer);
+        console.log(keyArray.length * 8);
         // Decrypt the file
         const decryptedBlob = await decryptFile(blob, encryptionKey);
-
+  
         // Create a URL for the decrypted Blob
         const downloadUrl = window.URL.createObjectURL(decryptedBlob);
-
+  
         // Create a link element and trigger the download
         const a = document.createElement('a');
         a.href = downloadUrl;
-
+  
         // Set the desired filename
         a.download = fileName; // Replace with the actual filename and extension
         document.body.appendChild(a);
         a.click();
-
+  
         // Clean up
         a.remove();
         window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
@@ -313,7 +324,7 @@ const UserDashboard = () => {
     }
   }
 
-  async function downloadDropbox(fileId, fn, keyId) {
+  async function downloadDropbox(fileId,fn, keyId) {
     const token = localStorage.getItem("dbtoken"); // Adjust token retrieval as needed
 
     if (!token) {
@@ -334,17 +345,28 @@ const UserDashboard = () => {
           'Content-Type': 'application/json'
         }
       });
-      const encryptedKey = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
+      const encryptedData = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
+      console.log(encryptedData);
+      console.log(typeof encryptedData);
+      
+      const encryptedKey = encryptedData.data.encryptedkey;
+      console.log(encryptedKey);
+      console.log(typeof encryptedKey);
+      console.log(encryptedKey instanceof Uint8Array);
+      console.log(encryptedKey.length);
 
       if (response.ok) {
         const blob = await response.blob();
-
+        
         // decrypt encryption key
-        const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
-
+        const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+        // check whether is it 256 bit key
+        const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+        const keyArray = new Uint8Array(keyBuffer);
+        console.log(keyArray.length * 8);
         // Decrypt the file
         const decryptedBlob = await decryptFile(blob, encryptionKey);
-
+        
         // Create a URL for the decrypted Blob and trigger download
         const downloadUrl = window.URL.createObjectURL(decryptedBlob);
         const a = document.createElement('a');
@@ -363,12 +385,12 @@ const UserDashboard = () => {
   }
 
   //   async function 
-  async function downloadOneDrive(itemid, fn, keyId) {
+  async function downloadOneDrive(itemid,fn, keyId) {
     const token = localStorage.getItem("odtoken");
 
     if (!token) {
-      console.error('No token found');
-      return;
+        console.error('No token found');
+        return;
     }
     const passphrase = getPassphraseFromSession();
     if (!passphrase) {
@@ -377,44 +399,57 @@ const UserDashboard = () => {
     }
 
     try {
-      // Make a GET request to the download endpoint
-      const response = await fetch(`https://cipherlink.xyz:5000/api/onedrive/download/${itemid}?token=${encodeURIComponent(token)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
+        // Make a GET request to the download endpoint
+        const response = await fetch(`https://cipherlink.xyz:5000/api/onedrive/download/${itemid}?token=${encodeURIComponent(token)}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const encryptedData = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
+        console.log(encryptedData);
+        console.log(typeof encryptedData);
+        
+        const encryptedKey = encryptedData.data.encryptedkey;
+        console.log(encryptedKey);
+        console.log(typeof encryptedKey);
+        console.log(encryptedKey instanceof Uint8Array);
+        console.log(encryptedKey.length);
+
+
+        if (response.ok) {
+          const blob = await response.blob();
+          
+          // decrypt encryption key
+          const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+          // check whether is it 256 bit key
+          const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+          const keyArray = new Uint8Array(keyBuffer);
+          console.log(keyArray.length * 8);
+          // Decrypt the file
+          const decryptedBlob = await decryptFile(blob, encryptionKey);
+
+          // Create a URL for the decrypted Blob
+          const downloadUrl = window.URL.createObjectURL(decryptedBlob);
+
+          // Create a link element and trigger the download
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+
+          // Set the desired filename
+          a.download = fn; // Replace with the actual filename and extension
+          document.body.appendChild(a);
+          a.click();
+
+          // Clean up
+          a.remove();
+          window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
+          alert('File downloaded successfully from OneDrive!');
+        } else {
+            console.error('Failed to download file');
         }
-      });
-      const encryptedKey = await axios.get(`https://cipherlink.xyz:5000/api/keys/${keyId}`);
-
-      if (response.ok) {
-        const blob = await response.blob();
-
-        // decrypt encryption key
-        const encryptionKey = decryptWithPassphrase(encryptedKey, passphrase);
-
-        // Decrypt the file
-        const decryptedBlob = await decryptFile(blob, encryptionKey);
-
-        // Create a URL for the decrypted Blob
-        const downloadUrl = window.URL.createObjectURL(decryptedBlob);
-
-        // Create a link element and trigger the download
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-
-        // Set the desired filename
-        a.download = fn; // Replace with the actual filename and extension
-        document.body.appendChild(a);
-        a.click();
-
-        // Clean up
-        a.remove();
-        window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
-      } else {
-        console.error('Failed to download file');
-      }
     } catch (error) {
-      console.error('Error downloading file:', error);
+        console.error('Error downloading file:', error);
     }
   }
 
@@ -626,6 +661,10 @@ const UserDashboard = () => {
       alert('Encryption key data not available or expired.');
       return;
     }
+    console.log(encryptedKey);
+    console.log(typeof encryptedKey);
+    console.log(encryptedKey instanceof Uint8Array);
+    console.log(encryptedKey.length);
 
     try {
       const token = localStorage.getItem('gdtoken'); // Replace 'gdriveToken' with your actual token key
@@ -636,19 +675,18 @@ const UserDashboard = () => {
 
       // decrypt encryption key
       const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
-
-      if (encryptionKey instanceof CryptoKey) {
-        console.log("The encryption key is a valid CryptoKey object.");
-      } else {
-        console.error("The encryption key is NOT a CryptoKey. Something went wrong during decryption.");
-        console.error("Decryption failed. Returned value:", encryptionKey);
-      }
+      // check whether is it 256 bit key
+      const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+      const keyArray = new Uint8Array(keyBuffer);
+      console.log(keyArray.length * 8);
       // Encrypt the file before uploading
-      const encryptedFile = await encryptFile(file, encryptionKey);
+      const encryptedFile = await encryptFile(file,encryptionKey);
+
+      const encryptedBlob = encryptedFile.encryptedBlob;
 
       const formData = new FormData();
       console.log("File to be uploaded:", encryptedFile);
-      formData.append('file', encryptedFile, file.name); // Use the original file name
+      formData.append('file', encryptedBlob, file.name); // Use the original file name
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
       formData.append('keyid', keyId);
@@ -688,6 +726,10 @@ const UserDashboard = () => {
       alert('Encryption key data not available or expired.');
       return;
     }
+    console.log(encryptedKey);
+    console.log(typeof encryptedKey);
+    console.log(encryptedKey instanceof Uint8Array);
+    console.log(encryptedKey.length);
 
     try {
       const token = localStorage.getItem('dbtoken');
@@ -697,22 +739,21 @@ const UserDashboard = () => {
       }
       // decrypt encryption key
       const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+      // check whether is it 256 bit key
+      const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+      const keyArray = new Uint8Array(keyBuffer);
+      console.log(keyArray.length * 8);
 
-      if (encryptionKey instanceof CryptoKey) {
-        console.log("The encryption key is a valid CryptoKey object.");
-      } else {
-        console.error("The encryption key is NOT a CryptoKey. Something went wrong during decryption.");
-        console.error("Decryption failed. Returned value:", encryptionKey);
-      }
+      let encryptedFile = await encryptFile(file,encryptionKey);
+      const encryptedBlob = encryptedFile.encryptedBlob;
 
-      let encryptedFile = await encryptFile(file, encryptionKey);
       console.log(file.type);
       console.log(file.name);
       const formData = new FormData();
       console.log("File to be uploaded:", file);
       formData.append('ft', file.type);
       formData.append('fn', file.name);
-      formData.append('file', encryptedFile);
+      formData.append('file', encryptedBlob);
       formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
       formData.append('keyid', keyId);
@@ -793,52 +834,89 @@ const UserDashboard = () => {
       ['encrypt', 'decrypt'] 
     ); 
   }
-  async function encryptFile(file) {    // Convert file to array buffer
-    const arrayBuffer = await file.arrayBuffer();  
-    // Get the CryptoKey object from the raw key material    
-    const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
-      // Encrypt the file data
-    const encryptedBuffer = await crypto.subtle.encrypt(      {
-        name: 'AES-GCM',        
-        iv: iv, // Initialization vector (should be randomly generated in practice)
-      },
-      cryptoKey, // Use the CryptoKey object      
-      arrayBuffer
-    );    
-    const blobr = new Blob([iv, new Uint8Array(encryptedBuffer)], { 
-      type: file.type });
-    console.log(blobr);    return blobr;
-  }  
+  // async function encryptFile(file) {    // Convert file to array buffer
+  //   const arrayBuffer = await file.arrayBuffer();  
+  //   // Get the CryptoKey object from the raw key material    
+  //   const cryptoKey = await getCryptoKey(encryptionKeyMaterial);
+  //     // Encrypt the file data
+  //   const encryptedBuffer = await crypto.subtle.encrypt(      {
+  //       name: 'AES-GCM',        
+  //       iv: iv, // Initialization vector (should be randomly generated in practice)
+  //     },
+  //     cryptoKey, // Use the CryptoKey object      
+  //     arrayBuffer
+  //   );    
+  //   const blobr = new Blob([iv, new Uint8Array(encryptedBuffer)], { 
+  //     type: file.type });
+  //   console.log(blobr);    return blobr;
+  // }  
   const uploadFileToOneDrive = async () => {
     if (!file) {
-      alert('Please select a file first!'); return;
+      alert('Please select a file first!');
+      return;
     }
+    const passphrase = getPassphraseFromSession();
+    if (!passphrase) {
+      alert('Passphrase not found or expired!');
+      return;
+    }
+    console.log(passphrase);
+
+    const { keyId, encryptedKey } = getKeyDataFromSession();
+    if (!keyId || !encryptedKey) {
+      alert('Encryption key data not available or expired.');
+      return;
+    }
+    console.log(encryptedKey);
+    console.log(typeof encryptedKey);
+    console.log(encryptedKey instanceof Uint8Array);
+    console.log(encryptedKey.length);
+
     try {
       const token = localStorage.getItem('odtoken');
       if (!token) {
         alert('User not authenticated!');
         return;
       }
+  
+      // decrypt encryption key
+      const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+      // check whether is it 256 bit key
+      const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+      const keyArray = new Uint8Array(keyBuffer);
+      console.log(keyArray.length * 8);
       // Encrypt the file before uploading
-      const encryptedFile = await encryptFile(file); console.log(encryptedFile);
+      const encryptedFile = await encryptFile(file, encryptionKey);
+      // Check the Blob
+      console.log(encryptedFile);
+      console.log(encryptedFile instanceof Blob);
+
+      const encryptedBlob = encryptedFile.encryptedBlob;
+  
       const formData = new FormData();
-      console.log("File to be uploaded:", encryptedFile); 
-      formData.append('file', encryptedFile, file.name); // Use original file name
-      formData.append('token', token); // Directly append the token as a string      
+      console.log("File to be uploaded:", encryptedFile);
+      formData.append('file', encryptedBlob, file.name); // Use original file name
+      formData.append('token', token); // Directly append the token as a string
       formData.append('uid', user.id);
-      formData.append('keyid', 1234);
+      formData.append('keyid', keyId);
+  
       const response = await fetch('https://cipherlink.xyz:5000/api/onedrive/upload', {
-        method: 'POST', body: formData,
+        method: 'POST',
+        body: formData,
       });
+  
       if (response.ok) {
         const responseData = await response.json();
-        console.log('Response Data:', responseData); alert('File uploaded successfully to OneDrive!');
+        console.log('Response Data:', responseData);
+        alert('File uploaded successfully to OneDrive!');
       } else {
         const errorText = await response.text();
-        console.error('File upload failed:', errorText); alert('File upload failed!');
+        console.error('File upload failed:', errorText);
+        alert('File upload failed!');
       }
     } catch (error) {
-      console.error('Error uploading file:', error); alert('An error occurred during file upload.');
+      console.error('Error uploading file:', error);
+      alert('An error occurred during file upload.');
     }
   };
 

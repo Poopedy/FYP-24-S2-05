@@ -13,7 +13,8 @@ import axios from 'axios';
 const UserGenerateKey = () => {
   const [user, setUser] = useState({ id: '', username: '', email: '' });
   // State to store the generated key
-  const [encryptionKey, setEncryptionKey] = useState('');
+  const [encryptionKey, setEncryptionKey] = useState(null);
+  const [keyDisplay, setKeyDisplay] = useState('');
   // State to store passphrase
   const [passphrase, setPassphrase] = useState('');
   const navigate = useNavigate();
@@ -30,21 +31,38 @@ const UserGenerateKey = () => {
       if (storedData) {
         const parsedData = JSON.parse(storedData);
         setPassphrase(parsedData.passphrase);
-      } 
+      } else {
+        const fetchPassphrase = async () => {
+          try {
+            const response = await axios.get(`https://cipherlink.xyz:5000/api/passphrase/${user.id}`);
+            if (response.data.passphrase) {
+              setPassphrase(response.data.passphrase);
+            } else {
+              console.error('Passphrase not found in response: ', response.data);
+            }
+          } catch (error) {
+            console.error('Error fetching passphrase: ', error);
+          }
+        };
+
+        fetchPassphrase();
+      }
     } else {
       console.error('No userId found in session storage');
       navigate('/login');
     }
   }, []);
 
-  // Handler to generate a new key when the button is clicked
   const handleGenerateClick = async (event) => {
     event.preventDefault(); // Prevent form submission
     const newKey = await generate256BitKey();
+    // store the crypto key
+    setEncryptionKey(newKey);
     const keyBuffer = await window.crypto.subtle.exportKey('raw', newKey);
     const keyArray = new Uint8Array(keyBuffer);
+    console.log(keyArray.length * 8);
     const keyString = keyArray.slice(0, 6).reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
-    setEncryptionKey(keyString);
+    setKeyDisplay(keyString);
   };
 
   const handleSubmit = async (e) => {
@@ -54,9 +72,16 @@ const UserGenerateKey = () => {
         throw new Error('User ID not found');
       }
 
+      console.log(encryptionKey);
+      console.log(keyDisplay);
       // Encrypt encryption key with passphrase
       const encryptedData = await encryptWithPassphrase(encryptionKey, passphrase);
+      console.log(encryptedData);
+      console.log(encryptedData.length);
+      // Convert encryptedData (Array) to Base64 string
       const encryptedKeyString = btoa(String.fromCharCode(...new Uint8Array(encryptedData)));
+      console.log(encryptedKeyString);
+      console.log(encryptedKeyString.length);
 
       await axios.post('https://cipherlink.xyz:5000/api/keys', {
         userId: user.id,
@@ -118,7 +143,7 @@ const UserGenerateKey = () => {
               <h1>Generate Encryption Key</h1>
               <p>Encrypt your files with CipherLink!</p>
               <div className="input-box">
-                <input type="text" value={encryptionKey} readOnly />
+                <input type="text" value={keyDisplay} readOnly />
                 <FaKey className='icon' />
               </div>
               <button className="usergenerate" onClick={handleGenerateClick}>Generate</button>

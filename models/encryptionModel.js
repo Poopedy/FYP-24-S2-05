@@ -2,6 +2,8 @@ export async function encryptFile(file, key) {
   try {
     console.log(key);
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    console.log(file instanceof File); // Should be true
+    console.log(file instanceof Blob); // Should be true
     const encodedFile = await file.arrayBuffer();
 
     const encrypted = await window.crypto.subtle.encrypt(

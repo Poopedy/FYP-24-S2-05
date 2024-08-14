@@ -1447,7 +1447,7 @@ const RightSidebar = ({ file }) => {
           )}
         </>
       ) : (
-        <p>Select a file to see the details</p>
+        <p>Please, select a file to see the details</p>
       )}
     </div>
   );

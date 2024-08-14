@@ -64,48 +64,108 @@ router.get('/userdashboard', (req, res) => {
     res.redirect('https://cipherlink.xyz/userdashboard')
   });
 
-router.get('/getAuthURL', (req, res) => {
-    const authUrl = oAuth2Client.generateAuthUrl({
-        access_type: 'offline',
-        scope: SCOPE,
-    });
-    console.log(authUrl);
-    return res.send(authUrl);
-});
+// router.get('/getAuthURL', (req, res) => {
+//     const authUrl = oAuth2Client.generateAuthUrl({
+//         access_type: 'offline',
+//         scope: SCOPE,
+//     });
+//     console.log(authUrl);
+//     return res.send(authUrl);
+// });
 
-router.post('/getToken', async (req, res) => {
-    console.log("ENTERED");
+// router.post('/getToken', async (req, res) => {
+//     console.log("ENTERED");
 
-    // Check if the code and uid are provided
-    if (!req.body.code || !req.body.uid) {
-        return res.status(400).send('Invalid Request');
+//     // Check if the code and uid are provided
+//     if (!req.body.code || !req.body.uid) {
+//         return res.status(400).send('Invalid Request');
+//     }
+
+//     const code = decodeURIComponent(req.body.code);
+//     const uid = req.body.uid; // Retrieve UID from the request body
+
+//     console.log(`Code: ${code}, UID: ${uid}`);
+
+//     try {
+//         // Exchange the code for an access token
+//         const { tokens } = await oAuth2Client.getToken(code);
+
+//         // Log the token (optional)
+//         console.log('Access token:', tokens);
+
+//         // Here, you would insert or update the token in your database
+//         // Example for MySQL:
+//         await pool.query(
+//             'INSERT INTO cloud (uid, cloudservice, accesstoken, refreshtoken) VALUES (?, ?, ?, ?) ' +
+//             'ON DUPLICATE KEY UPDATE accesstoken = VALUES(accesstoken), refreshtoken = VALUES(refreshtoken)',
+//             [uid, 'gdrive', encryptCloud(tokens.access_token), encryptCloud(tokens.refresh_token)]
+//         );
+
+//         // Send the token back in the response
+//         res.send(tokens.access_token);
+//     } catch (err) {
+//         console.error('Error retrieving access token:', err.message || err);
+//         res.status(400).send('Error retrieving access token:, ${err.message || err}');
+//     }
+// });
+
+function authorize(uid) {
+    const encodedRedirectUri = encodeURIComponent(redirect_uris[0]);
+    return `https://accounts.google.com/o/oauth2/v2/auth?` +
+           `client_id=${client_id}&` +
+           `response_type=code&` +
+           `redirect_uri=${encodedRedirectUri}&` +
+           `scope=https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly&` +
+           `state=${uid}&` +
+           `access_type=offline&` +
+           `prompt=consent`;
+}
+
+router.get('/authorize', (req, res) => {
+    console.log("Authorizing google");
+    const uid = req.query.uid;
+    if (!uid) {
+        return res.status(400).send('User ID not provided');
     }
 
-    const code = decodeURIComponent(req.body.code);
-    const uid = req.body.uid; // Retrieve UID from the request body
+    const authUrl = authorize(uid);
+    console.log(authUrl);
+    res.json({ authUrl });
+    
+});
 
-    console.log(`Code: ${code}, UID: ${uid}`);
+router.get('/redirect', async (req, res) => {
+    const code = req.query.code;
+    const uid = req.query.state; // Retrieve the UID from the state parameter
+    console.log(code);
+    if (!code) {
+        return res.status(400).send('Authorization code not provided');
+    }
+
+    if (!uid) {
+        return res.status(400).send('User ID not provided');
+    }
 
     try {
-        // Exchange the code for an access token
+        // Exchange the authorization code for an access token
         const { tokens } = await oAuth2Client.getToken(code);
-
-        // Log the token (optional)
-        console.log('Access token:', tokens);
-
-        // Here, you would insert or update the token in your database
-        // Example for MySQL:
+        console.log(tokens);
+        const accessToken = tokens.access_token;
+        const refreshToken = tokens.refresh_token;
+        console.log(accessToken);
+        console.log(refreshToken);
+        // Insert the access token and refresh token into the database
         await pool.query(
             'INSERT INTO cloud (uid, cloudservice, accesstoken, refreshtoken) VALUES (?, ?, ?, ?) ' +
             'ON DUPLICATE KEY UPDATE accesstoken = VALUES(accesstoken), refreshtoken = VALUES(refreshtoken)',
-            [uid, 'gdrive', encryptCloud(tokens.access_token), encryptCloud(tokens.refresh_token)]
+            [uid, "gdrive", encryptCloud(accessToken), encryptCloud(refreshToken)]
         );
 
-        // Send the token back in the response
-        res.send(tokens.access_token);
-    } catch (err) {
-        console.error('Error retrieving access token:', err.message || err);
-        res.status(400).send('Error retrieving access token:, ${err.message || err}');
+        // Redirect the user back to the application
+        return res.redirect('http://localhost:5173/userdashboard'); // Adjust the URL as needed
+    } catch (error) {
+        console.error('Error exchanging code for token:', error);
+        return res.status(500).send('Failed to exchange code for token');
     }
 });
 

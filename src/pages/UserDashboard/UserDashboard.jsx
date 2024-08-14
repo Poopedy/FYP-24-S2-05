@@ -778,20 +778,20 @@ const UserDashboard = () => {
 
 
   //TESTING ENCRYPTION FOR DELWYN PART 
-  const encryptionKeyMaterial = new Uint8Array([
-    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
-    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f
-  ]);
-  const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV
-
-  async function getCryptoKey(keyMaterial) {
-    return crypto.subtle.importKey(
-      'raw',
-      keyMaterial,
-      { name: 'AES-GCM' },
-      false,
-      ['encrypt', 'decrypt']
-    );
+  const encryptionKeyMaterial = new Uint8Array([ 
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f 
+  ]); 
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV 
+   
+  async function getCryptoKey(keyMaterial) { 
+    return crypto.subtle.importKey( 
+      'raw', 
+      keyMaterial, 
+      { name: 'AES-GCM' }, 
+      false, 
+      ['encrypt', 'decrypt'] 
+    ); 
   }
   async function encryptFile(file) {    // Convert file to array buffer
     const arrayBuffer = await file.arrayBuffer();  
@@ -929,27 +929,27 @@ const UserDashboard = () => {
     const uid = user.id; // Retrieve the UID from local storage
 
     if (!uid) {
-      console.error('No user ID found in local storage');
-      return;
+        console.error('No user ID found in local storage');
+        return;
     }
 
-    fetch(`https://cipherlink.xyz:5000/api/getAuthURL?token=${uid}`, {
-      method: 'GET',
+    fetch(`https://cipherlink.xyz:5000/api/authorize?uid=${uid}`, {
+        method: 'GET',
     })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();
-      })
-      .then(authUrl => {
-        console.log("Redirecting to Google Drive authorization page:", authUrl);
-        window.location.href = authUrl; // Redirect user to Google OAuth2 consent page
-      })
-      .catch(error => console.error('Error fetching Google Drive authorization URL:', error));
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Redirecting to Google Drive authorization page:", data.authUrl);
+            window.location.href = data.authUrl; // Redirect user to Google Drive OAuth2 consent page
+        })
+        .catch(error => console.error('Error fetching Google Drive authorization URL:', error));
 
     console.log("HELLO WORLD");
-  }
+}
 
 
   // THINK NOT USED MAYBE REMOVED

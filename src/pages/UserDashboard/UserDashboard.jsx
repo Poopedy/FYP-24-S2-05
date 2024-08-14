@@ -1124,6 +1124,36 @@ const UserDashboard = () => {
       removeFile(setDropboxFiles);
     }
   };
+  useEffect(() => {
+    // Load the tabs from localStorage when the component mounts
+    const storedTabs = JSON.parse(localStorage.getItem('tabs')) || [];
+    const googleToken = localStorage.getItem('gdtoken');
+    const oneDriveToken = localStorage.getItem('oneDriveToken');
+    const dropboxToken = localStorage.getItem('dropboxToken');
+
+    const initialTabs = [...storedTabs];
+
+    // Check for tokens and add tabs if tokens exist
+    if (googleToken && !initialTabs.includes('Google Drive')) {
+      initialTabs.push('Google Drive');
+    }
+    if (oneDriveToken && !initialTabs.includes('OneDrive')) {
+      initialTabs.push('OneDrive');
+    }
+    if (dropboxToken && !initialTabs.includes('Dropbox')) {
+      initialTabs.push('Dropbox');
+    }
+
+    setTabs(initialTabs);
+    if (initialTabs.length > 0) {
+      setActiveTab(initialTabs[0]);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Store the tabs in localStorage whenever they change
+    localStorage.setItem('tabs', JSON.stringify(tabs));
+  }, [tabs]);
 
   const renderContent = () => {
     const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
@@ -1192,8 +1222,11 @@ const UserDashboard = () => {
       alert(`Tab for ${tabName} already exists.`);
       return;
     }
-    setTabs(prevTabs => [...prevTabs, tabName]);
+    // setTabs(prevTabs => [...prevTabs, tabName]);
+    const updatedTabs = [...tabs, tabName];
+    setTabs(updatedTabs);
     setActiveTab(tabName);
+    // is this needed 
     if (tabName === 'Google Drive') {
       connectCloud();
     } else if (tabName === 'OneDrive') {
@@ -1203,10 +1236,17 @@ const UserDashboard = () => {
     }
   };
 
+  // const handleRemoveTab = (tabName) => {
+  //   setTabs(prevTabs => prevTabs.filter(tab => tab !== tabName));
+  //   if (activeTab === tabName) {
+  //     setActiveTab(tabs.length > 0 ? tabs[0] : '');
+  //   }
+  // };
   const handleRemoveTab = (tabName) => {
-    setTabs(prevTabs => prevTabs.filter(tab => tab !== tabName));
+    const updatedTabs = tabs.filter(tab => tab !== tabName);
+    setTabs(updatedTabs);
     if (activeTab === tabName) {
-      setActiveTab(tabs.length > 0 ? tabs[0] : '');
+      setActiveTab(updatedTabs.length > 0 ? updatedTabs[0] : '');
     }
   };
 

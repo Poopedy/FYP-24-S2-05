@@ -1216,9 +1216,9 @@ const UserDashboard = () => {
     };
 
     // Function to filter files based on search query
-    const filteredFiles = files.filter(file => 
+    const filteredFiles = files ? files.filter(file => 
       file.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    ) : [];
     return (
       <div className="content-wrapper-small">
         <div className="main-content">

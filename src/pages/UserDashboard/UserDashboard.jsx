@@ -1276,7 +1276,7 @@ const UserDashboard = () => {
           <div className="upload-container">
             <input type="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
             <label htmlFor="file-upload" className="upload-area">
-              Click the upload button and browse your files
+              Select Files To Upload
             </label>
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>

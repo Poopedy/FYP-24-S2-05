@@ -149,10 +149,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2px dashed #dd05c39b;
+  border: 2px dashed #420e3c9b;
   padding: 2rem;
   margin-top: 1rem;
   text-align: center;
+  transition: border-color 0.3s ease;
+}
+.upload-container:hover {
+  border-color: #dd05c39b; /* Change to your desired hover color */
 }
 
 .user-file table {

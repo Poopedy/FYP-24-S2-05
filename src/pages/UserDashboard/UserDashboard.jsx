@@ -1524,6 +1524,20 @@ const RightSidebar = ({ file }) => {
       }
     }
   }, [file]);
+  const renderFilePreview = () => {
+    if (!fileUrl) return <p>No preview available</p>;
+
+    switch (true) {
+      case file.filetype.startsWith('image/'):
+        return <img src={fileUrl} alt={file.filename} style={{ maxWidth: '100%' }} />;
+      case file.filetype === 'application/pdf':
+        return <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} title={file.filename}></iframe>;
+      case file.filetype === 'text/plain':
+        return <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} title={file.filename}></iframe>;
+      default:
+        return <p>Preview not supported for this file type.</p>;
+    }
+  };
   
 
   const handleDownload = () => {
@@ -1549,15 +1563,7 @@ const RightSidebar = ({ file }) => {
           </ul>
           <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button>
           {/* <button className="download-button" onClick={handleDownload}>Download</button> */}
-          {/* {file.filetype.startsWith('image/') && (
-            <img src={fileUrl} alt={file.filename} style={{ maxWidth: '100%' }} />
-          )}
-          {file.filetype === 'application/pdf' && (
-            <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} title={file.filename}></iframe>
-          )}
-          {file.filetype === 'text/plain' && (
-            <iframe src={fileUrl} style={{ width: '100%', height: '500px' }} title={file.filename}></iframe>
-          )} */}
+          {renderFilePreview()}
         </>
        
     </div>

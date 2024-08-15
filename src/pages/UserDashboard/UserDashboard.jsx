@@ -21,7 +21,7 @@ const UserDashboard = () => {
   const [dropboxFiles, setDropboxFiles] = useState([]);
   const [file, setFile] = useState(null);
   const [files, setFiles] = useState([]);
-  const [previewFile, setPreviewFile] = useState(null);
+  const [previewFile, setPreviewFile] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [activeTab, setActiveTab] = useState('Google Drive');
   const fileInputRef = useRef(null);
@@ -663,6 +663,55 @@ const UserDashboard = () => {
       tableBody.appendChild(row);
     });
   };
+  function populateSearchTable(data) {
+    const tableBody = document.querySelector('#dynamic-searchtable tbody');
+    tableBody.innerHTML = '';
+
+    data.forEach(file => {
+      const row = document.createElement('tr');
+
+      const fileNameCell = document.createElement('td');
+      fileNameCell.textContent = file.filename || 'N/A';
+      row.appendChild(fileNameCell);
+
+      const fileTypeCell = document.createElement('td');
+      fileTypeCell.textContent = file.filetype || 'N/A';
+      row.appendChild(fileTypeCell);
+
+      const fileSizeCell = document.createElement('td');
+      fileSizeCell.textContent = formatFileSize(file.filesize);
+      row.appendChild(fileSizeCell);
+
+      const actionsCell = document.createElement('td');
+
+      const downloadButton = document.createElement('button');
+      downloadButton.textContent = 'Download';
+
+      if (file.filelocation === "dropbox") {
+        downloadButton.addEventListener('click', () => downloadDropbox(file.itemid, file.filename, file.keyid));
+      } else if (file.filelocation === "onedrive") {
+        downloadButton.addEventListener('click', () => downloadOneDrive(file.itemid, file.filename, file.keyid));
+      } else if (file.filelocation === "drive") {
+        downloadButton.addEventListener('click', () => downloadGdrive(file.itemid, file.filename, file.keyid));
+      }
+      actionsCell.appendChild(downloadButton);
+
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+
+      if (file.filelocation === "dropbox") {
+        deleteButton.addEventListener('click', () => deleteDropbox(file.itemid, user.id));
+      } else if (file.filelocation === "onedrive") {
+        deleteButton.addEventListener('click', () => deleteOneDrive(file.itemid, user.id));
+      } else if (file.filelocation === "drive") {
+        deleteButton.addEventListener('click', () => deleteGdrive(file.itemid, user.id));
+      }
+      actionsCell.appendChild(deleteButton);
+
+      row.appendChild(actionsCell);
+      tableBody.appendChild(row);
+    });
+  };
 
   const uploadFile = async () => {
     if (!file) {
@@ -1213,11 +1262,12 @@ const UserDashboard = () => {
     // Function to handle search input change
     const handleSearchChange = (e) => {
       setSearchQuery(e.target.value);
+      populateSearchTable(filteredFiles);
     };
 
     // Function to filter files based on search query
     const filteredFiles = files ? files.filter(file => 
-      file.name.toLowerCase().includes(searchQuery.toLowerCase())
+      file.filename.toLowerCase().includes(searchQuery.toLowerCase())
     ) : [];
     return (
       <div className="content-wrapper-small">
@@ -1231,6 +1281,7 @@ const UserDashboard = () => {
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
+          
           <table id="dynamic-table">
             <thead>
               <tr>
@@ -1252,40 +1303,25 @@ const UserDashboard = () => {
             onChange={handleSearchChange}
           />
           <button>Search</button>
-          {searchQuery && (
-          <div className="search-results">
-            <h3>Search Results</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>File Name</th>
-                  <th>File Type</th>
-                  <th>File Size</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredFiles.length > 0 ? (
-                  filteredFiles.map(file => (
-                    <tr key={file.id}>
-                      <td>{file.name}</td>
-                      <td>{file.type}</td>
-                      <td>{file.size}</td>
-                      <td>
-                        {/* Actions like preview or download can be added here */}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4">No matching files found.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
         </div>
+        {(
+          <div className="search-results">
+          <h2>Search Results</h2>
+          <table id="dynamic-searchtable">
+            <thead>
+              <tr>
+                <th>File Name</th>
+                <th>File Type</th>
+                <th>File Size</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* Table content */}
+            </tbody>
+          </table>
+        </div>
+        )}
         </div>
         
       </div>
@@ -1476,14 +1512,19 @@ const Sidebar = () => {
 
 const RightSidebar = ({ file }) => {
   const [fileUrl, setFileUrl] = useState(null);
-
   useEffect(() => {
-    if (file) {
-      const url = URL.createObjectURL(file.file);
-      setFileUrl(url);
-      return () => URL.revokeObjectURL(url);
+    console.log(file); // Inspect the file object
+    if (file && file.file) {
+      // Check if file.file is a valid File or Blob object
+      console.log(file.file instanceof Blob);
+      if (file.file instanceof Blob) {
+        const url = URL.createObjectURL(file.file);
+        setFileUrl(url);
+        return () => URL.revokeObjectURL(url);
+      }
     }
   }, [file]);
+  
 
   const handleDownload = () => {
     if (fileUrl) {
@@ -1502,9 +1543,9 @@ const RightSidebar = ({ file }) => {
       
         <>
           <ul>
-            <li><strong>File Name:</strong> File</li>
-            <li><strong>File Type:</strong> </li>
-            <li><strong>File Size:</strong> </li>
+            <li><strong>File Name:</strong> {file.filename}</li>
+            <li><strong>File Type:</strong> {file.filetype}</li>
+            <li><strong>File Size:</strong> {file.filesize}</li>
           </ul>
           <button className="preview-button" onClick={() => window.open(fileUrl, '_blank')}>Preview in New Tab</button>
           {/* <button className="download-button" onClick={handleDownload}>Download</button> */}

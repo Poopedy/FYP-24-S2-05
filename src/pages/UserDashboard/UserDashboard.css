@@ -147,7 +147,7 @@
 }
 .upload-button:hover:not(:disabled),
 .refresh-button:hover {
-  background-color: #45a049;
+  background-color: #d3a6ff;
 }
 
 .user-file {
@@ -176,7 +176,7 @@
   margin-top: 2rem;
 }
 
-.search-results h3 {
+.search-results h2 {
   margin-bottom: 1rem;
 }
 
@@ -258,8 +258,15 @@
   padding: 0;
 }
 
-.right-sidebar ul li {
-  margin: 10px 0;
+.right-sidebar li {
+  margin-bottom: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Prevents wrapping */
+}
+.right-sidebar li strong {
+  display: inline-block;
+  min-width: 100px; /* Adjust based on your layout */
 }
 
 .right-sidebar .preview-button{
@@ -365,6 +372,24 @@
 }
 
 .search-bar button {
+  padding: 10px 20px;
+  background-color: #d3a6ff;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+#dynamic-table button{
+  padding: 10px 20px;
+  background-color: #d3a6ff;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+#dynamic-searchtable button{
   padding: 10px 20px;
   background-color: #d3a6ff;
   color: rgb(0, 0, 0);

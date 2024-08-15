@@ -1373,10 +1373,10 @@ const UserDashboard = () => {
             <FaUser style={{ marginRight: '10px' }} />
             Welcome, {user.username}
           </div>
-          <div className="search-bar">
+          {/* <div className="search-bar">
             <input type="text" placeholder="Search your files..." />
             <button>Search</button>
-          </div>
+          </div> */}
           <div className="lock-toggle" onClick={handleLockToggle}>
             {isLocked ? <FaLock size={'1.3em'} /> : <FaUnlock size={'1.3em'} />}
           </div>

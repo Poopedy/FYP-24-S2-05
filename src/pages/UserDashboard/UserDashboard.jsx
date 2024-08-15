@@ -20,6 +20,7 @@ const UserDashboard = () => {
   const [oneDriveFiles, setOneDriveFiles] = useState([]);
   const [dropboxFiles, setDropboxFiles] = useState([]);
   const [file, setFile] = useState(null);
+  const [files, setFiles] = useState(null);
   const [previewFile, setPreviewFile] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [activeTab, setActiveTab] = useState('Google Drive');
@@ -607,6 +608,7 @@ const UserDashboard = () => {
       const filteredData = data.filter(file => file.filelocation === service);
 
       populateTable(filteredData);
+      setFiles(filteredData)
     } catch (error) {
       console.error('Error fetching files:', error);
     }
@@ -1207,7 +1209,7 @@ const UserDashboard = () => {
       }
     };
     const [searchQuery, setSearchQuery] = useState('');
-
+    
     // Function to handle search input change
     const handleSearchChange = (e) => {
       setSearchQuery(e.target.value);

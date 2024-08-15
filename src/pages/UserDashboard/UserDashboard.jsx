@@ -20,7 +20,7 @@ const UserDashboard = () => {
   const [oneDriveFiles, setOneDriveFiles] = useState([]);
   const [dropboxFiles, setDropboxFiles] = useState([]);
   const [file, setFile] = useState(null);
-  const [files, setFiles] = useState(null);
+  const [files, setFiles] = useState([]);
   const [previewFile, setPreviewFile] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [activeTab, setActiveTab] = useState('Google Drive');

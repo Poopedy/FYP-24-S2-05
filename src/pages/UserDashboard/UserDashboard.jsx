@@ -1232,7 +1232,7 @@ const UserDashboard = () => {
             </tbody>
           </table>
         </div>
-        <RightSidebar file={previewFile} />
+        
       </div>
     );
   };
@@ -1355,7 +1355,7 @@ const UserDashboard = () => {
           <section className="user-file">
             {renderContent()}
           </section>
-          <RightSidebar file={selectedFile} />
+          <RightSidebar file={previewFile} />
         </div>
       </div>
       {showPassphrasePopup && (

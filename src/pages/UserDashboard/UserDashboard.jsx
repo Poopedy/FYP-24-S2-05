@@ -1206,6 +1206,17 @@ const UserDashboard = () => {
           console.warn('No service selected');
       }
     };
+    const [searchQuery, setSearchQuery] = useState('');
+
+    // Function to handle search input change
+    const handleSearchChange = (e) => {
+      setSearchQuery(e.target.value);
+    };
+
+    // Function to filter files based on search query
+    const filteredFiles = files.filter(file => 
+      file.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
     return (
       <div className="content-wrapper-small">
         <div className="main-content">
@@ -1231,6 +1242,48 @@ const UserDashboard = () => {
               {/* Table content */}
             </tbody>
           </table>
+          <div className="search-bar">
+          <input 
+            type="text" 
+            placeholder="Search your files..." 
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+          <button>Search</button>
+          {searchQuery && (
+          <div className="search-results">
+            <h3>Search Results</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>File Name</th>
+                  <th>File Type</th>
+                  <th>File Size</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredFiles.length > 0 ? (
+                  filteredFiles.map(file => (
+                    <tr key={file.id}>
+                      <td>{file.name}</td>
+                      <td>{file.type}</td>
+                      <td>{file.size}</td>
+                      <td>
+                        {/* Actions like preview or download can be added here */}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4">No matching files found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+        </div>
         </div>
         
       </div>

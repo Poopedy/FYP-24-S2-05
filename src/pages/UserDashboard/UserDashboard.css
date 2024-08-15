@@ -172,6 +172,29 @@
 .upload-container:hover {
   border-color: #dd05c39b; /* Change to your desired hover color */
 }
+.search-results {
+  margin-top: 2rem;
+}
+
+.search-results h3 {
+  margin-bottom: 1rem;
+}
+
+.search-results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.search-results th, .search-results td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.search-results tr:hover {
+  background-color: #f1f1f1;
+}
+
 
 .user-file table {
   margin-top: 20px;

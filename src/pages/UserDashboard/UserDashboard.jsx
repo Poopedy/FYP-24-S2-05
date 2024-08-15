@@ -1207,7 +1207,7 @@ const UserDashboard = () => {
       }
     };
     return (
-      <div className="content-wrapper">
+      <div className="content-wrapper-small">
         <div className="main-content">
           <h2>{activeTab} Files</h2>
           <div className="upload-container">

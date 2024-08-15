@@ -110,6 +110,15 @@
   border-radius: 8px;
   
 }
+.content-wrapper-small {
+  display: flex;
+  flex-direction: row;
+  
+  padding: 40px;
+  
+  border-radius: 4px;
+  
+}
 
 
 #file-upload {

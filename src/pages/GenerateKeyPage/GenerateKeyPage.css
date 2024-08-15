@@ -87,7 +87,11 @@ background-color: #F9F4FF;
   height: 50px;
   margin: 30px 0;
 }
-
+.input-box {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
 .input-box input{
   width: 100%;
   height: 100%;
@@ -98,6 +102,7 @@ background-color: #F9F4FF;
   font-size: 16px;
   color: #221f25;
   padding: 20px 45px 20px 20px;
+  margin-right: 10px;
 }
 
 .input-box input::placeholder{
@@ -146,22 +151,48 @@ font-size: 16px;
 color: #221f25;
 font-weight: 700;
 }
+form {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #F1E4FF;
+}
 
-  .Generate{
-    width: 36%;
-    height: 47px;
-    transform: translate(50%, -50%);
-    background: #D3AEFE;
-    border: none;
-    outline: none;
-    border-radius: 40px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-    cursor: pointer;
-    font-size: 16px;
-    color: #221f25;
-    font-weight: 700;
-    
-    }
+.Generate{
+  /* position: absolute;
+  bottom: 0; 
+  width: 36%;
+  height: 47px;
+  transform: translate(50%, -50%);
+  padding: 0 15px;
+  background: #D3AEFE;
+  border: none;
+  outline: none;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+  cursor: pointer;
+  font-size: 16px;
+  color: #221f25;
+  font-weight: 700; */
+  width: 100%;
+  height: 45px;
+  background: #D3AEFE;
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+  cursor: pointer;
+  font-size: 16px;
+  color: #221f25;
+  font-weight: 700;
+  
+  }
+  
+  .Generate:hover {
+    background-color: #aa6def;
+  }
 
 .Proceed{
   width: 100%;

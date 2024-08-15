@@ -1196,7 +1196,7 @@ const UserDashboard = () => {
     const storedTabs = JSON.parse(localStorage.getItem('tabs')) || [];
     const googleToken = localStorage.getItem('gdtoken');
     const oneDriveToken = localStorage.getItem('odtoken');
-    const dropboxToken = localStorage.getItem('dropboxToken');
+    const dropboxToken = localStorage.getItem('dbtoken');
 
     const initialTabs = [...storedTabs];
 

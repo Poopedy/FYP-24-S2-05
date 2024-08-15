@@ -67,7 +67,7 @@ const SuperAdminUpdateAdmin = () => {
         const updatedAdmin = { ...admin, ...updatedData };
         setAdmin(updatedAdmin);
         alert('Admin updated successfully!');
-        navigate('/superadmindashboard/:username');
+        navigate('/superadmindashboard');
     } catch (error) {
         if (error.response && error.response.status === 409) {
             alert('The email is already in use by another account.');
@@ -91,7 +91,7 @@ const SuperAdminUpdateAdmin = () => {
           
           if (response.status === 200) {
               console.log('Admin deleted:', adminEmail);
-              navigate('/superadmindashboard/:username');
+              navigate('/superadmindashboard');
           } else {
               console.error('Failed to delete admin');
           }
@@ -116,7 +116,7 @@ const SuperAdminUpdateAdmin = () => {
         <nav>
           <ul>
             <li className="superadminActive">
-              <Link to="/superadmindashboard/:username">
+              <Link to="/superadmindashboard">
               <RiAdminFill style={{ marginRight: '10px' }} />
               Admins
               </Link>
@@ -190,7 +190,7 @@ const SuperAdminUpdateAdmin = () => {
               </select>
             </label>
             <div className="form-buttons">
-              <Link to="/superadmindashboard/:username"><button type="button" className="back">
+              <Link to="/superadmindashboard"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="updateaccount" onClick={handleUpdate}>

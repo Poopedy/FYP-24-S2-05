@@ -50,7 +50,7 @@ const SuperAdminCreateAdmin = () => {
   
       console.log('Admin created:', createUserResponse.data);
       alert("Admin created successfully!");
-      navigate('/superadmindashboard/:username');
+      navigate('/superadmindashboard');
     } catch (error) {
       console.error('Error creating user:', error);
       alert('An error occurred while creating the user. Please try again.');
@@ -71,7 +71,7 @@ const SuperAdminCreateAdmin = () => {
         <nav>
           <ul>
             <li className="superadminActive">
-              <Link to="/superadmindashboard/:username">
+              <Link to="/superadmindashboard">
               <RiAdminFill style={{ marginRight: '10px' }} />
               Admins
               </Link>
@@ -148,7 +148,7 @@ const SuperAdminCreateAdmin = () => {
               </select>
             </label>
             <div className="form-buttons">
-              <Link to="/superadmindashboard/:username"><button type="button" className="back">
+              <Link to="/superadmindashboard"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="createadminaccount" onClick={handleCreate}>

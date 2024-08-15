@@ -116,7 +116,7 @@ const SuperAdminAccountManagement = () => {
         <nav>
           <ul>
             <li className="superadminNotActive">
-              <Link to="/superadmindashboard/:username">
+              <Link to="/superadmindashboard">
               <RiAdminFill style={{ marginRight: '10px' }} />
               Admins
               </Link>
@@ -184,7 +184,7 @@ const SuperAdminAccountManagement = () => {
               />
             </label>
             <div className="form-buttons">
-              <Link to="/superadmindashboard/:username"><button type="button" className="back">
+              <Link to="/superadmindashboard"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="superadminupdateaccount" onClick={handleUpdate}>

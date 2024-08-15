@@ -50,11 +50,11 @@ const LoginForm = () => {
       console.log('Username',username)
       // Redirect based on role
       if (role === 'admin') {
-          navigate('/admindashboard/${username}');
+          navigate('/admindashboard');
       } else if (role === 'user') {
           navigate('/userdashboard');
       } else if (role === 'superadmin') {
-          navigate('/superadmindashboard/${username}');
+          navigate('/superadmindashboard');
       } else {
           alert('Invalid role. Please try again.');
       }

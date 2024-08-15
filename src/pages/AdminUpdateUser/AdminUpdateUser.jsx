@@ -43,7 +43,7 @@ const AdminUpdateUser = () => {
       });
       console.log('User updated:', response.data);
       // Navigate back to the dashboard or show a success message
-      navigate('/admindashboard/:username');
+      navigate('/admindashboard');
     } catch (error) {
       if (error.response && error.response.status === 409) {
         alert('The email is already in use by another account.');
@@ -67,7 +67,7 @@ const AdminUpdateUser = () => {
           
           if (response.status === 200) {
               console.log('User deleted:', userEmail);
-              navigate('/admindashboard/:username');
+              navigate('/admindashboard');
           } else {
               console.error('Failed to delete user');
           }
@@ -92,7 +92,7 @@ const AdminUpdateUser = () => {
       <nav>
         <ul>
           <li className="adminActive">
-          <Link to="/admindashboard/:username">
+          <Link to="/admindashboard">
                 <FaUsers style={{ marginRight: '10px' }} />
                 Users
             </Link>
@@ -146,7 +146,7 @@ const AdminUpdateUser = () => {
               />
             </label>
             <div className="form-buttons">
-              <Link to="/admindashboard/:username"><button type="button" className="back">
+              <Link to="/admindashboard"><button type="button" className="back">
                 Back
               </button></Link>
               <button type="button" className="updateaccount" onClick={handleUpdate}>

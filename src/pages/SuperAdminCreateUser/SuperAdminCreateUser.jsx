@@ -59,7 +59,7 @@ const SuperAdminCreateUser = () => {
         <nav>
           <ul>
             <li className="superadminNotActive">
-              <Link to="/superadmindashboard/:username">
+              <Link to="/superadmindashboard">
               <RiAdminFill style={{ marginRight: '10px' }} />
               Admins
               </Link>

@@ -36,7 +36,7 @@ const AdminCreateUser = () => {
   
       console.log('User created:', createUserResponse.data);
       alert("User created successfully!");
-      navigate('/admindashboard/:username');
+      navigate('/admindashboard');
     } catch (error) {
       console.error('Error creating user:', error);
       alert('An error occurred while creating the user. Please try again.');
@@ -58,7 +58,7 @@ const AdminCreateUser = () => {
       <nav>
         <ul>
             <li className="adminActive">
-            <Link to="/admindashboard/:username">
+            <Link to="/admindashboard">
                 <FaUsers style={{ marginRight: '10px' }} />
                 Users
               </Link>
@@ -115,7 +115,7 @@ const AdminCreateUser = () => {
                 />
               </label>
               <div className="form-buttons">
-                <Link to="/admindashboard/:username"><button type="button" className="back">
+                <Link to="/admindashboard"><button type="button" className="back">
                   Back
                 </button></Link>
                 <button type="button" className="createaccount" onClick={handleCreate}>

@@ -104,15 +104,13 @@
 .content-wrapper {
   display: flex;
   flex-direction: row;
-  margin: 0 auto;
-  padding: 5px;
+  
+  padding: 30px;
   
   border-radius: 8px;
   
 }
-.main-content {
-  text-align: center;
-}
+
 
 #file-upload {
   display: none;

@@ -29,10 +29,10 @@ const SuperAdminUpdateUser = () => {
   }, [user.email]);  
   
   const handleChange = (e) => {
-    const { username, value } = e.target;
+    const { name, value } = e.target;
     setUser((prevUser) => ({
       ...prevUser,
-      [username]: value,
+      [name]: value,
     }));
   };
 
@@ -142,7 +142,7 @@ const SuperAdminUpdateUser = () => {
               <input
                 type="text"
                 name="username"
-                defaultValue={user.username}
+                value={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -151,7 +151,7 @@ const SuperAdminUpdateUser = () => {
               <input
                 type="email"
                 name="email"
-                defaultValue={user.email}
+                value={user.email}
                 onChange={handleChange}
               />
             </label>
@@ -161,7 +161,7 @@ const SuperAdminUpdateUser = () => {
                 type="plan"
                 name="plan"
                 readOnly
-                defaultValue={planNames[user.planid]}
+                value={planNames[user.planid]}
               />
             </label>
             <label>
@@ -169,7 +169,7 @@ const SuperAdminUpdateUser = () => {
               <input
                 type="password"
                 name="password"
-                defaultValue=''
+                value=''
                 onChange={handleChange}
               />
             </label>

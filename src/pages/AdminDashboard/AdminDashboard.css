@@ -83,6 +83,12 @@
   justify-content: space-between;
   align-items: center;
 }
+.main-content-usermanagement {
+  width: 80%;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+}
 
 .welcome {
   font-size: 1.5em;

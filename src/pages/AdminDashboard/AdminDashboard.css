@@ -117,7 +117,8 @@
   border-radius: 5px;
   cursor: pointer;
   margin-bottom: 10px;
-  margin-left: auto;
+  margin-right: auto;
+  text-decoration: none;
 }
 
 .create-user:hover {

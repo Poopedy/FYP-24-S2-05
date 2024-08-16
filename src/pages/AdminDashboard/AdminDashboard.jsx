@@ -128,35 +128,39 @@ const AdminDashboard = () => {
             <button>Search</button>
           </div>
         </header>
-        <div className='main-content-usermanagement'>
-          <section className="user-management">
-            <h2>Users</h2>
-            <Link to="/admincreateuser"><button className="create-user">Create User</button></Link>
-            <table>
-              <thead>
-                <tr>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Plan</th>
-                  <th>Actions</th>
+        
+        <section className="user-management">
+          <h2>Users</h2>
+          <div className="create-user-container">
+            <Link to="/admincreateuser">
+              <button className="create-user">Create User</button>
+            </Link>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Plan</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user, index) => (
+                <tr key={index}>
+                  <td>{user.username}</td>
+                  <td>{user.email}</td>
+                  <td>{planNames[user.planid]}</td>
+                  <td>
+                    <button className="updateuser" onClick={() => handleUpdateClick(user)}>Update</button>
+                    <button className="deleteuser" onClick={() => handleDelete(user)}>Delete</button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user, index) => (
-                  <tr key={index}>
-                    <td>{user.username}</td>
-                    <td>{user.email}</td>
-                    <td>{planNames[user.planid]}</td>
-                    <td>
-                      <button className="updateuser" onClick={() => handleUpdateClick(user)}>Update</button>
-                      <button className="deleteuser" onClick={() => handleDelete(user)}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
-        </div>
+              ))}
+            </tbody>
+          </table>
+        </section>
+        
         
       </div>
     </div>

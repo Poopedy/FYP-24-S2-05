@@ -83,12 +83,7 @@
   justify-content: space-between;
   align-items: center;
 }
-.main-content-usermanagement {
-  width: 80%;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-}
+
 
 .welcome {
   font-size: 1.5em;
@@ -111,7 +106,9 @@
 .user-management h2 {
   margin-bottom: 10px;
 }
-
+.create-user-container {
+  align-self: flex-start; /* Aligns the button to the left */
+}
 .create-user {
   background-color: #d3a6ff;
   border: none;

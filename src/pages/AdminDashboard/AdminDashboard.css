@@ -108,6 +108,7 @@
 }
 .create-user-container {
   align-self: flex-start; /* Aligns the button to the left */
+  text-decoration: none;
 }
 .create-user {
   display: flex;

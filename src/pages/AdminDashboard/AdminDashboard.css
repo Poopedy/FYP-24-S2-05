@@ -110,6 +110,7 @@
   align-self: flex-start; /* Aligns the button to the left */
 }
 .create-user {
+  display: flex;
   background-color: #d3a6ff;
   border: none;
   padding: 10px;

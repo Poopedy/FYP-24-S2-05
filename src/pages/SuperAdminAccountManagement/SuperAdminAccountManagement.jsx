@@ -63,7 +63,7 @@ const SuperAdminAccountManagement = () => {
     const { name, value } = e.target;
     setUser((prevSuperAdmin) => ({
       ...prevSuperAdmin,
-      [username]: value,
+      [name]: value,
     }));
   };
 
@@ -151,7 +151,7 @@ const SuperAdminAccountManagement = () => {
               <input
                 type="text"
                 name="username"
-                defaultValue={user.username}
+                value={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -160,7 +160,7 @@ const SuperAdminAccountManagement = () => {
               <input
                 type="email"
                 name="email"
-                defaultValue={user.email}
+                value={user.email}
                 onChange={handleChange}
               />
             </label>
@@ -169,7 +169,7 @@ const SuperAdminAccountManagement = () => {
               <input
                 type="password"
                 name="password"
-                defaultValue={user.password}
+                value={user.password}
                 onChange={handleChange}
               />
             </label>

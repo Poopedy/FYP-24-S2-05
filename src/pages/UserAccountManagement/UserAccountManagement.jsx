@@ -58,10 +58,10 @@ const UserAccountManagement = () => {
   const [isPassphraseCorrect, setIsPassphraseCorrect] = useState(false);
 
   const handleChange = (e) => {
-    const { username, value } = e.target;
+    const { name, value } = e.target;
     setUser((prevUser) => ({
       ...prevUser,
-      [username]: value,
+      [name]: value,
     }));
   };
 
@@ -213,7 +213,7 @@ const UserAccountManagement = () => {
               <input
                 type="text"
                 name="username"
-                defaultValue={user.username}
+                value={user.username}
                 onChange={handleChange}
               />
             </label>
@@ -222,7 +222,7 @@ const UserAccountManagement = () => {
               <input
                 type="email"
                 name="email"
-                defaultValue={user.email}
+                value={user.email}
                 onChange={handleChange}
               />
             </label>
@@ -231,7 +231,7 @@ const UserAccountManagement = () => {
               <input
                 type="plan"
                 name="plan"
-                defaultValue={plan.name}
+                value={plan.name}
                 readOnly
                 className='input-readOnly'
               />
@@ -244,7 +244,7 @@ const UserAccountManagement = () => {
               <input
                   type="password"
                   name="password"
-                  defaultValue={user.password}
+                  value={user.password}
                   onChange={handleChange}
                   readOnly={isLocked}
                   className={isLocked ? 'locked' : ''}

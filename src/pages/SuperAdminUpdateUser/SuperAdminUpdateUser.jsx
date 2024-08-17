@@ -168,7 +168,7 @@ const SuperAdminUpdateUser = () => {
             <label>
               Password:
               <input
-                type="hidden"
+                type="password"
                 name="password"
                 value={user.password}
                 onChange={handleChange}

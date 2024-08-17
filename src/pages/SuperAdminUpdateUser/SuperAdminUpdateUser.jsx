@@ -170,7 +170,7 @@ const SuperAdminUpdateUser = () => {
               <input
                 type="password"
                 name="password"
-                defaultValue=''
+                value={user.password}
                 onChange={handleChange}
 
               />

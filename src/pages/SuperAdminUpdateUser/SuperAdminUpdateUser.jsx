@@ -42,6 +42,7 @@ const SuperAdminUpdateUser = () => {
       const updateData = {
         username: user.username,
         email: user.email,
+        password :user.password
       };
   
       if (user.password) {
@@ -169,7 +170,7 @@ const SuperAdminUpdateUser = () => {
               <input
                 type="password"
                 name="password"
-                value=''
+                value={user.password}
                 onChange={handleChange}
               />
             </label>

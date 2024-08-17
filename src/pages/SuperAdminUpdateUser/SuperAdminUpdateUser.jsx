@@ -168,10 +168,11 @@ const SuperAdminUpdateUser = () => {
             <label>
               Password:
               <input
-                type="password"
+                type="hidden"
                 name="password"
                 value={user.password}
                 onChange={handleChange}
+
               />
             </label>
             <div className="form-buttons">

@@ -1269,6 +1269,124 @@ const UserDashboard = () => {
     const filteredFiles = files ? files.filter(file => 
       file.filename.toLowerCase().includes(searchQuery.toLowerCase())
     ) : [];
+
+    // For big files
+    async function splitFileAndUploadToOneDrive() {
+      const accessToken = localStorage.getItem('odtoken'); // Get OneDrive access token
+    
+      if (!file) {
+          console.error('No file selected');
+          return;
+      }
+    
+      const passphrase = getPassphraseFromSession();
+      if (!passphrase) {
+          alert('Passphrase not found or expired!');
+          return;
+      }
+    
+      const { keyId, encryptedKey } = getKeyDataFromSession();
+      if (!keyId || !encryptedKey) {
+          alert('Encryption key data not available or expired.');
+          return;
+      }
+      console.log(encryptedKey);
+      console.log(typeof encryptedKey);
+      console.log(encryptedKey instanceof Uint8Array);
+      console.log(encryptedKey.length);
+    
+      const chunkSize = 10 * 1024 * 1024; // 10MB chunk size
+      const totalChunks = Math.ceil(file.size / chunkSize);
+    
+      try {
+          // Start upload session
+          const startResponse = await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+ file.name +':/createUploadSession', {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json'
+              }
+          });
+    
+          if (!startResponse.ok) {
+              throw new Error('Failed to start upload session');
+          }
+    
+          const startData = await startResponse.json();
+          const uploadUrl = startData.uploadUrl; // The URL to which chunks will be uploaded
+          // decrypt encryption key
+          const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+          // check whether is it 256 bit key
+          const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+          const keyArray = new Uint8Array(keyBuffer);
+          console.log(keyArray.length * 8);
+    
+          let v = 0;
+          for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = Math.min(start + chunkSize, file.size);
+              const chunk = file.slice(start, end);
+        
+              // Encrypt chunk before uploading
+              const encryptedChunk = await encryptFile(chunk, encryptionKey);
+              const encryptedBlob = encryptedChunk.encryptedBlob;
+    
+              const encryptedSize = encryptedBlob.size;
+
+              console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
+              console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
+              console.log('Encrypted chunk size:', encryptedSize);
+              console.log('Chunk contents (Blob):', encryptedBlob);
+
+              // Upload chunk
+              const chunkResponse = await fetch(uploadUrl, {
+                  method: 'PUT',
+                  headers: {
+                      'Content-Range': `bytes ${start}-${start + encryptedSize - 1}/${file.size}`
+                  },
+                  body: await encryptedBlob.arrayBuffer()
+              });
+              
+              const chunkResponseText = await chunkResponse.text(); // Get response text
+              v = JSON.parse(chunkResponseText);
+              console.log(JSON.parse(chunkResponseText));
+              console.log(`Chunk ${i + 1} upload response:`, chunkResponseText);
+              
+              if (!chunkResponse.ok) {
+                  throw new Error('Failed to upload chunk');
+              }
+    
+              console.log(`Chunk ${i + 1} uploaded successfully`);
+          }
+    
+          //Send metadata to your backend
+          const insertFileResponse = await fetch('http://localhost:5000/api/insert-file', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                  filename: file.name,
+                  filelocation: "onedrive",
+                  itemid:v.id,
+                  filesize: file.size,
+                  uid: user.id, // Replace with the actual user ID if available
+                  filetype: file.type
+              })
+          });
+    
+          if (!insertFileResponse.ok) {
+              throw new Error('Failed to insert file metadata');
+          }
+    
+          const insertFileResult = await insertFileResponse.json();
+          console.log('Insert file response:', insertFileResult);
+    
+      } catch (error) {
+          console.error('Error uploading file to OneDrive:', error);
+      }
+    }
+    
     return (
       <div className="content-wrapper-small">
         <div className="main-content">
@@ -1279,6 +1397,7 @@ const UserDashboard = () => {
               Select Files To Upload
             </label>
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
+            <button className="upload-button" onClick={splitFileAndUploadToOneDrive} >Upload Big File Test</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
           

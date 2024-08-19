@@ -206,6 +206,33 @@ router.post('/readDrive', (req, res) => {
         res.send(files);
     });
 });
+// For big files
+router.post('/insert-file', async (req, res) => {
+    console.log(req.session.user);
+    console.log("hello");
+    const { filename, filelocation, itemid, filesize, uid, keyid,filetype } = req.body;
+    // const keyid = req.session.keyid; // Adjust as necessary for your logic
+    console.log('userroute keyid',keyid);
+
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO files (filename, filelocation, itemid, filesize, uid, uploaddate, keyid, filetype) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?)', [
+                filename,
+                filelocation,
+                itemid,
+                filesize,
+                uid,
+                '1264',
+                filetype
+            ]
+        );
+        
+        res.json({ success: true, result });
+    } catch (error) {
+        console.error('Error inserting file into database:', error);
+        res.status(500).json({ success: false, message: 'Error inserting file into database' });
+    }
+});
 
 router.post('/fileUpload', upload.single('file'), async (req, res) => {
     if (!req.body.token) {

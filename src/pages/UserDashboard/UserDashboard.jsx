@@ -29,6 +29,7 @@ const UserDashboard = () => {
   const [showPassphrasePopup, setShowPassphrasePopup] = useState(false);
   const [inputPassphrase, setInputPassphrase] = useState('');
   const [user, setUser] = useState('');
+  const [plan, setPlan] = useState('1');
   const navigate = useNavigate();
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');
@@ -166,6 +167,7 @@ const UserDashboard = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
+      setPlan(user.planid);
       console.log(user);
     } else {
       // Redirect to login if no user data is found in sessionStorage
@@ -1330,16 +1332,19 @@ const UserDashboard = () => {
               // Encrypt chunk before uploading
               const encryptedChunk = await encryptFile(chunk, encryptionKey);
               const encryptedBlob = encryptedChunk.encryptedBlob;
+              const encryptedSize = encryptedBlob.size;
     
               console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
               console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
               console.log('Chunk contents (Blob):', encryptedBlob);
-    
+              console.log(`Chunk ${i + 1}/${totalChunks} original size: ${chunk.size} bytes`);
+              console.log(`Chunk ${i + 1}/${totalChunks} encrypted size: ${encryptedSize} bytes`);
+            
               // Upload chunk
               const chunkResponse = await fetch(uploadUrl, {
                   method: 'PUT',
                   headers: {
-                      'Content-Range': `bytes ${start}-${end - 1}/${file.size}`
+                      'Content-Range': `bytes ${start}-${start + encryptedSize - 1}/${file.size}`
                   },
                   body: await encryptedBlob.arrayBuffer()
               });
@@ -1446,21 +1451,43 @@ const UserDashboard = () => {
   };
 
   const handleAddTab = (tabName) => {
-    if (tabs.includes(tabName)) {
-      alert(`Tab for ${tabName} already exists.`);
-      return;
+    // Set the maximum number of tabs based on plan ID
+    let maxTabs;
+    switch (plan) {
+        case 1:
+            maxTabs = 2; // Plan ID 1 allows only 2 tabs
+            break;
+        case 2:
+            maxTabs = 4; // Plan ID 2 allows only 4 tabs
+            break;
+        case 3:
+        default:
+            maxTabs = Infinity; // Plan ID 3 has no restrictions
+            break;
     }
-    // setTabs(prevTabs => [...prevTabs, tabName]);
+
+    if (tabs.length >= maxTabs) {
+        alert(`Your current plan only allows up to ${maxTabs} tabs.`);
+        return;
+    }
+
+    if (tabs.includes(tabName)) {
+        alert(`Tab for ${tabName} already exists.`);
+        return;
+    }
+
+    // Add the new tab
     const updatedTabs = [...tabs, tabName];
     setTabs(updatedTabs);
     setActiveTab(tabName);
-    // is this needed 
+
+    // Connect to the respective cloud service based on the tab name
     if (tabName === 'Google Drive') {
-      connectCloud();
+        connectCloud();
     } else if (tabName === 'OneDrive') {
-      connectOneDrive();
+        connectOneDrive();
     } else if (tabName === 'Dropbox') {
-      connectDB();
+        connectDB();
     }
   };
 
@@ -1518,6 +1545,45 @@ const UserDashboard = () => {
       alert("Invalid Passphrase. Please try again.")
     }
   };
+  let maxTabs;
+  const planid = user.planid; // Assume you have access to the user's plan ID
+  console.log(planid);
+  // Set the maximum number of tabs based on plan ID
+  
+  switch (planid) {
+    case 1:
+      maxTabs = 2; // Plan ID 1 allows only 2 tabs
+      break;
+    case 2:
+      maxTabs = 4; // Plan ID 2 allows only 4 tabs
+      break;
+    case 3:
+    default:
+      maxTabs = Infinity; // Plan ID 3 has no restrictions
+      break;
+  }
+  // const AddTabButton = ({ tabs, handleAddTab, user }) => {
+  //   const planid = user.planid; // Assume you have access to the user's plan ID
+  //   console.log(planid);
+  //   // Set the maximum number of tabs based on plan ID
+    
+  //   switch (planid) {
+  //     case 1:
+  //       maxTabs = 2; // Plan ID 1 allows only 2 tabs
+  //       break;
+  //     case 2:
+  //       maxTabs = 4; // Plan ID 2 allows only 4 tabs
+  //       break;
+  //     case 3:
+  //     default:
+  //       maxTabs = Infinity; // Plan ID 3 has no restrictions
+  //       break;
+  //   }
+
+    // Disable button if the number of tabs has reached the maximum allowed
+    
+  //};
+  const isDisabled = tabs.length >= maxTabs;
 
   return (
     <div className="user-dashboard">
@@ -1544,14 +1610,14 @@ const UserDashboard = () => {
               <button className="remove-tab-button" onClick={() => handleRemoveTab(tab)}>x</button>
             </div>
           ))}
-          <Popup trigger={<button className="add-tab-button">+</button>} modal className="popup-modal">
+          <Popup trigger={<button className="add-tab-button" disabled={isDisabled}>+</button>} modal className="popup-modal">
             {close => (
               <div className="modal-container">
                 <div className="modal">
                   <h3>Select Cloud Service</h3>
-                  <button onClick={() => { handleAddTab('Google Drive'); close(); }}>Google Drive</button>
-                  <button onClick={() => { handleAddTab('OneDrive'); close(); }}>OneDrive</button>
-                  <button onClick={() => { handleAddTab('Dropbox'); close(); }}>Dropbox</button>
+                  <button onClick={() => { handleAddTab('Google Drive'); close(); }}disabled={isDisabled}>Google Drive</button>
+                  <button onClick={() => { handleAddTab('OneDrive'); close(); }}disabled={isDisabled}>OneDrive</button>
+                  <button onClick={() => { handleAddTab('Dropbox'); close(); }}disabled={isDisabled}>Dropbox</button>
                   <button onClick={close}>Cancel</button>
                 </div>
               </div>

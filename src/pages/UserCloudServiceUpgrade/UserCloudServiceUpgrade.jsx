@@ -171,7 +171,7 @@ const UserCloudServiceUpgrade = () => {
                 </button>
               </Link>
               <ul>
-              <li>- 50GB File Transmission Size</li>
+              <li>- 20GB File Transmission Size</li>
               <li>- 5 Cloud Ports++</li>
               <li>- File Size Add-ons</li>
               <li>- Up to 20GB</li>

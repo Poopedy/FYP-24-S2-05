@@ -222,7 +222,7 @@ router.post('/insert-file', async (req, res) => {
                 itemid,
                 filesize,
                 uid,
-                '1264',
+                keyid,
                 filetype
             ]
         );

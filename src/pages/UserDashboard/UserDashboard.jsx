@@ -1331,18 +1331,15 @@ const UserDashboard = () => {
               const encryptedChunk = await encryptFile(chunk, encryptionKey);
               const encryptedBlob = encryptedChunk.encryptedBlob;
     
-              const encryptedSize = encryptedBlob.size;
-
               console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
               console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
-              console.log('Encrypted chunk size:', encryptedSize);
               console.log('Chunk contents (Blob):', encryptedBlob);
-
+    
               // Upload chunk
               const chunkResponse = await fetch(uploadUrl, {
                   method: 'PUT',
                   headers: {
-                      'Content-Range': `bytes ${start}-${start + encryptedSize - 1}/${file.size}`
+                      'Content-Range': `bytes ${start}-${end - 1}/${file.size}`
                   },
                   body: await encryptedBlob.arrayBuffer()
               });
@@ -1360,7 +1357,7 @@ const UserDashboard = () => {
           }
     
           //Send metadata to your backend
-          const insertFileResponse = await fetch('http://localhost:5000/api/insert-file', {
+          const insertFileResponse = await fetch('https://cipherlink.xyz:5000/api/insert-file', {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json'
@@ -1371,6 +1368,7 @@ const UserDashboard = () => {
                   itemid:v.id,
                   filesize: file.size,
                   uid: user.id, // Replace with the actual user ID if available
+                  keyId: keyId,
                   filetype: file.type
               })
           });

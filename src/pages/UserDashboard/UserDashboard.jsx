@@ -1491,19 +1491,32 @@ const UserDashboard = () => {
     }
   };
 
-  // const handleRemoveTab = (tabName) => {
-  //   setTabs(prevTabs => prevTabs.filter(tab => tab !== tabName));
-  //   if (activeTab === tabName) {
-  //     setActiveTab(tabs.length > 0 ? tabs[0] : '');
-  //   }
-  // };
+  
   const handleRemoveTab = (tabName) => {
+    // Filter out the tab to be removed
     const updatedTabs = tabs.filter(tab => tab !== tabName);
+  
+    // Update the state with the new tabs array
     setTabs(updatedTabs);
+  
+    // Update localStorage with the new tabs array
+    localStorage.setItem('tabs', JSON.stringify(updatedTabs));
+  
+    // Remove the corresponding token from localStorage
+    if (tabName === 'Google Drive') {
+      localStorage.removeItem('gdtoken');
+    } else if (tabName === 'OneDrive') {
+      localStorage.removeItem('odtoken');
+    } else if (tabName === 'Dropbox') {
+      localStorage.removeItem('dbtoken');
+    }
+  
+    // Update the active tab if the removed tab was the active one
     if (activeTab === tabName) {
       setActiveTab(updatedTabs.length > 0 ? updatedTabs[0] : '');
     }
   };
+  
 
   const handleLockToggle = () => {
     if (isLocked) {

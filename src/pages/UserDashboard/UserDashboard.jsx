@@ -1322,44 +1322,86 @@ const UserDashboard = () => {
           const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
           const keyArray = new Uint8Array(keyBuffer);
           console.log(keyArray.length * 8);
-    
-          let v = 0;
+          
+          let totalEncryptedSize = 0;
+          const encryptedChunks = [];
+
           for (let i = 0; i < totalChunks; i++) {
-              const start = i * chunkSize;
-              const end = Math.min(start + chunkSize, file.size);
-              const chunk = file.slice(start, end);
-        
-              // Encrypt chunk before uploading
-              const encryptedChunk = await encryptFile(chunk, encryptionKey);
-              const encryptedBlob = encryptedChunk.encryptedBlob;
-              const encryptedSize = encryptedBlob.size;
-    
-              console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
-              console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
-              console.log('Chunk contents (Blob):', encryptedBlob);
-              console.log(`Chunk ${i + 1}/${totalChunks} original size: ${chunk.size} bytes`);
-              console.log(`Chunk ${i + 1}/${totalChunks} encrypted size: ${encryptedSize} bytes`);
+            const start = i * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const chunk = file.slice(start, end);
+
+            // Encrypt chunk before uploading
+            const encryptedChunk = await encryptFile(chunk, encryptionKey);
+            const encryptedBlob = encryptedChunk.encryptedBlob;
             
-              // Upload chunk
-              const chunkResponse = await fetch(uploadUrl, {
-                  method: 'PUT',
-                  headers: {
-                      'Content-Range': `bytes ${start}-${start + encryptedSize - 1}/${file.size}`
-                  },
-                  body: await encryptedBlob.arrayBuffer()
-              });
-              
-              const chunkResponseText = await chunkResponse.text(); // Get response text
-              v = JSON.parse(chunkResponseText);
-              console.log(JSON.parse(chunkResponseText));
-              console.log(`Chunk ${i + 1} upload response:`, chunkResponseText);
-              
-              if (!chunkResponse.ok) {
-                  throw new Error('Failed to upload chunk');
-              }
+            totalEncryptedSize += encryptedBlob.size;
+            encryptedChunks.push(encryptedBlob); // Store for later upload
+          };
+          let uploadedBytes = 0;
+          let v =0;
+          for (let i = 0; i < encryptedChunks.length; i++) {
+            const encryptedBlob = encryptedChunks[i];
+            const encryptedSize = encryptedBlob.size;
+
+            const contentRange = `bytes ${uploadedBytes}-${uploadedBytes + encryptedSize - 1}/${totalEncryptedSize}`;
+
+            const chunkResponse = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Range': contentRange
+                },
+                body: await encryptedBlob.arrayBuffer()
+            });
+            const chunkResponseText = await chunkResponse.text(); // Get response text
+            v = JSON.parse(chunkResponseText);
+
+            if (!chunkResponse.ok) {
+                throw new Error('Failed to upload chunk');
+            }
+
+            uploadedBytes += encryptedSize;
+          };
+
+
+
+          // let v = 0;
+          // for (let i = 0; i < totalChunks; i++) {
+          //     const start = i * chunkSize;
+          //     const end = Math.min(start + chunkSize, file.size);
+          //     const chunk = file.slice(start, end);
+        
+          //     // Encrypt chunk before uploading
+          //     const encryptedChunk = await encryptFile(chunk, encryptionKey);
+          //     const encryptedBlob = encryptedChunk.encryptedBlob;
+          //     const encryptedSize = encryptedBlob.size;
     
-              console.log(`Chunk ${i + 1} uploaded successfully`);
-          }
+          //     console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
+          //     console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
+          //     console.log('Chunk contents (Blob):', encryptedBlob);
+          //     console.log(`Chunk ${i + 1}/${totalChunks} original size: ${chunk.size} bytes`);
+          //     console.log(`Chunk ${i + 1}/${totalChunks} encrypted size: ${encryptedSize} bytes`);
+            
+          //     // Upload chunk
+          //     const chunkResponse = await fetch(uploadUrl, {
+          //         method: 'PUT',
+          //         headers: {
+          //             'Content-Range': `bytes ${start}-${start + encryptedSize - 1}/${file.size}`
+          //         },
+          //         body: await encryptedBlob.arrayBuffer()
+          //     });
+              
+          //     const chunkResponseText = await chunkResponse.text(); // Get response text
+          //     v = JSON.parse(chunkResponseText);
+          //     console.log(JSON.parse(chunkResponseText));
+          //     console.log(`Chunk ${i + 1} upload response:`, chunkResponseText);
+              
+          //     if (!chunkResponse.ok) {
+          //         throw new Error('Failed to upload chunk');
+          //     }
+    
+          //     console.log(`Chunk ${i + 1} uploaded successfully`);
+          // }
     
           //Send metadata to your backend
           const insertFileResponse = await fetch('https://cipherlink.xyz:5000/api/insert-file', {

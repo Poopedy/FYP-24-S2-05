@@ -210,9 +210,17 @@ router.post('/readDrive', (req, res) => {
 router.post('/insert-file', async (req, res) => {
     console.log(req.session.user);
     console.log("hello");
-    const { filename, filelocation, itemid, filesize, uid, keyid,filetype } = req.body;
+    const { filename, filelocation, itemid, filesize, uid, keyId,filetype } = req.body;
     // const keyid = req.session.keyid; // Adjust as necessary for your logic
-    console.log('userroute keyid',keyid);
+    console.log('data',{
+        filename,
+        filelocation,
+        itemid,
+        filesize,
+        uid, // Ensure this is defined
+        keyId,
+        filetype
+    });
 
     try {
         const [result] = await pool.query(
@@ -222,7 +230,7 @@ router.post('/insert-file', async (req, res) => {
                 itemid,
                 filesize,
                 uid,
-                keyid,
+                keyId,
                 filetype
             ]
         );

@@ -136,10 +136,10 @@ const UserCloudServiceUpgrade = () => {
                 </button>
               </Link>
               <ul>
-              <li>- 10GB File Transmission Size</li>
-              <li>- 2 Cloud Ports</li>
-              <li>- Cloud Ports Add-ons</li>
-              <li>- Basic Pricing Plan</li>
+              <li>- 10GB File Size Limit</li>
+              <li>- 2 Cloud Connections</li>
+              <li>- Cloud Connections Add-ons</li>
+              
               <li>- File Size Add-ons</li>
               <li>- 2GB or 5GB</li>
               </ul>
@@ -154,9 +154,10 @@ const UserCloudServiceUpgrade = () => {
                 </button>
               </Link>
               <ul>
-              <li>- 20GB File Transmission Size</li>
-              <li>- 4 Cloud Ports</li>
-              <li>- Silver Pricing Plan</li>
+              <li>- 20GB File Size Limit</li>
+              <li>- 4 Cloud Connections</li>
+              <li>- Cloud Connections Add-ons</li>
+        
               <li>- File Size Add-ons</li>
               <li>- 2GB, 5GB or 10GB</li>
               </ul>
@@ -171,10 +172,9 @@ const UserCloudServiceUpgrade = () => {
                 </button>
               </Link>
               <ul>
-              <li>- 20GB File Transmission Size</li>
-              <li>- 5 Cloud Ports++</li>
-              <li>- File Size Add-ons</li>
-              <li>- Up to 20GB</li>
+              <li>- No File Size Limit</li>
+              <li>- Unlimited Cloud Connections</li>
+              
               </ul>
             </div>
           </section>

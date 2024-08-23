@@ -26,11 +26,11 @@
   margin-left: 10px;
 }
 
-.admin-create .adminActive{
+.admin-create .adminActive {
   color: #7410d8;
 }
 
-.admin-create .adminNotActive{
+.admin-create .adminNotActive {
   color: #000000;
 }
 
@@ -98,29 +98,29 @@
 .admin-create-user form {
   display: flex;
   flex-direction: column;
+  width: 100%; 
+  max-width: 400px; 
 }
 
 .admin-create-user label {
-  margin-top: 5px;
   display: flex;
-  align-self: center;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   margin-bottom: 10px;
-  margin-right: 40px;
   font-weight: bold;
-  width: 80%;
 }
 
 .admin-create-user input {
-  flex: 1;
-  margin-left: 5px;
+  width: 100%;
+  margin-left: 10px;
   background: #fdfdfd;
   border: 2px solid rgba(3, 3, 3, 0.2);
   outline: none;
   border-radius: 40px;
   font-size: 16px;
   color: #221f25;
-  padding: 10px 60px 10px 20px;
+  padding: 10px 20px;
 }
 
 .admin-create-user .form-buttons {
@@ -129,7 +129,8 @@
   margin-top: 20px;
 }
 
-.admin-create-user .form-buttons .back, .createaccount {
+.admin-create-user .form-buttons .back, 
+.createaccount {
   background-color: #d3a6ff;
   border: none;
   padding: 10px 20px;
@@ -138,10 +139,8 @@
   margin-bottom: 20px;
 }
 
-.admin-create-user .form-buttons .back:hover, .createaccount:hover, .deleteaccount:hover {
+.admin-create-user .form-buttons .back:hover, 
+.createaccount:hover, 
+.deleteaccount:hover {
   background-color: #B574FF;
-}
-
-.admin-create-user .form-buttons .back, .createaccount {
-  margin-right: 10px;
 }

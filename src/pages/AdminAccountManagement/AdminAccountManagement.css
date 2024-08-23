@@ -98,55 +98,33 @@
 .admin-setting-management form {
   display: flex;
   flex-direction: column;
+  width: 100%; 
+  max-width: 400px;
 }
 
 .admin-setting-management label {
-  margin-top: 5px;
   display: flex;
-  align-self: center;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   margin-bottom: 10px;
-  margin-right: 40px;
   font-weight: bold;
-  width: 80%;
 }
 
 .admin-setting-management input {
-  flex: 1;
-  margin-left: 5px;
+  width: 100%;
+  margin-left: 10px;
   background: #fdfdfd;
   border: 2px solid rgba(3, 3, 3, 0.2);
   outline: none;
   border-radius: 40px;
   font-size: 16px;
   color: #221f25;
-  padding: 10px 60px 10px 20px;
+  padding: 10px 20px;
 }
 
 .admin-setting-management .input-readOnly {
-  flex: 1;
-  margin-left: 5px;
   background: #c3b8c5;
-  border: 2px solid rgba(3, 3, 3, 0.2);
-  outline: none;
-  border-radius: 40px;
-  font-size: 16px;
-  color: #221f25;
-  padding: 10px 60px 10px 20px;
-}
-
-.admin-setting-management .upgrade-account {
-  background-color: #d3a6ff;
-  border: none;
-  width: 20%;
-  margin-left: 5px;
-  padding: 5px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.admin-setting-management .upgrade-account:hover {
-  background-color: #B574FF;
 }
 
 .admin-setting-management .form-buttons {
@@ -155,19 +133,18 @@
   margin-top: 20px;
 }
 
-.admin-setting-management .form-buttons .back, .adminupdateaccount, .admindeleteaccount {
+.admin-setting-management .form-buttons .back, 
+.adminupdateaccount, 
+.admindeleteaccount {
   background-color: #d3a6ff;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
-  margin-bottom: 20px;
 }
 
-.admin-setting-management .form-buttons .back:hover, .adminupdateaccount:hover, .admindeleteaccount:hover {
+.admin-setting-management .form-buttons .back:hover, 
+.adminupdateaccount:hover, 
+.admindeleteaccount:hover {
   background-color: #B574FF;
-}
-
-.admin-setting-management .form-buttons .back, .adminupdateaccount {
-  margin-right: 10px;
 }

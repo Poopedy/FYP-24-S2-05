@@ -1456,7 +1456,7 @@ const UserDashboard = () => {
       }
       
     }
-    async function splitFileAndUploadToDropbox(file) {
+    async function splitFileAndUploadToDropbox() {
       const accessToken = localStorage.getItem('dbtoken'); // Get Dropbox access token
   
       if (!file) {

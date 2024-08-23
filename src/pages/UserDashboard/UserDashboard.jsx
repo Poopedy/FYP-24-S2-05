@@ -1276,14 +1276,25 @@ const UserDashboard = () => {
     const handleUpload = async () => {
       switch (activeTab) {
         case 'Google Drive':
+          if (!file){
+            alert('Please Select A File!');
+          } 
           await splitFileAndUploadToGoogleDrive(file);  // Upload to Google Drive
-          fetchFilesByUid('googledrive');  // Fetch files from Google Drive
+          fetchFilesByUid('googledrive');
+           
+          // Fetch files from Google Drive
           break;
         case 'OneDrive':
+          if (!file){
+            alert('Please Select A File!');
+          } 
           await splitFileAndUploadToOneDrive(file);  // Upload to OneDrive
           fetchFilesByUid('onedrive');  // Fetch files from OneDrive
           break;
         case 'Dropbox':
+          if (!file){
+            alert('Please Select A File!');
+          } 
           await splitFileAndUploadToDropbox(file);  // Upload to Dropbox
           fetchFilesByUid('dropbox');  // Fetch files from Dropbox
           break;

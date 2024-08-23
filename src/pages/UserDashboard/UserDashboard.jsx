@@ -1591,6 +1591,54 @@ const UserDashboard = () => {
     
             const finishData = await finishResponse.json();
             console.log('Upload finished successfully:', finishData);
+            // After successful upload, insert file metadata into the database
+            try {
+              // Log the data being sent in the request
+              console.log('Data to be sent:', {
+                  filename: file.name,
+                  filelocation: "dropbox", // Changed to Dropbox since uploading to Dropbox
+                  itemid: finishData.id, // Assuming Dropbox response has an ID for the file
+                  filesize: file.size,
+                  uid: user.id, // Ensure this is defined
+                  keyId: keyId,
+                  filetype: file.type
+              });
+
+              // Make the POST request to insert file metadata
+              const insertFileResponse = await fetch('https://cipherlink.xyz:5000/api/insert-file', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      filename: file.name,
+                      filelocation: "dropbox",
+                      itemid: finishData.id, // Assuming Dropbox response has an ID for the file
+                      filesize: file.size,
+                      uid: user.id, // Replace with the actual user ID if available
+                      keyId: keyId,
+                      filetype: file.type
+                  })
+              });
+
+              // Log the status of the response
+              console.log('Response status:', insertFileResponse.status);
+
+              // Parse the response body
+              const responseData = await insertFileResponse.json();
+
+              // Log the response data
+              console.log('Insert file response data:', responseData);
+
+              if (!insertFileResponse.ok) {
+                  console.error('Failed to insert file metadata:', responseData);
+                  throw new Error(`Request failed with status ${insertFileResponse.status}`);
+              }
+            } catch (error) {
+                // Log the error
+                console.error('Error during file metadata insertion:', error);
+            }
+
         } catch (error) {
             console.error('Error uploading file to Dropbox:', error);
         }

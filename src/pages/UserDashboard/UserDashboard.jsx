@@ -1314,6 +1314,7 @@ const UserDashboard = () => {
 
     // For big files
     async function splitFileAndUploadToOneDrive(files) {
+      console.log(typeof files)
       for (let file of files) {
         const accessToken = localStorage.getItem('odtoken'); // Get OneDrive access token
     

@@ -668,7 +668,7 @@ const UserDashboard = () => {
         downloadButton.addEventListener('click', () => downloadDropbox(file.itemid, file.filename, file.keyid));
       } else if (file.filelocation === "onedrive") {
         downloadButton.addEventListener('click', () => downloadOneDrive(file.itemid, file.filename, file.keyid));
-      } else if (file.filelocation === "drive") {
+      } else if (file.filelocation === "googledrive") {
         downloadButton.addEventListener('click', () => downloadGdrive(file.itemid, file.filename, file.keyid));
       }
       actionsCell.appendChild(downloadButton);
@@ -680,7 +680,7 @@ const UserDashboard = () => {
         deleteButton.addEventListener('click', () => deleteDropbox(file.itemid, user.id));
       } else if (file.filelocation === "onedrive") {
         deleteButton.addEventListener('click', () => deleteOneDrive(file.itemid, user.id));
-      } else if (file.filelocation === "drive") {
+      } else if (file.filelocation === "googledrive") {
         deleteButton.addEventListener('click', () => deleteGdrive(file.itemid, user.id));
       }
       actionsCell.appendChild(deleteButton);
@@ -747,7 +747,7 @@ const UserDashboard = () => {
       }
       const passphrase = getPassphraseFromSession();
       if (!passphrase) {
-        alert('Passphrase not found or expired!');
+        
         return;
       }
       const { keyId, encryptedKey } = getKeyDataFromSession();
@@ -1862,10 +1862,10 @@ const UserDashboard = () => {
           <div className="upload-container" onDragOver={handleDragOver} onDrop={handleDrop}>
             <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange}  multiple/>
             <label htmlFor="file-upload" className="upload-area">
-              Select Files To Upload
+              Drag & Drop/Select File
             </label>
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
-            <button className="upload-button" onClick={uploadFile(file)}  hidden>Upload Google</button>
+            <button className="upload-button"  hidden>Upload Google</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
           

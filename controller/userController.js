@@ -5,6 +5,7 @@ const { is } = require('express/lib/request');
 const verifyToken = require('../middlewares/authMiddleware');
 const fetch = require('node-fetch'); 
 const secret = 'fyp_jwt';
+const File = require('../models/fileModel');
 
 const userController = {
     register: async (req, res) => {
@@ -440,7 +441,24 @@ const userController = {
         }
 
         try {
-            await User.delete(userEmail); // Pass the userId directly
+            // Get the user record based on the email
+            const user = await User.findByEmail(userEmail);
+    
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+    
+            const userId = user.UID; // Extract the userId (UID)
+    
+            // Check if the user has files in the database using the File model
+            const hasFiles = await File.checkUserFiles(userId);
+    
+            if (hasFiles) {
+                return res.status(400).json({ message: 'User cannot be deleted because there are files associated with the account.' });
+            }
+    
+            // If no files are found, proceed to delete the user
+            await User.delete(userId);
             res.status(200).json({ message: 'Account deleted successfully' });
         } catch (error) {
             console.error('Error deleting account:', error);

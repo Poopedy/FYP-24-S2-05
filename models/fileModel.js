@@ -22,6 +22,11 @@ const File = {
         const sql = 'UPDATE files SET keyid = ?, filename = ?, filelocation = ?, filesize = ?, uid = ?, uploaddate = ? WHERE filed = ?';
         await db.query(sql, [data.keyid, data.filename, data.filelocation, data.filesize, data.uid, data.uploaddate, fileId]);
     },
+    checkUserFiles: async (userId) => {
+        const sql = 'SELECT COUNT(*) as fileCount FROM files WHERE uid = ?';
+        const [rows] = await db.query(sql, [userId]);
+        return rows[0].fileCount > 0;
+    },
     delete: async (fileId) => {
         const sql = 'DELETE FROM files WHERE filed = ?';
         await db.query(sql, [fileId]);

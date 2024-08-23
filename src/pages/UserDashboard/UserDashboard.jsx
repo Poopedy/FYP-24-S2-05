@@ -1277,7 +1277,7 @@ const UserDashboard = () => {
           fetchFilesByUid('onedrive');  // Fetch files from OneDrive
           break;
         case 'Dropbox':
-          await uploadFileToDropbox();  // Upload to Dropbox
+          await splitFileAndUploadToDropbox();  // Upload to Dropbox
           fetchFilesByUid('dropbox');  // Fetch files from Dropbox
           break;
         default:

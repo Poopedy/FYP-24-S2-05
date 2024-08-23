@@ -342,11 +342,14 @@ const UserDashboard = () => {
         // Clean up
         a.remove();
         window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
+        alert('File downloaded successfully from Google Drive!');
       } else {
         console.error('Failed to download file');
+        alert('Failed To Download File.');
       }
     } catch (error) {
       console.error('Error downloading file:', error);
+      alert('Failed To Download File.');
     }
   };
 
@@ -402,11 +405,14 @@ const UserDashboard = () => {
         a.click();
         a.remove();
         window.URL.revokeObjectURL(downloadUrl); // Clean up URL object
+        alert('File downloaded successfully from Dropbox!');
       } else {
         console.error('Failed to download file');
+        alert('Failed To Download File.');
       }
     } catch (error) {
       console.error('Error downloading file:', error);
+      alert('Failed To Download File.');
     }
   };
 
@@ -473,9 +479,11 @@ const UserDashboard = () => {
           alert('File downloaded successfully from OneDrive!');
         } else {
             console.error('Failed to download file');
+            alert('Failed To Download File.');
         }
     } catch (error) {
         console.error('Error downloading file:', error);
+        alert('Failed To Download File.');
     }
   };
 
@@ -505,13 +513,16 @@ const UserDashboard = () => {
 
       if (response.ok) {
         console.log('File deleted successfully');
+        alert('File deleted successfully');
         // You can add any additional code here to update the UI after deletion
         fetchFilesByUid('dropbox');
       } else {
         console.error('Failed to delete file');
+        alert('Failed to delete file');
       }
     } catch (error) {
       console.error('Error deleting file:', error);
+      alert('Failed to delete file');
     }
   };
 
@@ -539,12 +550,15 @@ const UserDashboard = () => {
       if (response.ok) {
         console.log('File deleted successfully');
         fetchFilesByUid('onedrive');
+        alert('File deleted successfully');
         // You can add any additional code here to update the UI after deletion
       } else {
         console.error('Failed to delete file');
+        alert('Failed to delete file');
       }
     } catch (error) {
       console.error('Error deleting file:', error);
+      alert('Failed to delete file');
     }
   };
   async function deleteGdrive(itemid, uid) {
@@ -571,12 +585,15 @@ const UserDashboard = () => {
       if (response.ok) {
         console.log('File deleted successfully');
         fetchFilesByUid('googledrive');
+        alert('File deleted successfully');
         // Additional UI updates can be added here after deletion
       } else {
         console.error('Failed to delete file');
+        alert('Failed to delete file');
       }
     } catch (error) {
       console.error('Error deleting file:', error);
+      alert('Failed to delete file');
     }
   };
 

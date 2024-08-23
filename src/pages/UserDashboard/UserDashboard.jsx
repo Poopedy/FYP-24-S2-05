@@ -739,69 +739,72 @@ const UserDashboard = () => {
     });
   };
 
-  const uploadFile = async () => {
-    if (!file) {
-      alert('Please select a file first!');
-      return;
-    }
-    const passphrase = getPassphraseFromSession();
-    if (!passphrase) {
-      alert('Passphrase not found or expired!');
-      return;
-    }
-    const { keyId, encryptedKey } = getKeyDataFromSession();
-    if (!keyId || !encryptedKey) {
-      alert('Encryption key data not available or expired.');
-      return;
-    }
-    console.log(encryptedKey);
-    console.log(typeof encryptedKey);
-    console.log(encryptedKey instanceof Uint8Array);
-    console.log(encryptedKey.length);
-
-    try {
-      const token = localStorage.getItem('gdtoken'); // Replace 'gdriveToken' with your actual token key
-      if (!token) {
-        alert('User not authenticated!');
+  const uploadFile = async (files) => {
+    for (let file of files) {
+      if (!file) {
+        alert('Please select a file first!');
         return;
       }
-
-      // decrypt encryption key
-      const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
-      // check whether is it 256 bit key
-      const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
-      const keyArray = new Uint8Array(keyBuffer);
-      console.log(keyArray.length * 8);
-      // Encrypt the file before uploading
-      const encryptedFile = await encryptFile(file,encryptionKey);
-
-      const encryptedBlob = encryptedFile.encryptedBlob;
-
-      const formData = new FormData();
-      console.log("File to be uploaded:", encryptedFile);
-      formData.append('file', encryptedBlob, file.name); // Use the original file name
-      formData.append('token', token); // Directly append the token as a string
-      formData.append('uid', user.id);
-      formData.append('keyid', keyId);
-
-      const response = await fetch('https://cipherlink.xyz:5000/api/fileUpload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log('Response Data:', responseData);
-        alert('File uploaded successfully to Google Drive!');
-      } else {
-        const errorText = await response.text();
-        console.error('File upload failed:', errorText);
-        alert('File upload failed!');
+      const passphrase = getPassphraseFromSession();
+      if (!passphrase) {
+        alert('Passphrase not found or expired!');
+        return;
       }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      alert('An error occurred during file upload.');
+      const { keyId, encryptedKey } = getKeyDataFromSession();
+      if (!keyId || !encryptedKey) {
+        alert('Encryption key data not available or expired.');
+        return;
+      }
+      console.log(encryptedKey);
+      console.log(typeof encryptedKey);
+      console.log(encryptedKey instanceof Uint8Array);
+      console.log(encryptedKey.length);
+  
+      try {
+        const token = localStorage.getItem('gdtoken'); // Replace 'gdriveToken' with your actual token key
+        if (!token) {
+          alert('User not authenticated!');
+          return;
+        }
+  
+        // decrypt encryption key
+        const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+        // check whether is it 256 bit key
+        const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+        const keyArray = new Uint8Array(keyBuffer);
+        console.log(keyArray.length * 8);
+        // Encrypt the file before uploading
+        const encryptedFile = await encryptFile(file,encryptionKey);
+  
+        const encryptedBlob = encryptedFile.encryptedBlob;
+  
+        const formData = new FormData();
+        console.log("File to be uploaded:", encryptedFile);
+        formData.append('file', encryptedBlob, file.name); // Use the original file name
+        formData.append('token', token); // Directly append the token as a string
+        formData.append('uid', user.id);
+        formData.append('keyid', keyId);
+  
+        const response = await fetch('https://cipherlink.xyz:5000/api/fileUpload', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log('Response Data:', responseData);
+          alert('File uploaded successfully to Google Drive!');
+        } else {
+          const errorText = await response.text();
+          console.error('File upload failed:', errorText);
+          alert('File upload failed!');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        alert('An error occurred during file upload.');
+      }
     }
+    
   };
 
   const uploadFileToDropbox = async () => {
@@ -1862,7 +1865,7 @@ const UserDashboard = () => {
               Select Files To Upload
             </label>
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
-            <button className="upload-button" onClick={splitFileAndUploadToDropbox}  hidden>Upload Big File Test</button>
+            <button className="upload-button" onClick={uploadFile(file)}  >Upload Google</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
           

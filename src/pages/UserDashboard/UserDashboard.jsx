@@ -1865,7 +1865,7 @@ const UserDashboard = () => {
               Select Files To Upload
             </label>
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
-            <button className="upload-button" onClick={uploadFile(file)}  >Upload Google</button>
+            <button className="upload-button" onClick={uploadFile(file)}  hidden>Upload Google</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
           

@@ -1278,7 +1278,7 @@ const UserDashboard = () => {
           fetchFilesByUid('onedrive');  // Fetch files from OneDrive
           break;
         case 'Dropbox':
-          await splitFileAndUploadToDropbox();  // Upload to Dropbox
+          await splitFileAndUploadToDropbox(file);  // Upload to Dropbox
           fetchFilesByUid('dropbox');  // Fetch files from Dropbox
           break;
         default:
@@ -1461,138 +1461,141 @@ const UserDashboard = () => {
       
       
     }
-    async function splitFileAndUploadToDropbox() {
-      const accessToken = localStorage.getItem('dbtoken'); // Get Dropbox access token
+    async function splitFileAndUploadToDropbox(files) {
+      for (let file of files) {
+        const accessToken = localStorage.getItem('dbtoken'); // Get Dropbox access token
   
-      if (!file) {
-          console.error('No file selected');
-          return;
-      }
-      const passphrase = getPassphraseFromSession();
-      if (!passphrase) {
-          alert('Passphrase not found or expired!');
-          return;
+        if (!file) {
+            console.error('No file selected');
+            return;
+        }
+        const passphrase = getPassphraseFromSession();
+        if (!passphrase) {
+            alert('Passphrase not found or expired!');
+            return;
+        }
+        
+        const { keyId, encryptedKey } = getKeyDataFromSession();
+        if (!keyId || !encryptedKey) {
+            alert('Encryption key data not available or expired.');
+            return;
+        }
+    
+        const chunkSize = 10 * 1024 * 1024; // 10MB chunk size
+        const totalChunks = Math.ceil(file.size / chunkSize);
+    
+        try {
+            // Start upload session
+            const startResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/start', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/octet-stream',
+                    'Dropbox-API-Arg': JSON.stringify({ close: false })
+                },
+                body: ''
+            });
+    
+            if (!startResponse.ok) {
+                throw new Error('Failed to start upload session');
+            }
+    
+            const startData = await startResponse.json();
+            let sessionId = startData.session_id;
+    
+            // Decrypt encryption key
+            const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+    
+            // Check if the encryption key is 256-bit
+            const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+            const keyArray = new Uint8Array(keyBuffer);
+            console.log(keyArray.length * 8);
+    
+            const encryptedChunks = [];
+            let totalEncryptedSize = 0;
+    
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * chunkSize;
+                const end = Math.min(start + chunkSize, file.size);
+                const chunk = file.slice(start, end);
+    
+                console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
+                console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
+                console.log('Chunk contents (Blob):', chunk);
+    
+                // Encrypt the chunk before uploading
+                const encryptedChunk = await encryptFile(chunk, encryptionKey);
+                const encryptedBlob = encryptedChunk.encryptedBlob;
+    
+                totalEncryptedSize += encryptedBlob.size;
+                encryptedChunks.push(encryptedBlob); // Store for later upload
+            }
+    
+            let uploadedBytes = 0;
+            for (let i = 0; i < encryptedChunks.length; i++) {
+                const encryptedBlob = encryptedChunks[i];
+                const encryptedSize = encryptedBlob.size;
+    
+                const contentRange = `bytes ${uploadedBytes}-${uploadedBytes + encryptedSize - 1}/${totalEncryptedSize}`;
+    
+                // Append chunk to upload session
+                const appendResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/append_v2', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/octet-stream',
+                        'Dropbox-API-Arg': JSON.stringify({
+                            cursor: {
+                                session_id: sessionId,
+                                offset: uploadedBytes
+                            },
+                            close: false
+                        })
+                    },
+                    body: await encryptedBlob.arrayBuffer()
+                });
+    
+                if (!appendResponse.ok) {
+                    throw new Error('Failed to append chunk');
+                }
+    
+                console.log(`Chunk ${i + 1} appended successfully`);
+                uploadedBytes += encryptedSize;
+            }
+    
+            // Finish upload session
+            const finishResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/finish', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/octet-stream',
+                    'Dropbox-API-Arg': JSON.stringify({
+                        cursor: {
+                            session_id: sessionId,
+                            offset: totalEncryptedSize
+                        },
+                        commit: {
+                            path: '/' + file.name,
+                            mode: 'add',
+                            autorename: true,
+                            mute: false
+                        }
+                    })
+                },
+                body: ''
+            });
+    
+            if (!finishResponse.ok) {
+                throw new Error('Failed to finish upload session');
+            }
+    
+            const finishData = await finishResponse.json();
+            console.log('Upload finished successfully:', finishData);
+        } catch (error) {
+            console.error('Error uploading file to Dropbox:', error);
+        }
       }
       
-      const { keyId, encryptedKey } = getKeyDataFromSession();
-      if (!keyId || !encryptedKey) {
-          alert('Encryption key data not available or expired.');
-          return;
-      }
-  
-      const chunkSize = 10 * 1024 * 1024; // 10MB chunk size
-      const totalChunks = Math.ceil(file.size / chunkSize);
-  
-      try {
-          // Start upload session
-          const startResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/start', {
-              method: 'POST',
-              headers: {
-                  'Authorization': `Bearer ${accessToken}`,
-                  'Content-Type': 'application/octet-stream',
-                  'Dropbox-API-Arg': JSON.stringify({ close: false })
-              },
-              body: ''
-          });
-  
-          if (!startResponse.ok) {
-              throw new Error('Failed to start upload session');
-          }
-  
-          const startData = await startResponse.json();
-          let sessionId = startData.session_id;
-  
-          // Decrypt encryption key
-          const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
-  
-          // Check if the encryption key is 256-bit
-          const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
-          const keyArray = new Uint8Array(keyBuffer);
-          console.log(keyArray.length * 8);
-  
-          const encryptedChunks = [];
-          let totalEncryptedSize = 0;
-  
-          for (let i = 0; i < totalChunks; i++) {
-              const start = i * chunkSize;
-              const end = Math.min(start + chunkSize, file.size);
-              const chunk = file.slice(start, end);
-  
-              console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
-              console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
-              console.log('Chunk contents (Blob):', chunk);
-  
-              // Encrypt the chunk before uploading
-              const encryptedChunk = await encryptFile(chunk, encryptionKey);
-              const encryptedBlob = encryptedChunk.encryptedBlob;
-  
-              totalEncryptedSize += encryptedBlob.size;
-              encryptedChunks.push(encryptedBlob); // Store for later upload
-          }
-  
-          let uploadedBytes = 0;
-          for (let i = 0; i < encryptedChunks.length; i++) {
-              const encryptedBlob = encryptedChunks[i];
-              const encryptedSize = encryptedBlob.size;
-  
-              const contentRange = `bytes ${uploadedBytes}-${uploadedBytes + encryptedSize - 1}/${totalEncryptedSize}`;
-  
-              // Append chunk to upload session
-              const appendResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/append_v2', {
-                  method: 'POST',
-                  headers: {
-                      'Authorization': `Bearer ${accessToken}`,
-                      'Content-Type': 'application/octet-stream',
-                      'Dropbox-API-Arg': JSON.stringify({
-                          cursor: {
-                              session_id: sessionId,
-                              offset: uploadedBytes
-                          },
-                          close: false
-                      })
-                  },
-                  body: await encryptedBlob.arrayBuffer()
-              });
-  
-              if (!appendResponse.ok) {
-                  throw new Error('Failed to append chunk');
-              }
-  
-              console.log(`Chunk ${i + 1} appended successfully`);
-              uploadedBytes += encryptedSize;
-          }
-  
-          // Finish upload session
-          const finishResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/finish', {
-              method: 'POST',
-              headers: {
-                  'Authorization': `Bearer ${accessToken}`,
-                  'Content-Type': 'application/octet-stream',
-                  'Dropbox-API-Arg': JSON.stringify({
-                      cursor: {
-                          session_id: sessionId,
-                          offset: totalEncryptedSize
-                      },
-                      commit: {
-                          path: '/' + file.name,
-                          mode: 'add',
-                          autorename: true,
-                          mute: false
-                      }
-                  })
-              },
-              body: ''
-          });
-  
-          if (!finishResponse.ok) {
-              throw new Error('Failed to finish upload session');
-          }
-  
-          const finishData = await finishResponse.json();
-          console.log('Upload finished successfully:', finishData);
-      } catch (error) {
-          console.error('Error uploading file to Dropbox:', error);
-      }
   }
   
     

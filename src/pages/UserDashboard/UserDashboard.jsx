@@ -1276,7 +1276,7 @@ const UserDashboard = () => {
     const handleUpload = async () => {
       switch (activeTab) {
         case 'Google Drive':
-          await uploadFile();  // Upload to Google Drive
+          await splitFileAndUploadToGoogleDrive(file);  // Upload to Google Drive
           fetchFilesByUid('drive');  // Fetch files from Google Drive
           break;
         case 'OneDrive':
@@ -1318,6 +1318,161 @@ const UserDashboard = () => {
     const filteredFiles = files ? files.filter(file => 
       file.filename.toLowerCase().includes(searchQuery.toLowerCase())
     ) : [];
+
+    async function splitFileAndUploadToGoogleDrive(files) {
+      for (let file of files) {
+        const accessToken = localStorage.getItem('gdtoken'); // Get Google Drive access token
+  
+      if (!file) {
+          console.error('No file selected');
+          alert('Please select a file first!');
+          return;
+      }
+  
+      const passphrase = getPassphraseFromSession();
+      if (!passphrase) {
+          alert('Passphrase not found or expired!');
+          return;
+      }
+  
+      const { keyId, encryptedKey } = getKeyDataFromSession();
+      if (!keyId || !encryptedKey) {
+          alert('Encryption key data not available or expired.');
+          return;
+      }
+  
+      const chunkSize = 10 * 1024 * 1024; // 10MB chunk size
+      const totalChunks = Math.ceil(file.size / chunkSize);
+  
+      try {
+          // Step 1: Create a resumable upload session
+          const startResponse = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable', {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json; charset=UTF-8'
+              },
+              body: JSON.stringify({
+                  name: file.name // Specify metadata
+              })
+          });
+  
+          if (!startResponse.ok) {
+              throw new Error('Failed to start upload session');
+          }
+  
+          const uploadUrl = startResponse.headers.get('Location'); // Get the resumable session URL
+          if (!uploadUrl) {
+              throw new Error('No upload URL received');
+          }
+  
+          // Decrypt encryption key
+          const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+  
+          // Check if the encryption key is 256-bit
+          const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+          const keyArray = new Uint8Array(keyBuffer);
+          console.log(keyArray.length * 8);
+  
+          let totalEncryptedSize = 0;
+          const encryptedChunks = [];
+  
+          // Step 2: Encrypt and prepare chunks
+          for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = Math.min(start + chunkSize, file.size);
+              const chunk = file.slice(start, end);
+  
+              console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
+              console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
+  
+              // Encrypt the chunk before uploading
+              const encryptedChunk = await encryptFile(chunk, encryptionKey);
+              const encryptedBlob = encryptedChunk.encryptedBlob;
+  
+              totalEncryptedSize += encryptedBlob.size;
+              encryptedChunks.push(encryptedBlob); // Store for later upload
+          }
+  
+          let uploadedBytes = 0;
+          let responseBody;
+  
+          // Step 3: Upload encrypted chunks
+          for (let i = 0; i < encryptedChunks.length; i++) {
+              const encryptedBlob = encryptedChunks[i];
+              const encryptedSize = encryptedBlob.size;
+  
+              const contentRange = `bytes ${uploadedBytes}-${uploadedBytes + encryptedSize - 1}/${totalEncryptedSize}`;
+  
+              const chunkResponse = await fetch(uploadUrl, {
+                  method: 'PUT',
+                  headers: {
+                      'Content-Range': contentRange
+                  },
+                  body: await encryptedBlob.arrayBuffer()
+              });
+  
+              if (!chunkResponse.ok) {
+                  throw new Error('Failed to upload chunk');
+              }
+  
+              uploadedBytes += encryptedSize;
+              responseBody = await chunkResponse.json();
+              console.log(`Chunk ${i + 1} uploaded successfully`);
+          }
+  
+          // Step 4: Insert metadata into the database
+          try {
+              console.log('Data to be sent:', {
+                  filename: file.name,
+                  filelocation: "googledrive",
+                  itemid: responseBody.id,
+                  filesize: file.size,
+                  uid: user.id, // Ensure this is defined
+                  keyId: keyId,
+                  filetype: file.type
+              });
+  
+              const insertFileResponse = await fetch('https://cipherlink.xyz:5000/api/insert-file', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                      filename: file.name,
+                      filelocation: "googledrive",
+                      itemid: responseBody.id,
+                      filesize: file.size,
+                      uid: user.id, // Replace with the actual user ID if available
+                      keyId: keyId,
+                      filetype: file.type
+                  })
+              });
+  
+              console.log('Response status:', insertFileResponse.status);
+  
+              const responseData = await insertFileResponse.json();
+              console.log('Insert file response data:', responseData);
+  
+              if (!insertFileResponse.ok) {
+                  console.error('Failed to insert file metadata:', responseData);
+                  alert('Failed to upload file!');
+                  throw new Error(`Request failed with status ${insertFileResponse.status}`);
+              } else {
+                  alert('File uploaded successfully to Google Drive!');
+              }
+          } catch (error) {
+              console.error('Error during file metadata insertion:', error);
+              alert('Failed to upload file!');
+          }
+  
+        } catch (error) {
+            console.error('Error uploading file to Google Drive:', error);
+            alert('Failed to upload file!');
+        }
+      }
+      
+    }
 
     // For big files
     async function splitFileAndUploadToOneDrive(files) {

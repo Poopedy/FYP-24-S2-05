@@ -297,6 +297,24 @@ const userController = {
         }
 
         try {
+	    // Get the user record based on the email
+            const user = await User.findByEmail(email);
+	    console.log('User found:', user); // Debugging output
+
+            if (!user) {
+               return res.status(404).json({ message: 'User not found' });
+           }
+
+           const userId = user.UID; // Extract the userId (UID)
+	   console.log(userId);
+
+           // Check if the user has files in the database using the File model
+           const hasFiles = await File.checkUserFiles(userId);
+
+          if (hasFiles) {
+              return res.status(400).json({ message: 'User cannot be deleted because there are files associated with the account.' });
+          }
+
             await User.delete(email); // Pass the userId directly
             res.status(200).json({ message: 'Account deleted successfully' });
         } catch (error) {

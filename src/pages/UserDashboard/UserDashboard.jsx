@@ -189,7 +189,8 @@ const UserDashboard = () => {
 
 
   const handleFileChange = (event) => {
-    const uploadedFile = event.target.files[0];
+    const uploadedFile = event.target.files;
+    console.log(uploadFile.length);
     if (uploadedFile) {
 
       const newFile = {

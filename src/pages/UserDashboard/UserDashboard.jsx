@@ -342,7 +342,7 @@ const UserDashboard = () => {
         // Clean up
         a.remove();
         window.URL.revokeObjectURL(downloadUrl); // Revoke the object URL
-        alert('File downloaded successfully from Google Drive!');
+        
       } else {
         console.error('Failed to download file');
         alert('Failed To Download File.');

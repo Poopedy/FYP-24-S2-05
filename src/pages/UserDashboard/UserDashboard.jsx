@@ -1251,7 +1251,13 @@ const UserDashboard = () => {
     if (droppedFiles && droppedFiles.length > 0) {
       // Assuming you're handling only single file upload
       setFile(droppedFiles[0]);
-      setPreviewFile(droppedFiles[0]);
+      const newFile = {
+        filename: droppedFiles[0].name,
+        filetype: droppedFiles[0].type,
+        filesize: `${(droppedFiles[0].size / 1024).toFixed(2)}KB`,
+        file: droppedFiles[0]
+      };
+      setPreviewFile(newFile);
       updateFileInput(droppedFiles);
     }
   };

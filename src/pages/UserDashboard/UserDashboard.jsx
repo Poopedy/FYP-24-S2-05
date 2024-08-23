@@ -189,7 +189,7 @@ const UserDashboard = () => {
 
 
   const handleFileChange = (event) => {
-    const uploadedFile = event.target.files;
+    const uploadedFile = event.target.files[0];
     if (uploadedFile) {
 
       const newFile = {
@@ -1313,163 +1313,295 @@ const UserDashboard = () => {
     ) : [];
 
     // For big files
-    async function splitFileAndUploadToOneDrive(files) {
-      for (let file of files) {
-        const accessToken = localStorage.getItem('odtoken'); // Get OneDrive access token
+    async function splitFileAndUploadToOneDrive() {
+      const accessToken = localStorage.getItem('odtoken'); // Get OneDrive access token
     
-        if (!file) {
-            console.error('No file selected');
-            return;
-        }
-      
-        const passphrase = getPassphraseFromSession();
-        if (!passphrase) {
-            alert('Passphrase not found or expired!');
-            return;
-        }
-      
-        const { keyId, encryptedKey } = getKeyDataFromSession();
-        if (!keyId || !encryptedKey) {
-            alert('Encryption key data not available or expired.');
-            return;
-        }
-        console.log(encryptedKey);
-        console.log(typeof encryptedKey);
-        console.log(encryptedKey instanceof Uint8Array);
-        console.log(encryptedKey.length);
-      
-        const chunkSize = 10 * 1024 * 1024; // 10MB chunk size
-        const totalChunks = Math.ceil(file.size / chunkSize);
-      
-        try {
-            // Start upload session
-            const startResponse = await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+ file.name +':/createUploadSession', {
+      if (!file) {
+          console.error('No file selected');
+          return;
+      }
+    
+      const passphrase = getPassphraseFromSession();
+      if (!passphrase) {
+          alert('Passphrase not found or expired!');
+          return;
+      }
+    
+      const { keyId, encryptedKey } = getKeyDataFromSession();
+      if (!keyId || !encryptedKey) {
+          alert('Encryption key data not available or expired.');
+          return;
+      }
+      console.log(encryptedKey);
+      console.log(typeof encryptedKey);
+      console.log(encryptedKey instanceof Uint8Array);
+      console.log(encryptedKey.length);
+    
+      const chunkSize = 10 * 1024 * 1024; // 10MB chunk size
+      const totalChunks = Math.ceil(file.size / chunkSize);
+    
+      try {
+          // Start upload session
+          const startResponse = await fetch('https://graph.microsoft.com/v1.0/me/drive/root:/'+ file.name +':/createUploadSession', {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': 'application/json'
+              }
+          });
+    
+          if (!startResponse.ok) {
+              throw new Error('Failed to start upload session');
+          }
+    
+          const startData = await startResponse.json();
+          const uploadUrl = startData.uploadUrl; // The URL to which chunks will be uploaded
+          // decrypt encryption key
+          const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+          // check whether is it 256 bit key
+          const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+          const keyArray = new Uint8Array(keyBuffer);
+          console.log(keyArray.length * 8);
+          
+          let totalEncryptedSize = 0;
+          const encryptedChunks = [];
+
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * chunkSize;
+            const end = Math.min(start + chunkSize, file.size);
+            const chunk = file.slice(start, end);
+
+            // Encrypt chunk before uploading
+            const encryptedChunk = await encryptFile(chunk, encryptionKey);
+            const encryptedBlob = encryptedChunk.encryptedBlob;
+            
+            totalEncryptedSize += encryptedBlob.size;
+            encryptedChunks.push(encryptedBlob); // Store for later upload
+          };
+          let uploadedBytes = 0;
+          let v =0;
+          for (let i = 0; i < encryptedChunks.length; i++) {
+            const encryptedBlob = encryptedChunks[i];
+            const encryptedSize = encryptedBlob.size;
+
+            const contentRange = `bytes ${uploadedBytes}-${uploadedBytes + encryptedSize - 1}/${totalEncryptedSize}`;
+
+            const chunkResponse = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Range': contentRange
+                },
+                body: await encryptedBlob.arrayBuffer()
+            });
+            const chunkResponseText = await chunkResponse.text(); // Get response text
+            v = JSON.parse(chunkResponseText);
+
+            if (!chunkResponse.ok) {
+                throw new Error('Failed to upload chunk');
+            }
+
+            uploadedBytes += encryptedSize;
+          };
+    
+          // const insertFileResult = await insertFileResponse.json();
+          // console.log('Insert file response:', insertFileResult);
+          try {
+            // Log the data being sent in the request
+            console.log('Data to be sent:', {
+                filename: file.name,
+                filelocation: "onedrive",
+                itemid: v.id,
+                filesize: file.size,
+                uid: user.id, // Ensure this is defined
+                keyId: keyId,
+                filetype: file.type
+            });
+        
+            // Make the POST request
+            const insertFileResponse = await fetch('https://cipherlink.xyz:5000/api/insert-file', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    filename: file.name,
+                    filelocation: "onedrive",
+                    itemid: v.id,
+                    filesize: file.size,
+                    uid: user.id, // Replace with the actual user ID if available
+                    keyId: keyId,
+                    filetype: file.type
+                })
             });
-      
-            if (!startResponse.ok) {
-                throw new Error('Failed to start upload session');
+        
+            // Log the status of the response
+            console.log('Response status:', insertFileResponse.status);
+        
+            // Parse the response body
+            const responseData = await insertFileResponse.json();
+        
+            // Log the response data
+            console.log('Insert file response data:', responseData);
+        
+            if (!insertFileResponse.ok) {
+                console.error('Failed to insert file metadata:', responseData);
+                throw new Error(`Request failed with status ${insertFileResponse.status}`);
             }
-      
-            const startData = await startResponse.json();
-            const uploadUrl = startData.uploadUrl; // The URL to which chunks will be uploaded
-            // decrypt encryption key
-            const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
-            // check whether is it 256 bit key
-            const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
-            const keyArray = new Uint8Array(keyBuffer);
-            console.log(keyArray.length * 8);
-            
-            let totalEncryptedSize = 0;
-            const encryptedChunks = [];
-
-            for (let i = 0; i < totalChunks; i++) {
-              const start = i * chunkSize;
-              const end = Math.min(start + chunkSize, file.size);
-              const chunk = file.slice(start, end);
-
-              // Encrypt chunk before uploading
-              const encryptedChunk = await encryptFile(chunk, encryptionKey);
-              const encryptedBlob = encryptedChunk.encryptedBlob;
-              
-              totalEncryptedSize += encryptedBlob.size;
-              encryptedChunks.push(encryptedBlob); // Store for later upload
-            };
-            let uploadedBytes = 0;
-            let v =0;
-            for (let i = 0; i < encryptedChunks.length; i++) {
-              const encryptedBlob = encryptedChunks[i];
-              const encryptedSize = encryptedBlob.size;
-
-              const contentRange = `bytes ${uploadedBytes}-${uploadedBytes + encryptedSize - 1}/${totalEncryptedSize}`;
-
-              const chunkResponse = await fetch(uploadUrl, {
-                  method: 'PUT',
-                  headers: {
-                      'Content-Range': contentRange
-                  },
-                  body: await encryptedBlob.arrayBuffer()
-              });
-              const chunkResponseText = await chunkResponse.text(); // Get response text
-              v = JSON.parse(chunkResponseText);
-
-              if (!chunkResponse.ok) {
-                  throw new Error('Failed to upload chunk');
-              }
-
-              uploadedBytes += encryptedSize;
-            };
-      
-            // const insertFileResult = await insertFileResponse.json();
-            // console.log('Insert file response:', insertFileResult);
-            try {
-              // Log the data being sent in the request
-              console.log('Data to be sent:', {
-                  filename: file.name,
-                  filelocation: "onedrive",
-                  itemid: v.id,
-                  filesize: file.size,
-                  uid: user.id, // Ensure this is defined
-                  keyId: keyId,
-                  filetype: file.type
-              });
-          
-              // Make the POST request
-              const insertFileResponse = await fetch('https://cipherlink.xyz:5000/api/insert-file', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                      filename: file.name,
-                      filelocation: "onedrive",
-                      itemid: v.id,
-                      filesize: file.size,
-                      uid: user.id, // Replace with the actual user ID if available
-                      keyId: keyId,
-                      filetype: file.type
-                  })
-              });
-          
-              // Log the status of the response
-              console.log('Response status:', insertFileResponse.status);
-          
-              // Parse the response body
-              const responseData = await insertFileResponse.json();
-          
-              // Log the response data
-              console.log('Insert file response data:', responseData);
-          
-              if (!insertFileResponse.ok) {
-                  console.error('Failed to insert file metadata:', responseData);
-                  throw new Error(`Request failed with status ${insertFileResponse.status}`);
-              }
-            } catch (error) {
-                // Log the error
-                console.error('Error during file metadata insertion:', error);
-            }
-        } catch (error) {
-            console.error('Error uploading file to OneDrive:', error);
-        }
+          } catch (error) {
+              // Log the error
+              console.error('Error during file metadata insertion:', error);
+          }
+      } catch (error) {
+          console.error('Error uploading file to OneDrive:', error);
       }
       
     }
+    async function splitFileAndUploadToDropbox(file) {
+      const accessToken = localStorage.getItem('dbtoken'); // Get Dropbox access token
+  
+      if (!file) {
+          console.error('No file selected');
+          return;
+      }
+      const passphrase = getPassphraseFromSession();
+      if (!passphrase) {
+          alert('Passphrase not found or expired!');
+          return;
+      }
+      
+      const { keyId, encryptedKey } = getKeyDataFromSession();
+      if (!keyId || !encryptedKey) {
+          alert('Encryption key data not available or expired.');
+          return;
+      }
+  
+      const chunkSize = 10 * 1024 * 1024; // 10MB chunk size
+      const totalChunks = Math.ceil(file.size / chunkSize);
+  
+      try {
+          // Start upload session
+          const startResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/start', {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': 'application/octet-stream',
+                  'Dropbox-API-Arg': JSON.stringify({ close: false })
+              },
+              body: ''
+          });
+  
+          if (!startResponse.ok) {
+              throw new Error('Failed to start upload session');
+          }
+  
+          const startData = await startResponse.json();
+          let sessionId = startData.session_id;
+  
+          // Decrypt encryption key
+          const encryptionKey = await decryptWithPassphrase(encryptedKey, passphrase);
+  
+          // Check if the encryption key is 256-bit
+          const keyBuffer = await window.crypto.subtle.exportKey('raw', encryptionKey);
+          const keyArray = new Uint8Array(keyBuffer);
+          console.log(keyArray.length * 8);
+  
+          const encryptedChunks = [];
+          let totalEncryptedSize = 0;
+  
+          for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = Math.min(start + chunkSize, file.size);
+              const chunk = file.slice(start, end);
+  
+              console.log(`Chunk ${i + 1}/${totalChunks} size: ${chunk.size} bytes`);
+              console.log(`Chunk ${i + 1}/${totalChunks} offset: ${start}`);
+              console.log('Chunk contents (Blob):', chunk);
+  
+              // Encrypt the chunk before uploading
+              const encryptedChunk = await encryptFile(chunk, encryptionKey);
+              const encryptedBlob = encryptedChunk.encryptedBlob;
+  
+              totalEncryptedSize += encryptedBlob.size;
+              encryptedChunks.push(encryptedBlob); // Store for later upload
+          }
+  
+          let uploadedBytes = 0;
+          for (let i = 0; i < encryptedChunks.length; i++) {
+              const encryptedBlob = encryptedChunks[i];
+              const encryptedSize = encryptedBlob.size;
+  
+              const contentRange = `bytes ${uploadedBytes}-${uploadedBytes + encryptedSize - 1}/${totalEncryptedSize}`;
+  
+              // Append chunk to upload session
+              const appendResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/append_v2', {
+                  method: 'POST',
+                  headers: {
+                      'Authorization': `Bearer ${accessToken}`,
+                      'Content-Type': 'application/octet-stream',
+                      'Dropbox-API-Arg': JSON.stringify({
+                          cursor: {
+                              session_id: sessionId,
+                              offset: uploadedBytes
+                          },
+                          close: false
+                      })
+                  },
+                  body: await encryptedBlob.arrayBuffer()
+              });
+  
+              if (!appendResponse.ok) {
+                  throw new Error('Failed to append chunk');
+              }
+  
+              console.log(`Chunk ${i + 1} appended successfully`);
+              uploadedBytes += encryptedSize;
+          }
+  
+          // Finish upload session
+          const finishResponse = await fetch('https://content.dropboxapi.com/2/files/upload_session/finish', {
+              method: 'POST',
+              headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                  'Content-Type': 'application/octet-stream',
+                  'Dropbox-API-Arg': JSON.stringify({
+                      cursor: {
+                          session_id: sessionId,
+                          offset: totalEncryptedSize
+                      },
+                      commit: {
+                          path: '/' + file.name,
+                          mode: 'add',
+                          autorename: true,
+                          mute: false
+                      }
+                  })
+              },
+              body: ''
+          });
+  
+          if (!finishResponse.ok) {
+              throw new Error('Failed to finish upload session');
+          }
+  
+          const finishData = await finishResponse.json();
+          console.log('Upload finished successfully:', finishData);
+      } catch (error) {
+          console.error('Error uploading file to Dropbox:', error);
+      }
+  }
+  
     
     return (
       <div className="content-wrapper-small">
         <div className="main-content">
           <h2>{activeTab} Files</h2>
           <div className="upload-container" onDragOver={handleDragOver} onDrop={handleDrop}>
-            <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} multiple />
+            <input type="file" name="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange}  />
             <label htmlFor="file-upload" className="upload-area">
               Select Files To Upload
             </label>
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
-            <button className="upload-button" onClick={splitFileAndUploadToOneDrive} >Upload Big File Test</button>
+            <button className="upload-button" onClick={splitFileAndUploadToDropbox} >Upload Big File Test</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
           

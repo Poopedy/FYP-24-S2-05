@@ -72,7 +72,7 @@ const SuperAdminViewUser = () => {
           }
       } catch (error) {
         console.error('Error deleting user account:', error);
-        alert('An error occurred while deleting this account. Please try again.');
+        alert('Unable to delete user. Files detected.');
     }
     }
   };

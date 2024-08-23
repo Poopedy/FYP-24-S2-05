@@ -67,7 +67,7 @@ const SuperAdminDashboard = () => {
           }
       } catch (error) {
         console.error('Error deleting admin account:', error);
-        alert('Unable to delete user. Files detected.');
+        alert('An error occurred while deleting this account. Please try again.');
     }
     }
   };

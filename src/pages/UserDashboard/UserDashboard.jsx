@@ -1922,6 +1922,7 @@ const Sidebar = () => {
 
   const handleLogOut = () => {
     sessionStorage.clear();
+    localStorage.clear();
   };
 
   return (

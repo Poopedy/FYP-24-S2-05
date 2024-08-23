@@ -58,3 +58,11 @@ npm install express-mysql-session --save
 http://localhost
 
 rsync -avz -e "ssh -i SG-FYP-MAC.pem"  cipherlink_xyz ubuntu@ec2-54-179-174-127.ap-southeast-1.compute.amazonaws.com:~/ec2
+
+ALTER TABLE file
+DROP FOREIGN KEY fk_file_uid ;
+
+ALTER TABLE files
+ADD CONSTRAINT FK_USERID
+FOREIGN KEY (uid) REFERENCES users(uid)
+ON DELETE RESTRICT;

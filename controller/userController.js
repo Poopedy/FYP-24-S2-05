@@ -459,7 +459,7 @@ const userController = {
             }
     
             // If no files are found, proceed to delete the user
-            await User.delete(userId);
+            await User.delete(userEmail);
             res.status(200).json({ message: 'Account deleted successfully' });
         } catch (error) {
             console.error('Error deleting account:', error);

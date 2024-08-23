@@ -98,29 +98,29 @@
 .admins-update form {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 400px;
 }
 
 .admins-update label {
-  margin-top: 5px;
   display: flex;
-  align-self: center;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
   margin-bottom: 10px;
-  margin-right: 40px;
   font-weight: bold;
-  width: 80%;
 }
 
 .admins-update input {
-  flex: 1;
-  margin-left: 5px;
+  width: 100%;
+  margin-left: 10px;
   background: #fdfdfd;
   border: 2px solid rgba(3, 3, 3, 0.2);
   outline: none;
   border-radius: 40px;
   font-size: 16px;
   color: #221f25;
-  padding: 10px 60px 10px 20px;
+  padding: 10px 20px;
 }
 
 .admins-update .form-buttons {
@@ -140,10 +140,6 @@
 
 .admins-update .form-buttons .back:hover, .updateaccount:hover, .deleteaccount:hover {
   background-color: #B574FF;
-}
-
-.admins-update .form-buttons .back, .updateaccount {
-  margin-right: 10px;
 }
 
 .assessrights {

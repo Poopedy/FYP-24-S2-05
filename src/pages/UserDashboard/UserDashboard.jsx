@@ -1224,6 +1224,39 @@ const UserDashboard = () => {
     localStorage.setItem('tabs', JSON.stringify(tabs));
   }, [tabs]);
 
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // Add any visual cues for drag over if needed
+  };
+  
+  // Helper function to update the file input display
+  const updateFileInput = (files) => {
+    const fileInputElement = document.getElementById('file-upload');
+    const dataTransfer = new DataTransfer();
+  
+    // Add the dropped file to the DataTransfer object
+    for (let i = 0; i < files.length; i++) {
+      dataTransfer.items.add(files[i]);
+    }
+  
+    // Assign the DataTransfer's FileList to the input's files property
+    fileInputElement.files = dataTransfer.files;
+  };
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log("dropped");
+    const droppedFiles = event.dataTransfer.files;
+    if (droppedFiles && droppedFiles.length > 0) {
+      // Assuming you're handling only single file upload
+      setFile(droppedFiles[0]);
+      updateFileInput(droppedFiles);
+    }
+  };
+  
+
+
   const renderContent = () => {
     // const files = activeTab === 'Google Drive' ? googleDriveFiles : activeTab === 'OneDrive' ? oneDriveFiles : dropboxFiles;
     const handleUpload = async () => {
@@ -1481,7 +1514,7 @@ const UserDashboard = () => {
       <div className="content-wrapper-small">
         <div className="main-content">
           <h2>{activeTab} Files</h2>
-          <div className="upload-container">
+          <div className="upload-container" onDragOver={handleDragOver} onDrop={handleDrop}>
             <input type="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} />
             <label htmlFor="file-upload" className="upload-area">
               Select Files To Upload

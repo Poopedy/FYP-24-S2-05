@@ -1250,6 +1250,7 @@ const UserDashboard = () => {
     const droppedFiles = event.dataTransfer.files;
     if (droppedFiles && droppedFiles.length > 0) {
       // Assuming you're handling only single file upload
+      setFile(droppedFiles[0]);
       setPreviewFile(droppedFiles[0]);
       updateFileInput(droppedFiles);
     }

@@ -100,8 +100,8 @@ const ForgotPassword = () => {
             onChange={(e) => setPassphrase(e.target.value)}
           />
           <FaLock className='icon' />
-          <button type="button" className="submitPassphrase" onClick={handlePassphraseSubmit}>Submit Passphrase</button>
         </div>
+        <button type="button" className="submitPassphrase" onClick={handlePassphraseSubmit}>Submit Passphrase</button>
         <div className={`input-box password-input-box ${isLocked ? 'locked' : ''}`}>
           <input
             type="password"

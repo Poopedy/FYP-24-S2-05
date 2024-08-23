@@ -23,9 +23,9 @@ const File = {
         await db.query(sql, [data.keyid, data.filename, data.filelocation, data.filesize, data.uid, data.uploaddate, fileId]);
     },
     checkUserFiles: async (userId) => {
-        const sql = 'SELECT COUNT(*) as fileCount FROM files WHERE uid = ?';
+        const sql = 'SELECT EXISTS(SELECT 1 FROM files WHERE uid = ?) AS fileExists';
         const [rows] = await db.query(sql, [userId]);
-        return rows[0].fileCount > 0;
+        return rows[0].fileExists === 1; // If fileExists is 1, files exist
     },
     delete: async (fileId) => {
         const sql = 'DELETE FROM files WHERE filed = ?';

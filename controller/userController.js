@@ -443,13 +443,14 @@ const userController = {
         try {
             // Get the user record based on the email
             const user = await User.findByEmail(userEmail);
+            console.log('User found:', user); // Debugging output
     
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
     
             const userId = user.UID; // Extract the userId (UID)
-    
+            console.log(userId);
             // Check if the user has files in the database using the File model
             const hasFiles = await File.checkUserFiles(userId);
     

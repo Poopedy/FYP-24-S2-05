@@ -570,7 +570,7 @@ const UserDashboard = () => {
 
       if (response.ok) {
         console.log('File deleted successfully');
-        fetchFilesByUid('drive');
+        fetchFilesByUid('googledrive');
         // Additional UI updates can be added here after deletion
       } else {
         console.error('Failed to delete file');
@@ -1277,7 +1277,7 @@ const UserDashboard = () => {
       switch (activeTab) {
         case 'Google Drive':
           await splitFileAndUploadToGoogleDrive(file);  // Upload to Google Drive
-          fetchFilesByUid('drive');  // Fetch files from Google Drive
+          fetchFilesByUid('googledrive');  // Fetch files from Google Drive
           break;
         case 'OneDrive':
           await splitFileAndUploadToOneDrive(file);  // Upload to OneDrive
@@ -1294,7 +1294,7 @@ const UserDashboard = () => {
     const handleRefresh = () => {
       switch (activeTab) {
         case 'Google Drive':
-          fetchFilesByUid('drive');  // Fetch files from Google Drive
+          fetchFilesByUid('googledrive');  // Fetch files from Google Drive
           break;
         case 'OneDrive':
           fetchFilesByUid('onedrive');  // Fetch files from OneDrive

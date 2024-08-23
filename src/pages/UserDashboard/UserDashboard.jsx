@@ -206,9 +206,15 @@ const UserDashboard = () => {
       // } else if (activeTab === 'Dropbox') {
       //   setDropboxFiles(prevFiles => [...prevFiles, newFile]);
       // }
+      const firstFile = {
+        filename: uploadedFile[0].name,
+        filetype: uploadedFile[0].type,
+        filesize: `${(uploadedFile[0].size / 1024).toFixed(2)}KB`,
+        file: uploadedFile[0]
+      };
       console.log(uploadedFile);
       setFile(uploadedFile);
-      setPreviewFile(newFile);
+      setPreviewFile(firstFile);
 
     }
   };
@@ -1321,6 +1327,7 @@ const UserDashboard = () => {
     
         if (!file) {
             console.error('No file selected');
+            alert('Please Select A File To upload!')
             return;
         }
       
@@ -1400,7 +1407,9 @@ const UserDashboard = () => {
               v = JSON.parse(chunkResponseText);
 
               if (!chunkResponse.ok) {
+                  alert('Failed to upload file.');
                   throw new Error('Failed to upload chunk');
+                  
               }
 
               uploadedBytes += encryptedSize;
@@ -1448,14 +1457,19 @@ const UserDashboard = () => {
           
               if (!insertFileResponse.ok) {
                   console.error('Failed to insert file metadata:', responseData);
+                  alert('Fail To Upload File!')
                   throw new Error(`Request failed with status ${insertFileResponse.status}`);
+              } else {
+                alert('File Uploaded Successfully To One Drive!')
               }
             } catch (error) {
                 // Log the error
                 console.error('Error during file metadata insertion:', error);
+                alert('Fail To Upload File!')
             }
         } catch (error) {
             console.error('Error uploading file to OneDrive:', error);
+            alert('Fail To Upload File!')
         }
       }
       
@@ -1467,6 +1481,7 @@ const UserDashboard = () => {
   
         if (!file) {
             console.error('No file selected');
+            alert('Please Select A File To Upload!')
             return;
         }
         const passphrase = getPassphraseFromSession();
@@ -1497,6 +1512,7 @@ const UserDashboard = () => {
             });
     
             if (!startResponse.ok) {
+                alert('Failed to start upload session.')
                 throw new Error('Failed to start upload session');
             }
     
@@ -1556,6 +1572,7 @@ const UserDashboard = () => {
                 });
     
                 if (!appendResponse.ok) {
+                    alert('Failed To Upload File.')
                     throw new Error('Failed to append chunk');
                 }
     
@@ -1586,7 +1603,8 @@ const UserDashboard = () => {
             });
     
             if (!finishResponse.ok) {
-                throw new Error('Failed to finish upload session');
+              alert('Failed To Upload File.')
+              throw new Error('Failed to finish upload session');
             }
     
             const finishData = await finishResponse.json();
@@ -1633,14 +1651,18 @@ const UserDashboard = () => {
               if (!insertFileResponse.ok) {
                   console.error('Failed to insert file metadata:', responseData);
                   throw new Error(`Request failed with status ${insertFileResponse.status}`);
+              } else {
+                alert('File Uploaded Successfully To Dropbox!')
               }
             } catch (error) {
                 // Log the error
+                alert('Failed To Upload File.')
                 console.error('Error during file metadata insertion:', error);
             }
 
         } catch (error) {
-            console.error('Error uploading file to Dropbox:', error);
+          alert('Failed To Upload File.')
+          console.error('Error uploading file to Dropbox:', error);
         }
       }
       
@@ -1657,7 +1679,7 @@ const UserDashboard = () => {
               Select Files To Upload
             </label>
             <button className="upload-button" onClick={handleUpload} disabled={isLocked}>Upload</button>
-            <button className="upload-button" onClick={splitFileAndUploadToDropbox} >Upload Big File Test</button>
+            <button className="upload-button" onClick={splitFileAndUploadToDropbox}  hidden>Upload Big File Test</button>
             <button className="refresh-button" onClick={handleRefresh}>Refresh</button>
           </div>
           
@@ -1923,7 +1945,7 @@ const Sidebar = () => {
   const handleLogOut = () => {
     sessionStorage.clear();
     localStorage.clear();
-  };
+  }; 
 
   return (
     <div className="sidebar">
